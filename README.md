@@ -1,7 +1,6 @@
 # Apex Verify AI
 
-Apex Verify AI is a deepfake verification platform focused on the creator economy. The project is designed with a modular architecture inspired by Alexandr Wang's infrastructure style.
-
+Apex Verify AI is a deepfake verification platform focused on the creator economy. 
 ## Architecture
 
 \`\`\`
