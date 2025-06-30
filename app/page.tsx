@@ -102,45 +102,20 @@ export default function Home() {
       <nav className="relative z-10 py-2 sm:py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 sm:space-x-6">
-              <div className="star-border-container">
-                <div className="border-gradient-bottom"></div>
-                <div className="border-gradient-top"></div>
-                <button
-                  onClick={handleLogin}
-                  className="inner-content text-xs sm:text-sm font-medium transition-all duration-200 hover:bg-gray-900 px-3 sm:px-4 py-2 group"
-                >
-                  <span className="bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:via-gray-100 group-hover:to-white transition-all duration-300">
-                    Log In
-                  </span>
-                </button>
-              </div>
-              <div className="star-border-container">
-                <div className="border-gradient-bottom"></div>
-                <div className="border-gradient-top"></div>
-                <button
-                  onClick={() => router.push("/deepfake-memory")}
-                  className="inner-content text-xs sm:text-sm font-medium transition-all duration-200 hover:bg-gray-900 px-3 sm:px-4 py-2 inline-flex items-center gap-2 group"
-                >
-                  <Database className="h-4 w-4 text-white/70 group-hover:text-white transition-colors duration-300" />
-                  <span className="bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:via-gray-100 group-hover:to-white transition-all duration-300">
-                    Deepfake Memory
-                  </span>
-                </button>
-              </div>
-              <div className="star-border-container">
-                <div className="border-gradient-bottom"></div>
-                <div className="border-gradient-top"></div>
-                <button
-                  onClick={handleSignup}
-                  className="inner-content text-xs sm:text-sm font-medium transition-all duration-200 hover:bg-gray-900 px-3 sm:px-4 py-2 group relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                  <span className="relative bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:via-gray-100 group-hover:to-white transition-all duration-300 font-semibold">
-                    Sign Up
-                  </span>
-                </button>
-              </div>
+            <div className="flex items-center space-x-4 sm:space-x-6">
+              <button
+                onClick={handleLogin}
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/5"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => router.push("/deepfake-memory")}
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/5 inline-flex items-center gap-2"
+              >
+                <Database className="h-4 w-4" />
+                <span>Deepfake Memory</span>
+              </button>
             </div>
           </div>
         </div>
@@ -261,23 +236,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 backdrop-blur-sm bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
-          <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-            <div className="flex items-center space-x-4 sm:space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white text-xs font-medium transition-all duration-200">
-                Contact Us
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-xs font-medium transition-all duration-200">
-                Privacy Policy
-              </a>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-500 text-xs font-medium">Powered by AI</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <footer className="relative z-10 border-t border-white/10 backdrop-blur-sm bg-black/20"></footer>
     </div>
   )
 }

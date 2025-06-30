@@ -693,8 +693,8 @@ export default function VerifyPage() {
                 className="opacity-90 group-hover:opacity-100 transition-opacity"
               />
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-light text-white/90 group-hover:text-white transition-colors">
-                  Apex Verify
+                <span className="text-xl font-black bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent group-hover:from-gray-100 group-hover:via-white group-hover:to-gray-100 transition-all duration-300 tracking-tight">
+                  Apex Verify AI
                 </span>
               </div>
             </Link>
