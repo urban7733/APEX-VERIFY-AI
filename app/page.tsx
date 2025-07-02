@@ -94,28 +94,27 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen bg-black text-white antialiased relative overflow-hidden">
+    <div className="min-h-screen max-h-screen bg-black text-white antialiased relative overflow-hidden">
       {/* Starfield Background */}
       <Starfield />
 
       {/* Navigation */}
-      <nav className="relative z-10 py-2">
+      <nav className="relative z-10 py-2 sm:py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 sm:space-x-6">
+            <div className="flex items-center space-x-4 sm:space-x-6">
               <button
                 onClick={handleLogin}
-                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/5"
               >
                 Log In
               </button>
               <button
                 onClick={() => router.push("/deepfake-memory")}
-                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5 inline-flex items-center gap-1 sm:gap-2"
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/5 inline-flex items-center gap-2"
               >
-                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Deepfake Memory</span>
-                <span className="xs:hidden">Memory</span>
+                <Database className="h-4 w-4" />
+                <span>Deepfake Memory</span>
               </button>
             </div>
           </div>
@@ -123,22 +122,22 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-60px)] px-4 sm:px-6">
+      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-80px)] px-4 sm:px-6">
         <div className="text-center max-w-5xl mx-auto w-full">
           {/* Logo */}
-          <div className="mb-4 sm:mb-6">
+          <div className="mb-1 sm:mb-1">
             <div className="relative group">
-              <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 mx-auto mb-1 sm:mb-2 flex items-center justify-center">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-0 sm:mb-0 flex items-center justify-center">
                 <Image
                   src="/verify-logo.png"
                   alt="Truth Intelligence"
                   width={150}
                   height={150}
-                  className="drop-shadow-2xl filter brightness-110 w-18 h-18 sm:w-24 sm:h-24 md:w-32 md:h-32"
+                  className="drop-shadow-2xl filter brightness-110 w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40"
                 />
               </div>
               <div className="mt-0">
-                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white animate-pulse">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white animate-pulse">
                   <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,255,255,1)] shadow-white/50 filter brightness-125 contrast-125">
                     Apex Verify AI
                   </span>
@@ -148,8 +147,8 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <div className="space-y-1 mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight space-y-1">
+          <div className="space-y-2 mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight space-y-1">
               <div className="mb-1">
                 <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
                   World's first deepfake
@@ -161,7 +160,7 @@ export default function Home() {
                 </span>
               </div>
               <div>
-                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
+                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent text-xl sm:text-2xl md:text-3xl lg:text-4xl">
                   Build trust with us.
                 </span>
               </div>
@@ -169,7 +168,7 @@ export default function Home() {
           </div>
 
           {/* Mission Statement */}
-          <div className="mb-3 sm:mb-4 w-full max-w-3xl mx-auto">
+          <div className="space-y-3 mb-4 w-full max-w-3xl mx-auto">
             <p className="text-xs sm:text-sm text-gray-400 max-w-xl mx-auto leading-relaxed px-4 sm:px-0">
               We are building the world's first deepfake AI infrastructure — a foundational system for truth in the
               digital age.
@@ -183,7 +182,7 @@ export default function Home() {
               className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01]"
             >
               {/* Main container */}
-              <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-3 sm:p-4 md:p-6 group-hover:border-white/20 transition-all duration-300 shadow-lg group-hover:shadow-xl overflow-hidden">
+              <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 group-hover:border-white/20 transition-all duration-300 shadow-lg group-hover:shadow-xl overflow-hidden">
                 {/* Subtle scan line effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
 
@@ -196,22 +195,22 @@ export default function Home() {
                   }}
                 ></div>
 
-                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-                  <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                  <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
                     <div className="relative">
                       {/* Minimalist upload icon */}
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/30 transition-all duration-300">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white/70 group-hover:text-white transition-all duration-300" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/30 transition-all duration-300">
+                        <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white/70 group-hover:text-white transition-all duration-300" />
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm sm:text-base md:text-lg font-bold text-white mb-1 group-hover:text-white/90 transition-colors duration-300">
+                      <p className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-white/90 transition-colors duration-300">
                         Verify Your Media for free by using AI !
                       </p>
                       <p className="text-white/50 group-hover:text-white/60 transition-colors duration-300 flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-3">
                         <span className="text-xs sm:text-sm">Images, videos, and audio files supported</span>
                         <span className="hidden sm:block w-1 h-1 bg-white/30 rounded-full"></span>
-                        <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded-full font-light">
+                        <span className="text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-full font-light">
                           Max 100MB
                         </span>
                       </p>
@@ -219,9 +218,9 @@ export default function Home() {
                   </div>
 
                   {/* Minimalist analyze button */}
-                  <div className="relative w-full sm:w-auto">
+                  <div className="relative">
                     <div className="absolute inset-0 bg-white/5 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                    <button className="relative bg-white/10 border border-white/20 text-white font-light hover:bg-white/15 hover:border-white/30 transition-all duration-300 flex items-center justify-center space-x-2 px-4 sm:px-5 py-2 rounded-xl w-full sm:w-auto">
+                    <button className="relative bg-white/10 border border-white/20 text-white font-light hover:bg-white/15 hover:border-white/30 transition-all duration-300 flex items-center space-x-3 px-6 py-3 rounded-xl">
                       <span className="text-sm sm:text-base font-bold">Analyze</span>
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
                     </button>
@@ -230,9 +229,14 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Enhanced Feature Pills */}
         </div>
         <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
       </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/10 backdrop-blur-sm bg-black/20"></footer>
     </div>
   )
 }
