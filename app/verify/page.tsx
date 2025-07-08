@@ -526,19 +526,6 @@ const createSpatialAnalysisResult = (file: File, isDeepfake: boolean, confidence
       ? "Based on comprehensive analysis, this content shows significant indicators of artificial manipulation and should be treated with caution."
       : "The analysis supports the authenticity of this content with high confidence based on multiple verification factors.",
   }
-
-  return {
-    sceneDescription: file.type.startsWith("image/")
-      ? "Image shows a person in an indoor setting with artificial lighting"
-      : file.type.startsWith("video/")
-        ? "Video sequence featuring a person speaking in an indoor environment"
-        : "Audio content analyzed for voice synthesis patterns and authenticity markers",
-    objects,
-    faces,
-    deepfakeEvidence,
-    technicalAnalysis,
-    reasoning,
-  }
 }
 
 // Advanced AI Analysis Function
@@ -852,7 +839,7 @@ export default function VerifyPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(isAnalyzing)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [analysisProgress, setAnalysisProgress] = useState<AnalysisProgress | null>(null)
   const [result, setResult] = useState<ComprehensiveAnalysisResult | null>(null)
