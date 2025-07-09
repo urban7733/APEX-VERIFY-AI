@@ -1,21 +1,49 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import React from "react"
+
+import dynamic from "next/dynamic"
+
+// Lazy load heavy components
+const EnhancedAnalysisDisplay = dynamic(
+  () => import("@/components/enhanced-analysis-display").then((mod) => ({ default: mod.EnhancedAnalysisDisplay })),
+  {
+    loading: () => <div className="animate-pulse bg-white/5 rounded-2xl h-64" />,
+    ssr: false,
+  },
+)
+
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Upload, ArrowLeft, CheckCircle, AlertTriangle, X, Loader2, Download, FileText } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { EnhancedAnalysisDisplay } from "@/components/enhanced-analysis-display"
 import { analysisEngine, type AnalysisProgress, type ComprehensiveAnalysisResult } from "@/lib/analysis-engine"
 import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
 
-import type React from "react"
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
 import { LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+
+// Add viewport hook
+const useViewport = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkViewport = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkViewport()
+    window.addEventListener("resize", checkViewport)
+    return () => window.removeEventListener("resize", checkViewport)
+  }, [])
+
+  return { isMobile }
+}
 
 interface UploadedFile {
   id: string
@@ -107,37 +135,10 @@ interface DeepfakeAnalysisResult {
   }>
 }
 
-interface Star {
-  x: number
-  y: number
-  opacity: number
-  twinkleSpeed: number
-}
-
-interface AnalysisResult {
-  isDeepfake: boolean
-  confidence: number
-  details: {
-    faceConsistency: number
-    temporalCoherence: number
-    artifactDetection: number
-    biometricAnalysis: number
-  }
-  spatialAnalysis?: {
-    regions: Array<{
-      id: string
-      coordinates: { x: number; y: number; width: number; height: number }
-      confidence: number
-      type: "face" | "artifact" | "inconsistency"
-      description: string
-    }>
-    heatmap: number[][]
-  }
-}
-
 // Minimalistic Starfield component
 function Starfield() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { isMobile } = useViewport()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -154,8 +155,11 @@ function Starfield() {
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
 
+    // Reduce stars on mobile for better performance
+    const starCount = isMobile ? 40 : 80
     const stars: Array<{ x: number; y: number; opacity: number; twinkle: number }> = []
-    for (let i = 0; i < 80; i++) {
+
+    for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -165,32 +169,55 @@ function Starfield() {
     }
 
     let animationId: number
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    let lastTime = 0
+    const targetFPS = isMobile ? 30 : 60
+    const frameInterval = 1000 / targetFPS
 
-      stars.forEach((star) => {
-        star.opacity += star.twinkle
-        if (star.opacity > 0.5 || star.opacity < 0.1) {
-          star.twinkle = -star.twinkle
-        }
+    const animate = (currentTime: number) => {
+      if (currentTime - lastTime >= frameInterval) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
-        ctx.fillRect(star.x, star.y, 1, 1)
-      })
+        stars.forEach((star) => {
+          star.opacity += star.twinkle
+          if (star.opacity > 0.5 || star.opacity < 0.1) {
+            star.twinkle = -star.twinkle
+          }
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+          ctx.fillRect(star.x, star.y, 1, 1)
+        })
+
+        lastTime = currentTime
+      }
 
       animationId = requestAnimationFrame(animate)
     }
 
-    animate()
+    animate(0)
 
     return () => {
       window.removeEventListener("resize", resizeCanvas)
       cancelAnimationFrame(animationId)
     }
-  }, [])
+  }, [isMobile])
 
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-30" />
 }
+
+const MemoizedImage = React.memo(({ src, alt, width, height, className, ...props }: any) => (
+  <Image
+    src={src || "/placeholder.svg"}
+    alt={alt}
+    width={width}
+    height={height}
+    className={className}
+    loading="lazy"
+    quality={75}
+    placeholder="blur"
+    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+    {...props}
+  />
+))
 
 // Enhanced metadata extraction
 const extractEnhancedMetadata = async (file: File): Promise<EnhancedMediaMetadata> => {
@@ -852,6 +879,8 @@ export default function VerifyPage() {
   const [currentStep, setCurrentStep] = useState<"upload" | "analysis" | "results">("upload")
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
 
+  const { isMobile } = useViewport()
+
   useEffect(() => {
     const initializeEngines = async () => {
       try {
@@ -872,7 +901,7 @@ export default function VerifyPage() {
     }
   }, [files, selectedFile])
 
-  const handleFileSelect = (selectedFile: File) => {
+  const memoizedHandleFileSelect = useCallback((selectedFile: File) => {
     if (selectedFile.size > 100 * 1024 * 1024) {
       alert("File size must be less than 100MB")
       return
@@ -908,6 +937,10 @@ export default function VerifyPage() {
     } else {
       setPreviewUrl(null)
     }
+  }, [])
+
+  const handleFileSelect = (selectedFile: File) => {
+    memoizedHandleFileSelect(selectedFile)
   }
 
   const handleDrag = (e: React.DragEvent) => {
@@ -1029,19 +1062,30 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     }
   }
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
+
   return (
-    <div className="min-h-screen bg-black text-white antialiased relative overflow-hidden">
+    <div
+      className={`min-h-screen bg-black text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
+    >
       {/* Subtle Starfield Background */}
       <Starfield />
 
       {/* Minimal Logo Watermark */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
-        <Image
+        <MemoizedImage
           src="/verified-apex-verify-logo-2.png"
           alt=""
-          width={400}
-          height={400}
+          width={isMobile ? 200 : 400}
+          height={isMobile ? 200 : 400}
           className="opacity-[0.008] select-none"
+          priority={false}
         />
       </div>
 
@@ -1184,12 +1228,13 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 <div className="mb-8">
                   {file.type.startsWith("image/") ? (
                     <div className="relative max-w-lg mx-auto">
-                      <Image
+                      <MemoizedImage
                         src={previewUrl || "/placeholder.svg"}
                         alt="Preview"
-                        width={500}
-                        height={400}
+                        width={isMobile ? 300 : 500}
+                        height={isMobile ? 240 : 400}
                         className="rounded-xl object-cover w-full border border-white/5"
+                        priority={false}
                       />
                     </div>
                   ) : file.type.startsWith("video/") ? (
@@ -1198,7 +1243,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                         src={previewUrl}
                         controls
                         className="rounded-xl w-full border border-white/5"
-                        style={{ maxHeight: "400px" }}
+                        style={{ maxHeight: isMobile ? "250px" : "400px" }}
+                        preload={isMobile ? "metadata" : "auto"}
+                        playsInline
                       />
                     </div>
                   ) : null}
