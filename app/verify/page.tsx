@@ -1123,8 +1123,14 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     <Upload className="h-6 w-6 text-white/40 group-hover:text-white/60 transition-colors" />
                   </div>
                   <div className="text-center space-y-4">
-                    <h3 className="text-xl font-light text-white/80">Drop your files here</h3>
-                    <p className="text-white/30 font-light text-sm">Images, videos, and audio files up to 100MB</p>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+                      <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                        Drop your files here
+                      </span>
+                    </h3>
+                    <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed">
+                      Images, videos, and audio files up to 100MB
+                    </p>
                     <div className="pt-6">
                       <div className="inline-flex items-center px-8 py-3 border border-white/10 rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90">
                         Select Files
