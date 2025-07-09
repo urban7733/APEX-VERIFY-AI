@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Upload, ArrowRight, Database } from "lucide-react"
+import { Upload, ArrowRight, Database, Target } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 
@@ -11,6 +11,7 @@ export default function Home() {
 
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const [showMission, setShowMission] = useState(false)
 
   const handleFileUpload = () => {
     router.push("/verify")
@@ -24,6 +25,134 @@ export default function Home() {
   const handleSignup = () => {
     setAuthMode("signup")
     setAuthDialogOpen(true)
+  }
+
+  const handleMissionClick = () => {
+    setShowMission(!showMission)
+  }
+
+  if (showMission) {
+    return (
+      <div className="min-h-screen text-white antialiased relative overflow-hidden">
+        {/* Full-screen Background Image */}
+        <div
+          className="fixed inset-0 z-0"
+          style={{
+            backgroundImage: "url(/starry-background.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+          }}
+        />
+
+        {/* Dark overlay for better text readability */}
+        <div className="fixed inset-0 z-0 bg-black/20" />
+
+        {/* Navigation */}
+        <nav className="relative z-10 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Image src="/verify-logo.png" alt="Apex Verify AI" width={28} height={28} className="opacity-90" />
+                <span className="text-lg font-medium text-white/90">Apex Verify AI</span>
+              </div>
+
+              <div className="flex items-center space-x-6">
+                <button
+                  onClick={() => setShowMission(false)}
+                  className="text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
+                >
+                  Back to Home
+                </button>
+                <button
+                  onClick={handleLogin}
+                  className="text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={handleSignup}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        {/* Mission Content */}
+        <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center space-y-8">
+              {/* Hero Section */}
+              <div className="space-y-4">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-green-600/20 blur-2xl rounded-full"></div>
+                  <Image
+                    src="/verified-apex-verify-logo-2.png"
+                    alt="Apex Verify AI"
+                    width={120}
+                    height={120}
+                    className="relative z-10 mx-auto drop-shadow-2xl"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+                    <span className="bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                      Our Mission
+                    </span>
+                  </h1>
+                </div>
+              </div>
+
+              {/* Mission Statement Card */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10 blur-xl rounded-2xl"></div>
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-12 shadow-2xl">
+                  <div className="prose prose-lg max-w-none space-y-6 text-left">
+                    <p className="text-white/90 leading-relaxed text-lg first-letter:text-2xl first-letter:font-bold first-letter:text-white">
+                      In a world flooded with digital content, the line between truth and deception has never been
+                      thinner. At Apex Verify AI, we stand as guardians of authenticity and trust.
+                    </p>
+
+                    <p className="text-white/85 leading-relaxed">
+                      Our mission is to empower creators, businesses, and everyday users by providing the most advanced,
+                      reliable, and transparent AI-driven verification technology. We don't just detect deepfakes—we
+                      unveil their origin, revealing who created them and how, restoring clarity in a sea of
+                      uncertainty.
+                    </p>
+
+                    <p className="text-white/85 leading-relaxed">
+                      Rooted in integrity and inspired by the pursuit of truth, we build technology that honors reality
+                      and protects the genuine. We believe in a future where digital content can be trusted, identities
+                      are verified with confidence, and misinformation loses its power.
+                    </p>
+
+                    <p className="text-white/85 leading-relaxed">
+                      With every line of code, every model we train, and every user we serve, we dedicate ourselves to
+                      this vision—because truth matters, and trust is everything.
+                    </p>
+
+                    <p className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+                      "For years, we paid to hide watermarks. Now, we invest to secure our identity."
+                    </p>
+
+                    <p className="text-base text-white/70 mt-4">
+                      Join us in shaping a safer, more truthful digital world.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
+      </div>
+    )
   }
 
   return (
@@ -59,6 +188,13 @@ export default function Home() {
             </div>
 
             <div className="flex items-center space-x-3 sm:space-x-6">
+              <button
+                onClick={handleMissionClick}
+                className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium inline-flex items-center gap-2"
+              >
+                <Target className="h-4 w-4" />
+                <span>Our Mission</span>
+              </button>
               <button
                 onClick={handleLogin}
                 className="text-gray-400 hover:text-white transition-colors duration-200 text-xs sm:text-sm font-medium"
