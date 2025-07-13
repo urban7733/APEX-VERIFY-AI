@@ -266,7 +266,7 @@ export default function Home() {
 
           {/* Mission Statement */}
           <div className="space-y-3 mb-4 w-full max-w-3xl mx-auto">
-            <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed px-4 sm:px-0 drop-shadow-md">
+            <p className="text-xs sm:text-sm text-gray-100 font-medium max-w-xl mx-auto leading-relaxed px-4 sm:px-0 drop-shadow-md">
               We are building the world's first deepfake AI infrastructure — a foundational system for truth in the
               digital age.
             </p>
