@@ -37,6 +37,11 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  "data-download-type"?: "verified-media"
+  "data-file-id"?: string
+  "data-file-name"?: string
+  "data-badge-position"?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
+  "data-badge-size"?: "small" | "medium" | "large"
 }
 
 interface WatermarkModalProps {
@@ -397,6 +402,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className={cn(
             buttonVariants({ variant, size, className }),
             "transition-transform hover:scale-105 active:scale-100",
+            "font-bold tracking-tight",
+            "bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg",
           )}
           ref={ref}
           {...props}

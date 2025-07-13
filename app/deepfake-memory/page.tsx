@@ -241,7 +241,13 @@ export default function DeepfakeMemoryPage() {
 
       {/* Logo Watermark */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
-        <Image src="/apex-verify-logo.png" alt="" width={600} height={600} className="opacity-[0.015] select-none" />
+        <Image
+          src="/truth-intelligence-logo.png"
+          alt=""
+          width={600}
+          height={600}
+          className="opacity-[0.015] select-none"
+        />
       </div>
 
       {/* Navigation */}
@@ -250,8 +256,8 @@ export default function DeepfakeMemoryPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3 group">
               <Image
-                src="/apex-verify-logo.png"
-                alt="Apex Verify"
+                src="/truth-intelligence-logo.png"
+                alt="Truth Intelligence"
                 width={32}
                 height={32}
                 className="opacity-90 group-hover:opacity-100 transition-opacity"

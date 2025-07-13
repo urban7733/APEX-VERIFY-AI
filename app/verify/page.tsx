@@ -15,11 +15,10 @@ const EnhancedAnalysisDisplay = dynamic(
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, ArrowLeft, CheckCircle, AlertTriangle, X, Loader2, Download, FileText } from "lucide-react"
+import { Upload, ArrowLeft, CheckCircle, AlertTriangle, X, Download, FileText } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { analysisEngine, type AnalysisProgress, type ComprehensiveAnalysisResult } from "@/lib/analysis-engine"
 import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
@@ -27,6 +26,7 @@ import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
 import { LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { AnalysisAnimation } from "@/components/analysis-animation"
 
 interface GradientTextProps {
   children: ReactNode
@@ -39,7 +39,7 @@ interface GradientTextProps {
 function GradientText({
   children,
   className = "",
-  colors = ["#ffaa40", "#9c40ff", "#ffaa40"],
+  colors = ["#22c55e", "#3b82f6", "#22c55e"],
   animationSpeed = 8,
   showBorder = false,
 }: GradientTextProps) {
@@ -273,7 +273,7 @@ const MemoizedImage = React.memo(({ src, alt, width, height, className, ...props
     loading="lazy"
     quality={75}
     placeholder="blur"
-    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxAUAdABmX/9k="
     {...props}
   />
 ))
@@ -418,6 +418,12 @@ const performDeepfakeAnalysis = async (file: File): Promise<DeepfakeAnalysisResu
 
   const baseScore = isLikelyDeepfake ? 0.2 + Math.random() * 0.3 : 0.7 + Math.random() * 0.3
 
+  const aiProviderSignature = {
+    detectedProvider: "DeepFaceLab",
+    confidence: 0.85,
+    characteristics: ["SAEHD model artifacts", "Specific compression patterns"],
+  }
+
   return {
     isDeepfake: isLikelyDeepfake,
     confidence: isLikelyDeepfake ? 1 - baseScore : baseScore,
@@ -449,13 +455,7 @@ const performDeepfakeAnalysis = async (file: File): Promise<DeepfakeAnalysisResu
         distortions: isLikelyDeepfake ? ["Landmark displacement", "Geometric inconsistencies"] : [],
       },
     },
-    aiProviderSignature: isLikelyDeepfake
-      ? {
-          detectedProvider: "DeepFaceLab",
-          confidence: 0.85,
-          characteristics: ["SAEHD model artifacts", "Specific compression patterns"],
-        }
-      : undefined,
+    aiProviderSignature: isLikelyDeepfake ? aiProviderSignature : undefined,
     manipulationRegions: isLikelyDeepfake
       ? [
           {
@@ -611,6 +611,13 @@ const createSpatialAnalysisResult = (file: File, isDeepfake: boolean, confidence
     conclusion: isDeepfake
       ? "Based on comprehensive analysis, this content shows significant indicators of artificial manipulation and should be treated with caution."
       : "The analysis supports the authenticity of this content with high confidence based on multiple verification factors.",
+  }
+  return {
+    objects,
+    faces,
+    deepfakeEvidence,
+    technicalAnalysis,
+    reasoning,
   }
 }
 
@@ -810,8 +817,15 @@ const performTensorFlowAnalysis = async (
 }
 
 // Download file with watermark
-const downloadWithWatermark = async (file: File, previewUrl: string | null) => {
-  if (!previewUrl) {
+const downloadWithWatermark = async (file: File | null, previewUrl: string | null) => {
+  if (!file) {
+    console.error("Download failed: File is null or undefined.")
+    return
+  }
+
+  // Handle non-image/video files or cases where no preview is available for watermarking
+  if (!previewUrl || (!file.type.startsWith("image/") && !file.type.startsWith("video/"))) {
+    console.warn("Watermarking is only supported for image/video previews. Downloading original file.")
     const url = URL.createObjectURL(file)
     const link = document.createElement("a")
     link.href = url
@@ -826,15 +840,29 @@ const downloadWithWatermark = async (file: File, previewUrl: string | null) => {
   try {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    if (!ctx) {
+      console.error("Download failed: Could not get 2D context from canvas.")
+      return
+    }
 
+    // Only proceed with image watermarking if it's an image
     if (file.type.startsWith("image/")) {
       const img = new Image()
-      img.crossOrigin = "anonymous"
+      img.crossOrigin = "anonymous" // Essential for loading images from different origins
 
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve()
-        img.onerror = () => reject(new Error("Failed to load image"))
+        img.onerror = (errorEvent) => {
+          // Safely handle the error event without destructuring or assuming properties
+          console.error("Image load error event:", errorEvent)
+          let errorMessage = "Failed to load image for watermark."
+          if (errorEvent instanceof Event) {
+            errorMessage += ` Event type: ${errorEvent.type}`
+          } else if (errorEvent) {
+            errorMessage += ` Error details: ${String(errorEvent)}`
+          }
+          reject(new Error(errorMessage))
+        }
         img.src = previewUrl
       })
 
@@ -868,7 +896,7 @@ const downloadWithWatermark = async (file: File, previewUrl: string | null) => {
       ctx.restore()
 
       const logoImg = new Image()
-      logoImg.src = "/verified-apex-verify-logo-2.png"
+      logoImg.src = "/verified-apex-verify-logo-2.png" // Ensure this path is correct and accessible
 
       await new Promise<void>((resolve) => {
         logoImg.onload = () => {
@@ -877,6 +905,10 @@ const downloadWithWatermark = async (file: File, previewUrl: string | null) => {
           ctx.drawImage(logoImg, watermarkX, watermarkY, watermarkSize, watermarkSize)
           ctx.restore()
           resolve()
+        }
+        logoImg.onerror = (e) => {
+          console.error("Logo image load error:", e)
+          resolve() // Resolve even if logo fails to load, to not block the main image download
         }
       })
 
@@ -897,11 +929,27 @@ const downloadWithWatermark = async (file: File, previewUrl: string | null) => {
           link.click()
           document.body.removeChild(link)
           URL.revokeObjectURL(url)
+        } else {
+          console.error("Failed to create blob from canvas.")
         }
       }, "image/png")
+    } else if (file.type.startsWith("video/")) {
+      // For video, we can't directly draw the video frames to canvas for watermarking
+      // without more complex video processing (e.g., using libraries like ffmpeg.js).
+      // For now, we'll just download the original video.
+      console.warn("Direct video watermarking not supported. Downloading original video.")
+      const url = URL.createObjectURL(file)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `verified-${file.name}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     }
   } catch (error) {
     console.error("Failed to add watermark:", error)
+    // Fallback to direct download if watermarking fails
     const url = URL.createObjectURL(file)
     const link = document.createElement("a")
     link.href = url
@@ -1063,10 +1111,10 @@ export default function VerifyPage() {
     setResult(null)
     setTensorFlowResult(null)
     setPreviewUrl(null)
-    setProgress(0)
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
+    setProgress(0)
   }
 
   const downloadReport = () => {
@@ -1131,8 +1179,25 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
   return (
     <div
-      className={`min-h-screen bg-black text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
+      className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
     >
+      {/* Full-screen Background Image */}
+      <div
+        className="fixed inset-0 z-0 will-change-transform"
+        style={{
+          backgroundImage: "url(/enhanced-cosmic-vortex.jpeg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          imageRendering: "crisp-edges",
+          backfaceVisibility: "hidden",
+        }}
+      />
+
+      {/* Dark overlay for better text readability */}
+      <div className="fixed inset-0 z-0 bg-black/20" />
+
       {/* Subtle Starfield Background */}
       <Starfield />
 
@@ -1149,69 +1214,67 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
       </div>
 
       {/* Clean Navigation */}
-      <nav className="relative z-10 border-b border-white/5 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 py-6">
+      <nav className="relative z-10 py-2 sm:py-3 border-b border-white/5 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <Link href="/" className="group flex items-center space-x-4 transition-all duration-300">
+            <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
               <Image
-                src="/verified-apex-verify-logo-2.png"
-                alt="Apex Verify"
+                src="/verify-logo.png"
+                alt="Apex Verify AI"
                 width={24}
                 height={24}
-                className="opacity-80 group-hover:opacity-100 transition-opacity"
+                className="sm:w-7 sm:h-7 opacity-90 group-hover:opacity-100 transition-opacity"
               />
-              <span className="text-lg font-light text-white/90 group-hover:text-white transition-colors">
-                Apex Verify
+              <span className="text-base sm:text-lg font-medium text-white/90 group-hover:text-white transition-colors">
+                Apex Verify AI
               </span>
             </Link>
 
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-1 h-1 bg-white/60 rounded-full" />
-                <span className="text-xs text-white/40 font-light">AI Ready</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white/30 hover:text-white/70 p-2 transition-colors"
-                onClick={() => {
-                  logout()
-                  window.location.href = "/"
-                }}
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-1 h-1 bg-white/60 rounded-full" />
+              <span className="text-xs text-white/40 font-light">AI Ready</span>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/30 hover:text-white/70 p-2 transition-colors"
+              onClick={() => {
+                logout()
+                window.location.href = "/"
+              }}
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
         {!file ? (
           /* Minimalist Upload Section */
           <div className="text-center space-y-12">
             <div className="space-y-6">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight space-y-1">
                 <div className="mb-1">
-                  <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg">
                     AI-Powered Verification
                   </span>
                 </div>
                 <div>
-                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent text-xl sm:text-2xl md:text-3xl lg:text-4xl">
+                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent text-xl sm:text-2xl md:text-3xl lg:text-4xl drop-shadow-lg">
                     Upload. Analyze. Verify.
                   </span>
                 </div>
               </h1>
-              <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                 Advanced deepfake detection and media authenticity verification powered by cutting-edge AI
               </p>
             </div>
 
             <div
-              className={`relative group cursor-pointer transition-all duration-700 ${
+              className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.01] ${
                 dragActive ? "scale-[1.01]" : ""
               }`}
               onDragEnter={handleDrag}
@@ -1220,20 +1283,17 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="relative border border-white/10 rounded-2xl p-20 group-hover:border-white/20 transition-all duration-700 min-h-[300px] flex items-center justify-center">
-                <div className="flex flex-col items-center space-y-8">
-                  <div className="w-16 h-16 rounded-xl border border-white/10 flex items-center justify-center group-hover:border-white/20 transition-all duration-500">
-                    <Upload className="h-6 w-6 text-white/40 group-hover:text-white/60 transition-colors" />
+              <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 sm:p-12 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden min-h-[300px] flex items-center justify-center">
+                {/* Subtle scan line effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out"></div>
+
+                <div className="relative z-10 flex flex-col items-center space-y-8">
+                  <div className="w-16 h-16 rounded-xl bg-white/15 border border-white/40 flex items-center justify-center group-hover:bg-white/25 group-hover:border-white/50 transition-all duration-300">
+                    <Upload className="h-6 w-6 text-white/90 group-hover:text-white transition-colors" />
                   </div>
                   <div className="text-center space-y-4">
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
-                      <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                        Drop your files here
-                      </span>
-                    </h3>
-                    <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed">
-                      Images, videos, and audio files up to 100MB
-                    </p>
+                    <h3 className="font-light text-white text-lg drop-shadow-md">Drop your files here</h3>
+                    <p className="text-sm text-white/40 drop-shadow-md">Images, videos, and audio files up to 100MB</p>
                     <div className="pt-6">
                       <GradientText className="px-8 py-3 border border-white/10 rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90">
                         Select Files
@@ -1256,10 +1316,10 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           /* Clean Analysis Section */
           <div className="space-y-8">
             {/* File Preview Card */}
-            <div className="border border-white/10 rounded-2xl p-8">
+            <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 border border-white/10 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white/15 border border-white/40 rounded-xl flex items-center justify-center">
                     {file.type.startsWith("image/") ? (
                       <FileImage className="h-5 w-5 text-white/60" />
                     ) : file.type.startsWith("video/") ? (
@@ -1311,53 +1371,26 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 </div>
               )}
 
-              {!result && (
+              {!result && !isAnalyzing && (
                 <Button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing}
-                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl py-4 font-light transition-all duration-300"
+                  className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-4 font-light transition-all duration-300"
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-3 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    "Start Analysis"
-                  )}
+                  Start Analysis
                 </Button>
               )}
             </div>
 
-            {/* Clean Progress Indicator */}
+            {/* Analysis Animation */}
             {isAnalyzing && (
-              <div className="border border-white/10 rounded-2xl p-8">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-light text-white">Analysis Progress</h3>
-                    <span className="text-sm text-white/40">{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="bg-white/5 h-1" />
-                  <div className="grid grid-cols-2 gap-6 text-sm">
-                    <div className={`flex items-center space-x-3 ${progress > 25 ? "text-white/70" : "text-white/20"}`}>
-                      <div className={`w-1 h-1 rounded-full ${progress > 25 ? "bg-white/70" : "bg-white/20"}`} />
-                      <span className="font-light">Detection</span>
-                    </div>
-                    <div className={`flex items-center space-x-3 ${progress > 50 ? "text-white/70" : "text-white/20"}`}>
-                      <div className={`w-1 h-1 rounded-full ${progress > 50 ? "bg-white/70" : "bg-white/20"}`} />
-                      <span className="font-light">Analysis</span>
-                    </div>
-                    <div className={`flex items-center space-x-3 ${progress > 75 ? "text-white/70" : "text-white/20"}`}>
-                      <div className={`w-1 h-1 rounded-full ${progress > 75 ? "bg-white/70" : "bg-white/20"}`} />
-                      <span className="font-light">Verification</span>
-                    </div>
-                    <div className={`flex items-center space-x-3 ${progress > 90 ? "text-white/70" : "text-white/20"}`}>
-                      <div className={`w-1 h-1 rounded-full ${progress > 90 ? "bg-white/70" : "bg-white/20"}`} />
-                      <span className="font-light">Complete</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <AnalysisAnimation
+                isActive={isAnalyzing}
+                onComplete={() => {
+                  // Animation completed, results should be ready
+                }}
+                fileType={file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "audio"}
+              />
             )}
 
             {/* Clean Results Display */}
@@ -1365,7 +1398,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               <div className="space-y-8">
                 {/* Main Result Card */}
                 <div
-                  className={`border rounded-2xl p-8 ${result.isDeepfake ? "border-white/20 bg-white/[0.02]" : "border-white/10 bg-white/[0.01]"}`}
+                  className={`relative bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 shadow-xl ${result.isDeepfake ? "border-white/20 bg-white/[0.02]" : "border-white/10 bg-white/[0.01]"}`}
                 >
                   <div className="flex items-center space-x-6 mb-8">
                     <div
@@ -1433,13 +1466,13 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   <Button
                     onClick={resetAnalysis}
                     variant="outline"
-                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light"
+                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light backdrop-blur-md"
                   >
                     New Analysis
                   </Button>
                   <Button
                     onClick={() => downloadWithWatermark(file, previewUrl)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl py-3 font-light"
+                    className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-3 font-light backdrop-blur-md"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download Verified
@@ -1447,7 +1480,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   <Button
                     onClick={downloadReport}
                     variant="outline"
-                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light"
+                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light backdrop-blur-md"
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Export Report
