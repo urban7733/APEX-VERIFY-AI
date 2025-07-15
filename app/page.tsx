@@ -279,15 +279,15 @@ export default function Home() {
               className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
             >
               {/* Main container */}
-              <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-xl p-4 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden">
+              <div className="relative bg-black/60 backdrop-blur-md border-2 border-white/40 rounded-xl p-4 group-hover:border-white/70 transition-all duration-300 shadow-[0_0_30px_rgba(0,255,255,0.1)] group-hover:shadow-[0_0_60px_rgba(0,255,255,0.3)] overflow-hidden">
                 {/* Subtle scan line effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
 
                 <div className="relative z-10 flex items-center justify-between gap-3">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       {/* Compact upload icon */}
-                      <div className="w-8 h-8 bg-white/15 border border-white/40 rounded-lg flex items-center justify-center group-hover:bg-white/25 group-hover:border-white/50 transition-all duration-300">
+                      <div className="w-8 h-8 bg-white/20 border border-white/50 rounded-xl flex items-center justify-center group-hover:bg-white/30 group-hover:border-white/70 transition-all duration-300">
                         <Upload className="w-4 h-4 text-white/90 group-hover:text-white transition-all duration-300" />
                       </div>
                     </div>
@@ -304,7 +304,7 @@ export default function Home() {
                   {/* Compact analyze button */}
                   <div className="relative">
                     <div className="absolute inset-0 bg-white/10 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                    <button className="relative bg-white/25 border border-white/40 text-white font-medium hover:bg-white/30 hover:border-white/50 transition-all duration-300 flex items-center space-x-2 px-3 py-2 rounded-lg">
+                    <button className="relative bg-white/30 border border-white/50 text-white font-medium hover:bg-white/40 hover:border-white/70 transition-all duration-300 flex items-center space-x-2 px-3 py-2 rounded-lg">
                       <span className="text-xs font-bold">Analyze</span>
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-300" />
                     </button>
