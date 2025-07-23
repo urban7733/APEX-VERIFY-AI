@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Upload, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
+import Orb from "@/components/Orb"
 
 export default function Home() {
   const router = useRouter()
@@ -34,19 +35,10 @@ export default function Home() {
   if (showMission) {
     return (
       <div className="min-h-screen text-white antialiased relative overflow-hidden">
-        {/* Full-screen Background Image */}
-        <div
-          className="fixed inset-0 z-0 will-change-transform"
-          style={{
-            backgroundImage: "url(/enhanced-cosmic-vortex.jpeg)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-            imageRendering: "crisp-edges",
-            backfaceVisibility: "hidden",
-          }}
-        />
+        {/* Orb Background Animation */}
+        <div className="fixed inset-0 z-0">
+          <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
+        </div>
 
         {/* Dark overlay for better text readability */}
         <div className="fixed inset-0 z-0 bg-black/20" />
@@ -159,19 +151,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen max-h-screen text-white antialiased relative overflow-hidden">
-      {/* Full-screen Background Image */}
-      <div
-        className="fixed inset-0 z-0 will-change-transform"
-        style={{
-          backgroundImage: "url(/enhanced-cosmic-vortex.jpeg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-          imageRendering: "crisp-edges",
-          backfaceVisibility: "hidden",
-        }}
-      />
+      {/* Orb Background Animation */}
+      <div className="fixed inset-0 z-0">
+        <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
+      </div>
 
       {/* Dark overlay for better text readability */}
       <div className="fixed inset-0 z-0 bg-black/20" />
@@ -279,34 +262,38 @@ export default function Home() {
               className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
             >
               {/* Main container */}
-              <div className="relative bg-black/60 backdrop-blur-md border-2 border-white/40 rounded-xl p-4 group-hover:border-white/70 transition-all duration-300 shadow-[0_0_30px_rgba(0,255,255,0.1)] group-hover:shadow-[0_0_60px_rgba(0,255,255,0.3)] overflow-hidden">
-                {/* Subtle scan line effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
+              <div className="relative bg-gradient-to-br from-black/30 via-black/20 to-black/10 backdrop-blur-md border border-white/30 rounded-xl p-4 group-hover:border-white/50 group-hover:shadow-2xl group-hover:shadow-white/10 transition-all duration-300 overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-500">
+                {/* Enhanced hover effects */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent"></div>
+                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                  <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-l from-transparent via-white/20 to-transparent"></div>
+                </div>
 
                 <div className="relative z-10 flex items-center justify-between gap-3">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      {/* Compact upload icon */}
-                      <div className="w-8 h-8 bg-white/20 border border-white/50 rounded-xl flex items-center justify-center group-hover:bg-white/30 group-hover:border-white/70 transition-all duration-300">
-                        <Upload className="w-4 h-4 text-white/90 group-hover:text-white transition-all duration-300" />
+                      {/* Upload icon */}
+                      <div className="w-8 h-8 bg-white/10 border border-white/20 rounded flex items-center justify-center group-hover:bg-white/15 transition-colors duration-200">
+                        <Upload className="w-4 h-4 text-white/70 group-hover:text-white/90 transition-colors duration-200" />
                       </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-white mb-1 group-hover:text-white/95 transition-colors duration-300 drop-shadow-md">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium text-white group-hover:text-white/95 transition-colors duration-200">
                         Verify Media with AI
                       </p>
-                      <p className="text-white/70 group-hover:text-white/80 transition-colors duration-300 text-xs">
+                      <p className="text-xs text-white/60 group-hover:text-white/70 transition-colors duration-200">
                         Images & videos • Max 100MB
                       </p>
                     </div>
                   </div>
 
-                  {/* Compact analyze button */}
+                  {/* Analyze button */}
                   <div className="relative">
-                    <div className="absolute inset-0 bg-white/10 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                    <button className="relative bg-white/30 border border-white/50 text-white font-medium hover:bg-white/40 hover:border-white/70 transition-all duration-300 flex items-center space-x-2 px-3 py-2 rounded-lg">
-                      <span className="text-xs font-bold">Analyze</span>
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-300" />
+                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded text-sm font-medium transition-colors bg-white text-black hover:bg-white/90 h-8 px-3">
+                      <span className="font-medium">Analyze</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                     </button>
                   </div>
                 </div>

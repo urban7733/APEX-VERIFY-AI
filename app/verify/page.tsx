@@ -1,18 +1,7 @@
 "use client"
 
 import React, { type ReactNode } from "react"
-
 import dynamic from "next/dynamic"
-
-// Lazy load heavy components
-const EnhancedAnalysisDisplay = dynamic(
-  () => import("@/components/enhanced-analysis-display").then((mod) => ({ default: mod.EnhancedAnalysisDisplay })),
-  {
-    loading: () => <div className="animate-pulse bg-white/5 rounded-2xl h-64" />,
-    ssr: false,
-  },
-)
-
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Upload, ArrowLeft, CheckCircle, AlertTriangle, X, Download, FileText } from "lucide-react"
@@ -22,11 +11,20 @@ import { Button } from "@/components/ui/button"
 import { analysisEngine, type AnalysisProgress, type ComprehensiveAnalysisResult } from "@/lib/analysis-engine"
 import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
-
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
 import { LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { AnalysisAnimation } from "@/components/analysis-animation"
+import Orb from "@/components/Orb"
+
+// Lazy load heavy components
+const EnhancedAnalysisDisplay = dynamic(
+  () => import("@/components/enhanced-analysis-display").then((mod) => ({ default: mod.EnhancedAnalysisDisplay })),
+  {
+    loading: () => <div className="animate-pulse bg-white/5 rounded-2xl h-64" />,
+    ssr: false,
+  },
+)
 
 interface GradientTextProps {
   children: ReactNode
@@ -373,102 +371,13 @@ const extractEnhancedMetadata = async (file: File): Promise<EnhancedMediaMetadat
   return metadata
 }
 
-// Reverse image search simulation
-const performReverseImageSearch = async (file: File): Promise<ReverseSearchResult[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-
-  const fileName = file.name.toLowerCase()
-  const hasResults = Math.random() > 0.3
-
-  if (!hasResults) return []
-
-  return [
-    {
-      url: "https://example.com/original-source",
-      title: "Original Image Source",
-      source: "Getty Images",
-      similarity: 0.98,
-      publishDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      context: "Stock photography collection",
-    },
-    {
-      url: "https://news.example.com/article",
-      title: "Breaking News Article",
-      source: "Reuters",
-      similarity: 0.87,
-      publishDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      context: "News article featuring this image",
-    },
-    {
-      url: "https://social.example.com/post",
-      title: "Social Media Post",
-      source: "Twitter",
-      similarity: 0.75,
-      publishDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      context: "Viral social media post",
-    },
-  ]
-}
-
-// Enhanced deepfake detection
-const performDeepfakeAnalysis = async (file: File): Promise<DeepfakeAnalysisResult> => {
-  await new Promise((resolve) => setTimeout(resolve, 3000))
-
-  const isLikelyDeepfake = Math.random() > 0.7
-
-  const baseScore = isLikelyDeepfake ? 0.2 + Math.random() * 0.3 : 0.7 + Math.random() * 0.3
-
-  const aiProviderSignature = {
-    detectedProvider: "DeepFaceLab",
-    confidence: 0.85,
-    characteristics: ["SAEHD model artifacts", "Specific compression patterns"],
-  }
-
-  return {
-    isDeepfake: isLikelyDeepfake,
-    confidence: isLikelyDeepfake ? 1 - baseScore : baseScore,
-    framework: "FaceForensics++",
-    modelVersion: "v2.1.0",
-    detectionMethods: {
-      faceSwapDetection: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        artifacts: isLikelyDeepfake ? ["Face boundary inconsistencies", "Lighting mismatches"] : [],
-      },
-      lipSyncAnalysis: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        inconsistencies: isLikelyDeepfake ? ["Audio-visual desynchronization"] : [],
-      },
-      temporalConsistency: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        anomalies: isLikelyDeepfake ? ["Frame-to-frame inconsistencies"] : [],
-      },
-      frequencyAnalysis: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        patterns: isLikelyDeepfake ? ["Unusual frequency signatures"] : [],
-      },
-      eyeBlinkAnalysis: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        naturalness: isLikelyDeepfake ? 0.3 : 0.9,
-      },
-      facialLandmarks: {
-        score: baseScore + (Math.random() - 0.5) * 0.1,
-        distortions: isLikelyDeepfake ? ["Landmark displacement", "Geometric inconsistencies"] : [],
-      },
-    },
-    aiProviderSignature: isLikelyDeepfake ? aiProviderSignature : undefined,
-    manipulationRegions: isLikelyDeepfake
-      ? [
-          {
-            x: 150,
-            y: 100,
-            width: 200,
-            height: 250,
-            confidence: 0.92,
-            type: "Face region",
-          },
-        ]
-      : undefined,
-  }
+// Generate file hash
+async function generateFileHash(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer()
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
+  return hashHex
 }
 
 // Create proper spatial analysis result
@@ -961,14 +870,6 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
   }
 }
 
-async function generateFileHash(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer()
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
-  return hashHex
-}
-
 export default function VerifyPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -1181,19 +1082,10 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     <div
       className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
     >
-      {/* Full-screen Background Image */}
-      <div
-        className="fixed inset-0 z-0 will-change-transform"
-        style={{
-          backgroundImage: "url(/enhanced-cosmic-vortex.jpeg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-          imageRendering: "crisp-edges",
-          backfaceVisibility: "hidden",
-        }}
-      />
+      {/* Orb Background Animation */}
+      <div className="fixed inset-0 z-0">
+        <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
+      </div>
 
       {/* Dark overlay for better text readability */}
       <div className="fixed inset-0 z-0 bg-black/20" />
@@ -1295,7 +1187,10 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     <h3 className="font-light text-white text-lg drop-shadow-md">Drop your files here</h3>
                     <p className="text-sm text-white/40 drop-shadow-md">Images, videos, and audio files up to 100MB</p>
                     <div className="pt-6">
-                      <GradientText className="px-8 py-3 border border-white/10 rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90">
+                      <GradientText
+                        className="px-8 py-3 border border-white/10 rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90"
+                        colors={["#3b82f6", "#8b5cf6", "#3b82f6"]}
+                      >
                         Select Files
                       </GradientText>
                     </div>
