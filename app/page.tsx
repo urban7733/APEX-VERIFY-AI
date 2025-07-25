@@ -48,7 +48,13 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Image src="/verify-logo.png" alt="Apex Verify AI" width={28} height={28} className="opacity-90" />
+                <Image
+                  src="/neon-triangle-logo-grey-bg.png"
+                  alt="Apex Verify AI"
+                  width={28}
+                  height={28}
+                  className="opacity-90"
+                />
                 <span className="text-lg font-medium text-white/90">Apex Verify AI</span>
               </div>
 
@@ -85,7 +91,7 @@ export default function Home() {
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-green-600/20 blur-2xl rounded-full"></div>
                   <Image
-                    src="/verified-apex-verify-logo-2.png"
+                    src="/neon-triangle-logo-grey-bg.png"
                     alt="Apex Verify AI"
                     width={120}
                     height={120}
@@ -130,7 +136,7 @@ export default function Home() {
                       this vision—because truth matters, and trust is everything.
                     </p>
 
-                    <p className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+                    <p className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                       "For years, we paid to hide watermarks. Now, we invest to secure our identity."
                     </p>
 
@@ -165,7 +171,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <Image
-                src="/verify-logo.png"
+                src="/neon-triangle-logo-grey-bg.png"
                 alt="Apex Verify AI"
                 width={24}
                 height={24}
@@ -209,15 +215,15 @@ export default function Home() {
             <div className="relative group">
               <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-0 sm:mb-0 flex items-center justify-center">
                 <Image
-                  src="/verify-logo.png"
+                  src="/neon-triangle-logo-grey-bg.png"
                   alt="Truth Intelligence"
                   width={150}
                   height={150}
                   className="drop-shadow-2xl filter brightness-110 w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40"
                 />
               </div>
-              <div className="mt-0">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white animate-pulse">
+              <div className="-mt-2">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                   <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,255,255,1)] shadow-white/50 filter brightness-125 contrast-125">
                     Apex Verify AI
                   </span>
@@ -259,40 +265,32 @@ export default function Home() {
           <div className="mb-4 w-full max-w-md mx-auto px-2 sm:px-4">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
+              className="group relative w-full h-16 cursor-pointer transform transition-all duration-200 hover:scale-[1.01]"
             >
-              {/* Main container */}
-              <div className="relative bg-gradient-to-br from-black/30 via-black/20 to-black/10 backdrop-blur-md border border-white/30 rounded-xl p-4 group-hover:border-white/50 group-hover:shadow-2xl group-hover:shadow-white/10 transition-all duration-300 overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-500">
-                {/* Enhanced hover effects */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent"></div>
-                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                  <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-l from-transparent via-white/20 to-transparent"></div>
-                </div>
+              {/* Main container with modern minimalist design */}
+              <div className="relative w-full h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden group-hover:bg-white/8 group-hover:border-white/20 transition-all duration-200">
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                <div className="relative z-10 flex items-center justify-between gap-3">
+                <div className="relative z-10 flex items-center justify-between h-full px-4 gap-3">
                   <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      {/* Upload icon */}
-                      <div className="w-8 h-8 bg-white/10 border border-white/20 rounded flex items-center justify-center group-hover:bg-white/15 transition-colors duration-200">
-                        <Upload className="w-4 h-4 text-white/70 group-hover:text-white/90 transition-colors duration-200" />
-                      </div>
+                    <div className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/15 transition-colors duration-200">
+                      <Upload className="w-4 h-4 text-white/70 group-hover:text-white transition-colors duration-200" />
                     </div>
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium text-white group-hover:text-white/95 transition-colors duration-200">
+                      <p className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-200">
                         Verify Media with AI
                       </p>
-                      <p className="text-xs text-white/60 group-hover:text-white/70 transition-colors duration-200">
+                      <p className="text-xs text-white/50 group-hover:text-white/70 transition-colors duration-200">
                         Images & videos • Max 100MB
                       </p>
                     </div>
                   </div>
 
-                  {/* Analyze button */}
+                  {/* Modern analyze button */}
                   <div className="relative">
-                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded text-sm font-medium transition-colors bg-white text-black hover:bg-white/90 h-8 px-3">
-                      <span className="font-medium">Analyze</span>
+                    <button className="inline-flex items-center justify-center gap-2 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors duration-200 shadow-sm">
+                      <span>Analyze</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                     </button>
                   </div>

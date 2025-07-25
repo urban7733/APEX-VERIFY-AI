@@ -83,7 +83,7 @@ export default function Navbar({ onAuthClick }: NavbarProps) {
                   >
                     {user?.image ? (
                       <Image
-                        src={user.image || "/placeholder.svg"}
+                        src={user.image || "/neon-triangle-logo-grey-bg.png"}
                         alt={user.name}
                         width={24}
                         height={24}
@@ -165,7 +165,7 @@ export default function Navbar({ onAuthClick }: NavbarProps) {
                     <div className="text-white/60 text-sm py-2 flex items-center space-x-2 font-medium">
                       {user?.image && (
                         <Image
-                          src={user.image || "/placeholder.svg"}
+                          src={user.image || "/neon-triangle-logo-grey-bg.png"}
                           alt={user.name}
                           width={20}
                           height={20}
