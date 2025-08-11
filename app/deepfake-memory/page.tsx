@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { ArrowLeft, Search, Eye, Download, Share2, AlertTriangle, CheckCircle } from "lucide-react"
+import { ArrowLeft, Search, Upload, LinkIcon, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -9,147 +11,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Orb from "@/components/Orb"
 
-interface DeepfakeRecord {
-  id: string
-  fileName: string
-  uploadDate: Date
-  analysisResult: "authentic" | "deepfake" | "suspicious"
-  confidence: number
-  fileType: "image" | "video" | "audio"
-  fileSize: number
-  thumbnail?: string
-  tags: string[]
-  notes?: string
-  riskLevel: "low" | "medium" | "high" | "critical"
+interface VerificationResult {
+  found: boolean
+  score?: number
+  verifiedDate?: Date
+  originalUrl?: string
 }
 
-// Mock data for demonstration
-const mockRecords: DeepfakeRecord[] = [
-  {
-    id: "1",
-    fileName: "conference_video.mp4",
-    uploadDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    analysisResult: "authentic",
-    confidence: 94.2,
-    fileType: "video",
-    fileSize: 15.7,
-    tags: ["business", "conference", "verified"],
-    riskLevel: "low",
-  },
-  {
-    id: "2",
-    fileName: "profile_photo.jpg",
-    uploadDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    analysisResult: "deepfake",
-    confidence: 87.3,
-    fileType: "image",
-    fileSize: 2.1,
-    tags: ["portrait", "suspicious", "flagged"],
-    notes: "Facial inconsistencies detected around jawline",
-    riskLevel: "high",
-  },
-  {
-    id: "3",
-    fileName: "interview_audio.wav",
-    uploadDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    analysisResult: "suspicious",
-    confidence: 72.8,
-    fileType: "audio",
-    fileSize: 8.4,
-    tags: ["interview", "voice", "review-needed"],
-    riskLevel: "medium",
-  },
-  {
-    id: "4",
-    fileName: "marketing_video.mp4",
-    uploadDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-    analysisResult: "authentic",
-    confidence: 96.7,
-    fileType: "video",
-    fileSize: 23.2,
-    tags: ["marketing", "commercial", "verified"],
-    riskLevel: "low",
-  },
-  {
-    id: "5",
-    fileName: "social_post.jpg",
-    uploadDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-    analysisResult: "deepfake",
-    confidence: 91.5,
-    fileType: "image",
-    fileSize: 1.8,
-    tags: ["social-media", "manipulated", "flagged"],
-    notes: "AI-generated artifacts detected",
-    riskLevel: "critical",
-  },
-]
-
 export default function DeepfakeMemoryPage() {
-  const [records, setRecords] = useState<DeepfakeRecord[]>(mockRecords)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState<"all" | "authentic" | "deepfake" | "suspicious">("all")
-  const [sortBy, setSortBy] = useState<"date" | "confidence" | "risk">("date")
+  const [inputValue, setInputValue] = useState("")
+  const [isChecking, setIsChecking] = useState(false)
+  const [result, setResult] = useState<VerificationResult | null>(null)
 
-  const filteredRecords = records
-    .filter((record) => {
-      const matchesSearch =
-        record.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      const matchesFilter = filterType === "all" || record.analysisResult === filterType
-      return matchesSearch && matchesFilter
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "date":
-          return b.uploadDate.getTime() - a.uploadDate.getTime()
-        case "confidence":
-          return b.confidence - a.confidence
-        case "risk":
-          const riskOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-          return riskOrder[b.riskLevel] - riskOrder[a.riskLevel]
-        default:
-          return 0
-      }
-    })
+  const handleCheck = async () => {
+    if (!inputValue.trim()) return
 
-  const getResultIcon = (result: string) => {
-    switch (result) {
-      case "authentic":
-        return <CheckCircle className="h-4 w-4 text-green-400" />
-      case "deepfake":
-        return <AlertTriangle className="h-4 w-4 text-red-400" />
-      case "suspicious":
-        return <AlertTriangle className="h-4 w-4 text-yellow-400" />
-      default:
-        return null
-    }
+    setIsChecking(true)
+
+    // Simulate API call to check if content was previously verified
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // Mock result - in real implementation, this would check your database
+    const mockResult: VerificationResult =
+      Math.random() > 0.5
+        ? {
+            found: true,
+            score: Math.floor(Math.random() * 100) + 1,
+            verifiedDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+            originalUrl: inputValue.startsWith("http") ? inputValue : undefined,
+          }
+        : { found: false }
+
+    setResult(mockResult)
+    setIsChecking(false)
   }
 
-  const getResultColor = (result: string) => {
-    switch (result) {
-      case "authentic":
-        return "text-green-400 bg-green-400/10 border-green-400/20"
-      case "deepfake":
-        return "text-red-400 bg-red-400/10 border-red-400/20"
-      case "suspicious":
-        return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
-      default:
-        return "text-gray-400 bg-gray-400/10 border-gray-400/20"
-    }
-  }
-
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case "critical":
-        return "text-red-500 bg-red-500/10 border-red-500/20"
-      case "high":
-        return "text-orange-400 bg-orange-400/10 border-orange-400/20"
-      case "medium":
-        return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
-      case "low":
-        return "text-green-400 bg-green-400/10 border-green-400/20"
-      default:
-        return "text-gray-400 bg-gray-400/10 border-gray-400/20"
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setInputValue(file.name)
+      setResult(null)
     }
   }
 
@@ -180,171 +81,143 @@ export default function DeepfakeMemoryPage() {
                 Deepfake Memory
               </span>
             </Link>
-
-            <div className="flex items-center space-x-3">
-              <div className="w-1 h-1 bg-white/60 rounded-full" />
-              <span className="text-xs text-white/40 font-light">{filteredRecords.length} Records</span>
-            </div>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
         {/* Header */}
-        <div className="text-center space-y-6 mb-12">
+        <div className="text-center space-y-6 mb-16">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
             <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg">
               Deepfake Memory
             </span>
           </h1>
           <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            Your complete history of deepfake detection and media verification analysis
+            Check if content has been previously verified by our system
           </p>
         </div>
 
-        {/* Search and Filter Controls */}
-        <div className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-6 mb-8 shadow-xl">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
+        {/* Input Card */}
+        <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-white font-light text-xl text-center">Enter URL or Upload File</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* URL Input */}
+            <div className="relative">
+              <LinkIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
               <input
                 type="text"
-                placeholder="Search files, tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
+                placeholder="Paste URL or file name here..."
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value)
+                  setResult(null)
+                }}
+                className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>
 
-            {/* Filter */}
-            <div className="flex gap-3">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/30 transition-colors"
+            {/* File Upload */}
+            <div className="relative">
+              <input
+                type="file"
+                id="file-upload"
+                onChange={handleFileUpload}
+                className="hidden"
+                accept="image/*,video/*,audio/*"
+              />
+              <label
+                htmlFor="file-upload"
+                className="flex items-center justify-center w-full py-4 bg-white/5 border border-white/10 border-dashed rounded-xl text-white/60 hover:text-white/80 hover:bg-white/10 transition-all cursor-pointer"
               >
-                <option value="all">All Results</option>
-                <option value="authentic">Authentic</option>
-                <option value="deepfake">Deepfake</option>
-                <option value="suspicious">Suspicious</option>
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/30 transition-colors"
-              >
-                <option value="date">Sort by Date</option>
-                <option value="confidence">Sort by Confidence</option>
-                <option value="risk">Sort by Risk</option>
-              </select>
+                <Upload className="h-4 w-4 mr-2" />
+                Or upload a file
+              </label>
             </div>
-          </div>
-        </div>
 
-        {/* Records Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRecords.map((record) => (
-            <Card
-              key={record.id}
-              className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl hover:border-white/40 transition-all duration-300 group"
+            {/* Check Button */}
+            <Button
+              onClick={handleCheck}
+              disabled={!inputValue.trim() || isChecking}
+              className="w-full py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition-all disabled:opacity-50"
             >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-white font-light text-lg truncate">{record.fileName}</CardTitle>
-                    <p className="text-white/40 text-sm mt-1">{record.uploadDate.toLocaleDateString()}</p>
+              {isChecking ? (
+                <>
+                  <Search className="h-4 w-4 mr-2 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4 mr-2" />
+                  Check Verification Status
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        {result && (
+          <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl">
+            <CardContent className="p-8">
+              {result.found ? (
+                <div className="text-center space-y-6">
+                  <div className="flex items-center justify-center">
+                    <CheckCircle className="h-12 w-12 text-green-400" />
                   </div>
-                  <div className="ml-3">{getResultIcon(record.analysisResult)}</div>
+                  <div>
+                    <h3 className="text-2xl font-light text-white mb-2">Content Found</h3>
+                    <p className="text-white/60">This content was previously verified by our system</p>
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/60">Verification Score:</span>
+                      <Badge className="text-lg px-4 py-2 bg-green-400/10 text-green-400 border-green-400/20">
+                        {result.score}/100
+                      </Badge>
+                    </div>
+
+                    {result.verifiedDate && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">Verified Date:</span>
+                        <span className="text-white/80">{result.verifiedDate.toLocaleDateString()}</span>
+                      </div>
+                    )}
+
+                    {result.originalUrl && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">Original URL:</span>
+                        <span className="text-white/80 truncate max-w-xs">{result.originalUrl}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </CardHeader>
+              ) : (
+                <div className="text-center space-y-6">
+                  <div className="flex items-center justify-center">
+                    <XCircle className="h-12 w-12 text-red-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-light text-white mb-2">Content Not Found</h3>
+                    <p className="text-white/60">This content has not been verified by our system yet</p>
+                  </div>
 
-              <CardContent className="space-y-4">
-                {/* File Info */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 capitalize">{record.fileType}</span>
-                  <span className="text-white/40">{record.fileSize} MB</span>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                    <p className="text-white/50 text-sm">
+                      Would you like to verify this content now?{" "}
+                      <Link href="/verify" className="text-white/80 hover:text-white underline">
+                        Go to Verification
+                      </Link>
+                    </p>
+                  </div>
                 </div>
-
-                {/* Analysis Result */}
-                <div className="flex items-center justify-between">
-                  <Badge className={`${getResultColor(record.analysisResult)} border font-light`}>
-                    {record.analysisResult}
-                  </Badge>
-                  <span className="text-white/60 text-sm">{record.confidence.toFixed(1)}%</span>
-                </div>
-
-                {/* Risk Level */}
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Risk Level</span>
-                  <Badge className={`${getRiskColor(record.riskLevel)} border font-light capitalize`}>
-                    {record.riskLevel}
-                  </Badge>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {record.tags.slice(0, 3).map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-white/60"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {record.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-white/40">
-                      +{record.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-
-                {/* Notes */}
-                {record.notes && (
-                  <p className="text-white/50 text-sm italic border-l-2 border-white/10 pl-3">{record.notes}</p>
-                )}
-
-                {/* Actions */}
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="flex-1 text-white/60 hover:text-white/80 hover:bg-white/5 rounded-lg"
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-white/60 hover:text-white/80 hover:bg-white/5 rounded-lg"
-                  >
-                    <Download className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-white/60 hover:text-white/80 hover:bg-white/5 rounded-lg"
-                  >
-                    <Share2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredRecords.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Search className="h-6 w-6 text-white/40" />
-            </div>
-            <h3 className="text-xl font-light text-white/80 mb-2">No records found</h3>
-            <p className="text-white/40">Try adjusting your search or filter criteria</p>
-          </div>
+              )}
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
