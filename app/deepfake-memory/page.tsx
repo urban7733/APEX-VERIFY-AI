@@ -71,7 +71,7 @@ export default function DeepfakeMemoryPage() {
             <Link href="/" className="group flex items-center space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
               <Image
-                src="/verify-logo.png"
+                src="/apex-verify-logo.png"
                 alt="Apex Verify AI"
                 width={28}
                 height={28}

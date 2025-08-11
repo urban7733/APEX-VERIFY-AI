@@ -1,10 +1,5 @@
 "use client"
-
-import type React from "react"
-
 import { useState, useEffect } from "react"
-import { Progress } from "@/components/ui/progress"
-import { Brain, Eye, Shield, Zap, FileText, Search, Clock, CheckCircle } from "lucide-react"
 
 interface AnalysisAnimationProps {
   isActive: boolean
@@ -12,252 +7,68 @@ interface AnalysisAnimationProps {
   fileType: "image" | "video" | "audio"
 }
 
-interface AnalysisStep {
-  id: string
-  label: string
-  description: string
-  icon: React.ReactNode
-  duration: number
-  // status: "pending" | "active" | "complete" // Remove this line
-}
-
 export function AnalysisAnimation({ isActive, onComplete, fileType }: AnalysisAnimationProps) {
-  const [currentStep, setCurrentStep] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [steps, setSteps] = useState<AnalysisStep[]>([])
+  const [currentPhase, setCurrentPhase] = useState(0)
+
+  const phases = ["Scanning...", "Analyzing...", "Verifying..."]
 
   useEffect(() => {
-    const baseSteps: AnalysisStep[] = [
-      {
-        id: "preprocessing",
-        label: "File Analysis",
-        description: "Extracting metadata and preparing for analysis",
-        icon: <FileText className="h-5 w-5" />,
-        duration: 1000,
-        // status: "pending", // Remove this line
-      },
-      {
-        id: "ai-preprocessing",
-        label: "AI Preprocessing",
-        description: "Initializing neural networks and models",
-        icon: <Brain className="h-5 w-5" />,
-        duration: 1500,
-        // status: "pending", // Remove this line
-      },
-      {
-        id: "deepfake-detection",
-        label: "Deepfake Detection",
-        description: "Scanning for manipulation artifacts",
-        icon: <Search className="h-5 w-5" />,
-        duration: 2000,
-        // status: "pending", // Remove this line
-      },
-    ]
+    if (!isActive) return
 
-    if (fileType === "image" || fileType === "video") {
-      baseSteps.push({
-        id: "facial-analysis",
-        label: "Facial Analysis",
-        description: "Analyzing facial features and consistency",
-        icon: <Eye className="h-5 w-5" />,
-        duration: 1800,
-        // status: "pending", // Remove this line
-      })
-    }
+    const progressValue = 0
+    const totalDuration = 4000 // 4 seconds total
+    const phaseInterval = totalDuration / 3
 
-    if (fileType === "video") {
-      baseSteps.push({
-        id: "temporal-verification",
-        label: "Temporal Verification",
-        description: "Checking frame-to-frame consistency",
-        icon: <Clock className="h-5 w-5" />,
-        duration: 2200,
-        // status: "pending", // Remove this line
-      })
-    }
+    const startTime = Date.now()
 
-    baseSteps.push(
-      {
-        id: "frequency-analysis",
-        label: "Frequency Analysis",
-        description: "Examining digital signatures and patterns",
-        icon: <Zap className="h-5 w-5" />,
-        duration: 1600,
-        // status: "pending", // Remove this line
-      },
-      {
-        id: "final-verification",
-        label: "Final Verification",
-        description: "Compiling results and generating report",
-        icon: <Shield className="h-5 w-5" />,
-        duration: 1200,
-        // status: "pending", // Remove this line
-      },
-    )
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const newProgress = Math.min((elapsed / totalDuration) * 100, 100)
 
-    setSteps(baseSteps)
-  }, [fileType])
+      setProgress(newProgress)
+      setCurrentPhase(Math.floor(elapsed / phaseInterval))
 
-  useEffect(() => {
-    if (!isActive || steps.length === 0) return
-
-    let stepIndex = 0
-    let progressValue = 0
-    const totalSteps = steps.length
-    const progressIncrement = 100 / totalSteps
-
-    const runStep = () => {
-      if (stepIndex >= totalSteps) {
-        setProgress(100)
+      if (elapsed < totalDuration) {
+        requestAnimationFrame(animate)
+      } else {
         setTimeout(() => {
           onComplete?.()
-        }, 500)
-        return
+        }, 300)
       }
-
-      // REMOVE THE FOLLOWING BLOCK:
-      // setSteps((prev) =>
-      //   prev.map((step, index) => ({
-      //     ...step,
-      //     status: index < stepIndex ? "complete" : index === stepIndex ? "active" : "pending",
-      //   })),
-      // )
-
-      setCurrentStep(stepIndex)
-
-      // Animate progress for current step
-      const stepDuration = steps[stepIndex].duration
-      const progressStart = progressValue
-      const progressEnd = progressStart + progressIncrement
-      const startTime = Date.now()
-
-      const animateProgress = () => {
-        const elapsed = Date.now() - startTime
-        const stepProgress = Math.min(elapsed / stepDuration, 1)
-        const currentProgress = progressStart + (progressEnd - progressStart) * stepProgress
-
-        setProgress(currentProgress)
-
-        if (stepProgress < 1) {
-          requestAnimationFrame(animateProgress)
-        } else {
-          progressValue = progressEnd
-          stepIndex++
-          setTimeout(runStep, 200)
-        }
-      }
-
-      requestAnimationFrame(animateProgress)
     }
 
-    runStep()
-  }, [isActive, onComplete]) // Removed 'steps' from dependencies
+    requestAnimationFrame(animate)
+  }, [isActive, onComplete])
 
   if (!isActive) return null
 
   return (
-    <div className="border border-white/10 rounded-2xl p-8 bg-black/50 backdrop-blur-sm">
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-light text-white mb-2">AI Analysis in Progress</h3>
-        <p className="text-white/50 font-light">Advanced deepfake detection algorithms are analyzing your content</p>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-light text-white/60">Overall Progress</span>
-          <span className="text-sm font-light text-white/80">{Math.round(progress)}%</span>
-        </div>
-        <Progress value={progress} className="h-2 bg-white/5" />
-      </div>
-
-      {/* Analysis Steps */}
-      <div className="space-y-4">
-        {steps.map((step, index) => {
-          const status = index < currentStep ? "complete" : index === currentStep ? "active" : "pending" // Add this line
-          return (
-            <div
-              key={step.id}
-              className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-500 ${
-                status === "active" // Use the new 'status' variable
-                  ? "border-white/20 bg-white/5"
-                  : status === "complete"
-                    ? "border-white/10 bg-white/[0.02]"
-                    : "border-white/5 bg-transparent"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-500 ${
-                  status === "active" // Use the new 'status' variable
-                    ? "border-white/30 bg-white/10 text-white/90"
-                    : status === "complete"
-                      ? "border-white/20 bg-white/5 text-white/70"
-                      : "border-white/10 bg-white/[0.02] text-white/40"
-                }`}
-              >
-                {status === "complete" ? ( // Use the new 'status' variable
-                  <CheckCircle className="h-5 w-5" />
-                ) : status === "active" ? ( // Use the new 'status' variable
-                  <div className="relative">
-                    {step.icon}
-                    <div className="absolute inset-0 animate-ping">{step.icon}</div>
-                  </div>
-                ) : (
-                  step.icon
-                )}
-              </div>
-              <div className="flex-1">
-                <div
-                  className={`font-light transition-all duration-500 ${
-                    status === "active" // Use the new 'status' variable
-                      ? "text-white text-base"
-                      : status === "complete"
-                        ? "text-white/80 text-base"
-                        : "text-white/50 text-sm"
-                  }`}
-                >
-                  {step.label}
-                </div>
-                <div
-                  className={`text-sm font-light transition-all duration-500 ${
-                    status === "active" // Use the new 'status' variable
-                      ? "text-white/70"
-                      : status === "complete"
-                        ? "text-white/50"
-                        : "text-white/30"
-                  }`}
-                >
-                  {step.description}
-                </div>
-              </div>
-              {status === "active" && ( // Use the new 'status' variable
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" />
-                  <div className="w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} />
-                  <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: "0.4s" }} />
-                </div>
-              )}
-              {status === "complete" && <div className="text-white/40 text-xs font-light">Complete</div>}{" "}
-              {/* Use the new 'status' variable */}
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Current Step Highlight */}
-      {currentStep < steps.length && (
-        <div className="mt-6 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" />
-            </div>
-            <div>
-              <div className="text-white/80 font-light text-sm">Currently Processing</div>
-              <div className="text-white/60 font-light text-xs">{steps[currentStep]?.description}</div>
-            </div>
+    <div className="flex flex-col items-center justify-center py-16 px-8">
+      <div className="relative mb-8">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400/30 to-purple-400/30 animate-pulse">
+            <div className="w-full h-full rounded-full bg-gradient-to-r from-blue-300/40 to-purple-300/40 animate-ping" />
           </div>
         </div>
-      )}
+
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-white/20 animate-spin" />
+      </div>
+
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-light text-white mb-2">{phases[Math.min(currentPhase, phases.length - 1)]}</h3>
+        <p className="text-white/50 text-sm font-light">AI Analysis in Progress</p>
+      </div>
+
+      <div className="w-full max-w-xs">
+        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="text-center mt-3 text-white/60 text-sm font-light">{Math.round(progress)}%</div>
+      </div>
     </div>
   )
 }

@@ -91,7 +91,7 @@ export default function Home() {
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-green-600/20 blur-2xl rounded-full"></div>
                   <Image
-                    src="/neon-triangle-logo-grey-bg.png"
+                    src="/apex-verify-neon-logo-hero.png"
                     alt="Apex Verify AI"
                     width={120}
                     height={120}
@@ -111,38 +111,49 @@ export default function Home() {
               {/* Mission Statement Card */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10 blur-xl rounded-2xl"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-12 shadow-2xl max-h-[70vh] overflow-y-auto">
+                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-12 shadow-2xl">
                   <div className="prose prose-lg max-w-none space-y-6 text-left">
-                    <p className="text-white/90 leading-relaxed text-lg first-letter:text-2xl first-letter:font-bold first-letter:text-white">
-                      In a world flooded with digital content, the line between truth and deception has never been
-                      thinner. At Apex Verify AI, we stand as guardians of authenticity and trust.
+                    <h2 className="text-2xl font-bold text-white mb-4">Apex Verify – Proof You Can Trust</h2>
+
+                    <p className="text-white/90 leading-relaxed text-lg">
+                      In a world full of fake photos and AI-generated videos, it's harder than ever to know what's real.
+                      Apex Verify AI brings back trust by verifying digital content with speed and precision.
                     </p>
 
-                    <p className="text-white/85 leading-relaxed">
-                      Our mission is to empower creators, businesses, and everyday users by providing the most advanced,
-                      reliable, and transparent AI-driven verification technology. We don't just detect deepfakes—we
-                      unveil their origin, revealing who created them and how, restoring clarity in a sea of
-                      uncertainty.
-                    </p>
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-semibold text-white">How It Works</h3>
+
+                      <div className="space-y-3 text-white/85">
+                        <p>
+                          <strong>Check Authenticity</strong> – Scan images and videos for AI generation, edits, or
+                          manipulation.
+                        </p>
+                        <p>
+                          <strong>Trace the Source</strong> – Find when and where the content first appeared.
+                        </p>
+                        <p>
+                          <strong>Confirm the Creator</strong> – Link media to the verified author when possible.
+                        </p>
+                        <p>
+                          <strong>Show the Evidence</strong> – Provide direct proof from trusted sources.
+                        </p>
+                        <p>
+                          <strong>Seal the Truth</strong> – Only media scoring 95%+ authenticity earns the Apex Verify™
+                          Seal.
+                        </p>
+                      </div>
+                    </div>
 
                     <p className="text-white/85 leading-relaxed">
-                      Rooted in integrity and inspired by the pursuit of truth, we build technology that honors reality
-                      and protects the genuine. We believe in a future where digital content can be trusted, identities
-                      are verified with confidence, and misinformation loses its power.
-                    </p>
-
-                    <p className="text-white/85 leading-relaxed">
-                      With every line of code, every model we train, and every user we serve, we dedicate ourselves to
-                      this vision—because truth matters, and trust is everything.
+                      We don't just detect fakes—we uncover the real story. From viral videos to critical news, we make
+                      the truth visible and strip away misinformation's power.
                     </p>
 
                     <p className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                       "For years, we paid to hide watermarks. Now, we invest to secure our identity."
                     </p>
 
-                    <p className="text-base text-white/70 mt-4">
-                      Join us in shaping a safer, more truthful digital world.
-                    </p>
+                    <p className="text-lg font-bold text-white">Apex Verify AI – Because Truth Matters.</p>
                   </div>
                 </div>
               </div>
@@ -170,34 +181,23 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <Image
-                src="/neon-triangle-logo-grey-bg.png"
-                alt="Apex Verify AI"
-                width={24}
-                height={24}
-                className="sm:w-7 sm:h-7 opacity-90"
-              />
-              <span className="text-base sm:text-lg font-medium text-white/90">Apex Verify AI</span>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={handleMissionClick}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
+                className="bg-black border border-white/20 text-white hover:bg-black/80 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
               >
                 <span className="hidden sm:inline">Our Mission</span>
                 <span className="sm:hidden">Mission</span>
               </button>
               <button
                 onClick={handleLogin}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
+                className="bg-black border border-white/20 text-white hover:bg-black/80 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
               >
                 <span className="hidden sm:inline">Log In</span>
                 <span className="sm:hidden">Login</span>
               </button>
               <button
                 onClick={() => router.push("/deepfake-memory")}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
+                className="bg-black border border-white/20 text-white hover:bg-black/80 hover:border-white/30 transition-all duration-200 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg"
               >
                 <span className="hidden sm:inline">Deepfake Memory</span>
                 <span className="sm:hidden">Memory</span>
@@ -215,7 +215,7 @@ export default function Home() {
             <div className="relative group">
               <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-0 sm:mb-0 flex items-center justify-center">
                 <Image
-                  src="/neon-triangle-logo-grey-bg.png"
+                  src="/apex-verify-neon-logo-v2.png"
                   alt="Truth Intelligence"
                   width={150}
                   height={150}
@@ -223,7 +223,7 @@ export default function Home() {
                 />
               </div>
               <div className="-mt-2">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
                   <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,255,255,1)] shadow-white/50 filter brightness-125 contrast-125">
                     Apex Verify AI
                   </span>
