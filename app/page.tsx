@@ -36,7 +36,7 @@ export default function Home() {
     return (
       <div className="min-h-screen text-white antialiased relative overflow-hidden">
         {/* Orb Background Animation */}
-        <div className="fixed inset-0 z-0">
+        <div className="fixed inset-0 z-0 scale-125 sm:scale-100">
           <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
         </div>
 
@@ -169,7 +169,7 @@ export default function Home() {
   return (
     <div className="min-h-screen max-h-screen text-white antialiased relative overflow-hidden">
       {/* Orb Background Animation */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 scale-125 sm:scale-100">
         <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
       </div>
 
