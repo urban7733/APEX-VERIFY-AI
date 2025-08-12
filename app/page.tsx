@@ -35,13 +35,12 @@ export default function Home() {
   if (showMission) {
     return (
       <div className="min-h-screen text-white antialiased relative overflow-hidden">
-        {/* Orb Background Animation */}
-        <div className="fixed inset-0 z-0 scale-125 sm:scale-100">
+        <div className="absolute inset-0 z-0 scale-125 sm:scale-100">
           <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
         </div>
 
         {/* Dark overlay for better text readability */}
-        <div className="fixed inset-0 z-0 bg-black/20" />
+        <div className="absolute inset-0 z-0 bg-black/20" />
 
         {/* Navigation */}
         <nav className="relative z-10 py-4">
@@ -89,13 +88,12 @@ export default function Home() {
               {/* Hero Section */}
               <div className="space-y-4">
                 <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-green-600/20 blur-2xl rounded-full"></div>
                   <Image
                     src="/apex-verify-neon-logo-hero.png"
                     alt="Apex Verify AI"
                     width={120}
                     height={120}
-                    className="relative z-10 mx-auto drop-shadow-2xl"
+                    className="relative z-10 mx-auto drop-shadow-2xl mix-blend-screen"
                   />
                 </div>
 
@@ -110,7 +108,6 @@ export default function Home() {
 
               {/* Mission Statement Card */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10 blur-xl rounded-2xl"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-12 shadow-2xl">
                   <div className="prose prose-lg max-w-none space-y-6 text-left">
                     <h2 className="text-2xl font-bold text-white mb-4">Apex Verify – Proof You Can Trust</h2>
@@ -167,14 +164,13 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen max-h-screen text-white antialiased relative overflow-hidden">
-      {/* Orb Background Animation */}
-      <div className="fixed inset-0 z-0 scale-125 sm:scale-100">
+    <div className="min-h-screen text-white antialiased relative">
+      <div className="absolute inset-0 z-0 scale-125 sm:scale-100">
         <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
       </div>
 
       {/* Dark overlay for better text readability */}
-      <div className="fixed inset-0 z-0 bg-black/20" />
+      <div className="absolute inset-0 z-0 bg-black/20" />
 
       {/* Navigation */}
       <nav className="relative z-10 py-2 sm:py-3">
@@ -207,8 +203,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-80px)] px-4 sm:px-6">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 sm:px-6 py-8">
         <div className="text-center max-w-5xl mx-auto w-full">
           {/* Logo */}
           <div className="mb-1 sm:mb-1">
@@ -265,33 +260,32 @@ export default function Home() {
           <div className="mb-4 w-full max-w-md mx-auto px-2 sm:px-4">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full h-16 cursor-pointer transform transition-all duration-200 hover:scale-[1.01]"
+              className="group relative w-full h-20 sm:h-16 cursor-pointer transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {/* Main container with modern minimalist design */}
-              <div className="relative w-full h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden group-hover:bg-white/8 group-hover:border-white/20 transition-all duration-200">
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative w-full h-full bg-gradient-to-r from-white/[0.08] via-white/[0.12] to-white/[0.08] backdrop-blur-md border-2 border-white/20 rounded-3xl overflow-hidden group-hover:bg-gradient-to-r group-hover:from-white/[0.12] group-hover:via-white/[0.18] group-hover:to-white/[0.12] group-hover:border-white/30 transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/15 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                <div className="relative z-10 flex items-center justify-between h-full px-4 gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/15 transition-colors duration-200">
-                      <Upload className="w-4 h-4 text-white/70 group-hover:text-white transition-colors duration-200" />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                <div className="relative z-10 flex items-center justify-between h-full px-5 sm:px-4 gap-3">
+                  <div className="flex items-center space-x-4 sm:space-x-3">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-br from-white/20 to-white/10 border border-white/30 rounded-2xl sm:rounded-lg flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-white/30 group-hover:to-white/20 group-hover:border-white/40 transition-all duration-300 group-hover:scale-110">
+                      <Upload className="w-6 h-6 sm:w-4 sm:h-4 text-white/80 group-hover:text-white transition-colors duration-200" />
                     </div>
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-200">
+                    <div className="space-y-1 sm:space-y-0.5">
+                      <p className="text-base sm:text-sm font-semibold text-white group-hover:text-white transition-colors duration-200">
                         Verify Media with AI
                       </p>
-                      <p className="text-xs text-white/50 group-hover:text-white/70 transition-colors duration-200">
+                      <p className="text-sm sm:text-xs text-white/60 group-hover:text-white/80 transition-colors duration-200 font-medium">
                         Images & videos • Max 100MB
                       </p>
                     </div>
                   </div>
 
-                  {/* Modern analyze button */}
                   <div className="relative">
-                    <button className="inline-flex items-center justify-center gap-2 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors duration-200 shadow-sm">
+                    <button className="inline-flex items-center justify-center gap-2 h-12 sm:h-9 px-6 sm:px-4 bg-gradient-to-r from-white to-gray-100 text-black rounded-2xl sm:rounded-xl text-base sm:text-sm font-bold hover:from-white hover:to-white transition-all duration-300 shadow-lg hover:shadow-xl group-hover:scale-105 active:scale-95">
                       <span>Analyze</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+                      <ArrowRight className="w-4 h-4 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
                     </button>
                   </div>
                 </div>

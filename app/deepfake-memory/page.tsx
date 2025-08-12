@@ -55,14 +55,14 @@ export default function DeepfakeMemoryPage() {
   }
 
   return (
-    <div className="min-h-screen text-white antialiased relative overflow-hidden">
+    <div className="min-h-screen text-white antialiased relative">
       {/* Orb Background Animation */}
-      <div className="fixed inset-0 z-0">
+      <div className="absolute inset-0 z-0">
         <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
       </div>
 
       {/* Dark overlay for better text readability */}
-      <div className="fixed inset-0 z-0 bg-black/20" />
+      <div className="absolute inset-0 z-0 bg-black/20" />
 
       {/* Navigation */}
       <nav className="relative z-10 py-3 border-b border-white/5 backdrop-blur-sm">
