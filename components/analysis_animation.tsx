@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Orb from "./Orb"
 
 interface AnalysisAnimationProps {
   isActive: boolean
@@ -55,15 +56,10 @@ export function AnalysisAnimation({ isActive, onComplete, fileType = "image" }: 
   return (
     <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-xl">
       <div className="flex flex-col items-center space-y-8">
-        {/* Minimalistic Pulsing Orb */}
-        <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 animate-pulse">
-            <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-400/40 to-purple-400/40 animate-ping" />
-            <div className="absolute inset-4 rounded-full bg-gradient-to-r from-blue-300/60 to-purple-300/60" />
+        <div className="relative w-16 h-16 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full overflow-hidden">
+            <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={true} />
           </div>
-
-          {/* Rotating Ring */}
-          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-white/30 animate-spin" />
         </div>
 
         {/* Phase Text */}
