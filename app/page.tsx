@@ -5,7 +5,13 @@ import { useState } from "react"
 import { Upload, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
-import Orb from "@/components/Orb"
+import dynamic from "next/dynamic"
+
+// Dynamically import Orb to prevent SSR issues with ogl
+const Orb = dynamic(() => import("@/components/Orb"), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-3xl" />
+})
 
 export default function Home() {
   const router = useRouter()
