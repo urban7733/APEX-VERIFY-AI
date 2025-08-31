@@ -206,189 +206,95 @@ const drawApexVerifyBadgeWithOptions = (
   size: number,
   options: { transparent: boolean; is3D: boolean },
 ) => {
-  const badgeWidth = size * 2.5
-  const badgeHeight = size * 0.8
-  const borderRadius = badgeHeight / 2
+  const logoSize = size
+  const padding = logoSize * 0.1
 
   ctx.save()
 
-  // Background with optional transparency
-  if (!options.transparent) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.6)"
-    ctx.beginPath()
-    ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius)
-    ctx.fill()
-  }
+  // Draw the triangular Apex logo
+  const centerX = x + logoSize / 2
+  const centerY = y + logoSize / 2
+  const triangleSize = logoSize * 0.8
 
-  // 3D effect
+  // 3D shadow effect
   if (options.is3D) {
-    // Shadow/depth effect
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
-    ctx.beginPath()
-    ctx.roundRect(x + 2, y + 2, badgeWidth, badgeHeight, borderRadius)
-    ctx.fill()
-
-    // Highlight effect
-    const gradient = ctx.createLinearGradient(x, y, x, y + badgeHeight)
-    gradient.addColorStop(0, "rgba(255, 255, 255, 0.3)")
-    gradient.addColorStop(1, "rgba(255, 255, 255, 0.1)")
-    ctx.fillStyle = gradient
-    ctx.beginPath()
-    ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius)
-    ctx.fill()
+    drawTriangularLogo(ctx, centerX + 2, centerY + 2, triangleSize, "rgba(0, 0, 0, 0.3)")
   }
 
-  // Border
-  ctx.strokeStyle = options.transparent ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.2)"
-  ctx.lineWidth = options.is3D ? 2 : 1
-  ctx.beginPath()
-  ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius)
-  ctx.stroke()
+  // Main logo with transparency option
+  const logoOpacity = options.transparent ? 0.8 : 1.0
+  const logoColor = `rgba(220, 220, 220, ${logoOpacity})`
+  drawTriangularLogo(ctx, centerX, centerY, triangleSize, logoColor)
 
-  // Text with enhanced styling for 3D
-  ctx.fillStyle = options.is3D ? "white" : "white"
-  ctx.textAlign = "center"
-  ctx.textBaseline = "middle"
-
-  // "APEX VERIFY" text with shadow for 3D
+  // Enhanced border for 3D effect
   if (options.is3D) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
-    ctx.font = `bold ${badgeHeight * 0.3}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-    ctx.fillText("APEX VERIFY", x + badgeWidth / 2 + 1, y + badgeHeight * 0.35 + 1)
+    ctx.strokeStyle = `rgba(255, 255, 255, ${logoOpacity * 0.6})`
+    ctx.lineWidth = 2
+    drawTriangularLogoOutline(ctx, centerX, centerY, triangleSize)
   }
-
-  ctx.fillStyle = "white"
-  ctx.font = `bold ${badgeHeight * 0.3}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-  ctx.fillText("APEX VERIFY", x + badgeWidth / 2, y + badgeHeight * 0.35)
-
-  // "AI Verified" subtitle with shadow for 3D
-  if (options.is3D) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
-    ctx.font = `${badgeHeight * 0.2}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-    ctx.fillText("AI Verified", x + badgeWidth / 2 + 1, y + badgeHeight * 0.7 + 1)
-  }
-
-  ctx.fillStyle = "white"
-  ctx.font = `${badgeHeight * 0.2}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-  ctx.fillText("AI Verified", x + badgeWidth / 2, y + badgeHeight * 0.7)
-
-  // Enhanced shield icon for 3D
-  const iconSize = badgeHeight * 0.4
-  const iconX = x + badgeHeight * 0.4
-  const iconY = y + badgeHeight / 2
-
-  if (options.is3D) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
-    ctx.beginPath()
-    ctx.moveTo(iconX + 1, iconY - iconSize / 2 + 1)
-    ctx.lineTo(iconX + iconSize / 3 + 1, iconY - iconSize / 2 + 1)
-    ctx.lineTo(iconX + iconSize / 3 + 1, iconY + iconSize / 4 + 1)
-    ctx.lineTo(iconX + 1, iconY + iconSize / 2 + 1)
-    ctx.lineTo(iconX - iconSize / 3 + 1, iconY + iconSize / 4 + 1)
-    ctx.lineTo(iconX - iconSize / 3 + 1, iconY - iconSize / 2 + 1)
-    ctx.closePath()
-    ctx.fill()
-  }
-
-  ctx.fillStyle = "white"
-  ctx.beginPath()
-  ctx.moveTo(iconX, iconY - iconSize / 2)
-  ctx.lineTo(iconX + iconSize / 3, iconY - iconSize / 2)
-  ctx.lineTo(iconX + iconSize / 3, iconY + iconSize / 4)
-  ctx.lineTo(iconX, iconY + iconSize / 2)
-  ctx.lineTo(iconX - iconSize / 3, iconY + iconSize / 4)
-  ctx.lineTo(iconX - iconSize / 3, iconY - iconSize / 2)
-  ctx.closePath()
-  ctx.fill()
-
-  // Enhanced checkmark for 3D
-  const checkX = x + badgeWidth - badgeHeight * 0.4
-  const checkY = y + badgeHeight / 2
-  const checkSize = badgeHeight * 0.3
-
-  if (options.is3D) {
-    ctx.strokeStyle = "rgba(16, 185, 129, 0.5)"
-    ctx.lineWidth = 3
-    ctx.beginPath()
-    ctx.moveTo(checkX - checkSize / 2 + 1, checkY + 1)
-    ctx.lineTo(checkX - checkSize / 4 + 1, checkY + checkSize / 3 + 1)
-    ctx.lineTo(checkX + checkSize / 2 + 1, checkY - checkSize / 3 + 1)
-    ctx.stroke()
-  }
-
-  ctx.strokeStyle = "#10B981"
-  ctx.lineWidth = options.is3D ? 3 : 2
-  ctx.beginPath()
-  ctx.moveTo(checkX - checkSize / 2, checkY)
-  ctx.lineTo(checkX - checkSize / 4, checkY + checkSize / 3)
-  ctx.lineTo(checkX + checkSize / 2, checkY - checkSize / 3)
-  ctx.stroke()
 
   ctx.restore()
 }
 
-const drawApexVerifyBadge = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
-  const badgeWidth = size * 2.5
-  const badgeHeight = size * 0.8
-  const borderRadius = badgeHeight / 2
+const drawTriangularLogo = (
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  size: number,
+  fillColor: string,
+) => {
+  const halfSize = size / 2
+  const innerSize = size * 0.3
 
-  // Create glassmorphism effect
-  ctx.save()
+  ctx.fillStyle = fillColor
 
-  // Background with transparency
-  ctx.fillStyle = "rgba(0, 0, 0, 0.6)"
+  // Outer triangle
   ctx.beginPath()
-  ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius)
+  ctx.moveTo(centerX, centerY - halfSize) // Top point
+  ctx.lineTo(centerX - halfSize * 0.866, centerY + halfSize * 0.5) // Bottom left
+  ctx.lineTo(centerX + halfSize * 0.866, centerY + halfSize * 0.5) // Bottom right
+  ctx.closePath()
+
+  // Create rounded corners effect
+  ctx.lineJoin = "round"
+  ctx.lineCap = "round"
   ctx.fill()
 
-  // Border
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"
-  ctx.lineWidth = 1
-  ctx.stroke()
-
-  // Text Styles
-  ctx.fillStyle = "white"
-  ctx.textAlign = "center"
-  ctx.textBaseline = "middle"
-
-  // "APEX VERIFY" text
-  ctx.font = `bold ${badgeHeight * 0.3}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-  ctx.fillText("APEX VERIFY", x + badgeWidth / 2, y + badgeHeight * 0.35)
-
-  // "AI Verified" subtitle
-  ctx.font = `${badgeHeight * 0.2}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-  ctx.fillText("AI Verified", x + badgeWidth / 2, y + badgeHeight * 0.7)
-
-  // Shield icon (simplified)
-  const iconSize = badgeHeight * 0.4
-  const iconX = x + badgeHeight * 0.4
-  const iconY = y + badgeHeight / 2
-
-  ctx.fillStyle = "white"
+  // Inner triangle (cutout)
+  ctx.globalCompositeOperation = "destination-out"
   ctx.beginPath()
-  ctx.moveTo(iconX, iconY - iconSize / 2)
-  ctx.lineTo(iconX + iconSize / 3, iconY - iconSize / 2)
-  ctx.lineTo(iconX + iconSize / 3, iconY + iconSize / 4)
-  ctx.lineTo(iconX, iconY + iconSize / 2)
-  ctx.lineTo(iconX - iconSize / 3, iconY + iconSize / 4)
-  ctx.lineTo(iconX - iconSize / 3, iconY - iconSize / 2)
+  ctx.moveTo(centerX, centerY - innerSize) // Top point
+  ctx.lineTo(centerX - innerSize * 0.866, centerY + innerSize * 0.5) // Bottom left
+  ctx.lineTo(centerX + innerSize * 0.866, centerY + innerSize * 0.5) // Bottom right
   ctx.closePath()
   ctx.fill()
 
-  // Checkmark
-  const checkX = x + badgeWidth - badgeHeight * 0.4
-  const checkY = y + badgeHeight / 2
-  const checkSize = badgeHeight * 0.3
+  ctx.globalCompositeOperation = "source-over"
+}
 
-  ctx.strokeStyle = "#10B981"
-  ctx.lineWidth = 2
+const drawTriangularLogoOutline = (ctx: CanvasRenderingContext2D, centerX: number, centerY: number, size: number) => {
+  const halfSize = size / 2
+  const innerSize = size * 0.3
+
+  ctx.lineJoin = "round"
+  ctx.lineCap = "round"
+
+  // Outer triangle outline
   ctx.beginPath()
-  ctx.moveTo(checkX - checkSize / 2, checkY)
-  ctx.lineTo(checkX - checkSize / 4, checkY + checkSize / 3)
-  ctx.lineTo(checkX + checkSize / 2, checkY - checkSize / 3)
+  ctx.moveTo(centerX, centerY - halfSize)
+  ctx.lineTo(centerX - halfSize * 0.866, centerY + halfSize * 0.5)
+  ctx.lineTo(centerX + halfSize * 0.866, centerY + halfSize * 0.5)
+  ctx.closePath()
   ctx.stroke()
 
-  ctx.restore()
+  // Inner triangle outline
+  ctx.beginPath()
+  ctx.moveTo(centerX, centerY - innerSize)
+  ctx.lineTo(centerX - innerSize * 0.866, centerY + innerSize * 0.5)
+  ctx.lineTo(centerX + innerSize * 0.866, centerY + innerSize * 0.5)
+  ctx.closePath()
+  ctx.stroke()
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

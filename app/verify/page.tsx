@@ -14,7 +14,6 @@ import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { AnalysisAnimation } from "@/components/analysis_animation"
-import Orb from "@/components/Orb"
 
 // Lazy load heavy components
 const EnhancedAnalysisDisplay = dynamic(
@@ -896,6 +895,90 @@ export default function VerifyPage() {
 
   const { isMobile } = useViewport()
 
+  const backgroundPosts = [
+    {
+      id: 1,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ducati-YC2snvrNM91HgYXPIdJNgto9mYrQcS.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 2,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%285%29-OuqpDKQKYwEPMfUe1ZDFYkg1rfEwWP.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 3,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%286%29-7R0Zfp7EqCtQ55Bj6ac6tRLO7qnY67.jpeg",
+      aspectRatio: "landscape",
+    },
+    {
+      id: 4,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Golden%20Gate%20Bridge%20in%20San%20Francisco-SIRi9SeqhqXlDL8AbAk5ihT624q4SQ.jpeg",
+      aspectRatio: "landscape",
+    },
+    {
+      id: 5,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%40pndloverrrr-I8MDnCRnxZ2SpKUfcwarqh92SHRr15.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 6,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/city%20at%20night-g1YGnAoUKviGRXMEwukfxKAPyxK50y.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 7,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ducati-YC2snvrNM91HgYXPIdJNgto9mYrQcS.jpeg",
+      aspectRatio: "square",
+    },
+    {
+      id: 8,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%285%29-OuqpDKQKYwEPMfUe1ZDFYkg1rfEwWP.jpeg",
+      aspectRatio: "landscape",
+    },
+    {
+      id: 9,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%286%29-7R0Zfp7EqCtQ55Bj6ac6tRLO7qnY67.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 10,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Golden%20Gate%20Bridge%20in%20San%20Francisco-SIRi9SeqhqXlDL8AbAk5ihT624q4SQ.jpeg",
+      aspectRatio: "square",
+    },
+    {
+      id: 11,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%40pndloverrrr-I8MDnCRnxZ2SpKUfcwarqh92SHRr15.jpeg",
+      aspectRatio: "landscape",
+    },
+    {
+      id: 12,
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/city%20at%20night-g1YGnAoUKviGRXMEwukfxKAPyxK50y.jpeg",
+      aspectRatio: "portrait",
+    },
+    {
+      id: 13,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ducati-YC2snvrNM91HgYXPIdJNgto9mYrQcS.jpeg",
+      aspectRatio: "landscape",
+    },
+    {
+      id: 14,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%285%29-OuqpDKQKYwEPMfUe1ZDFYkg1rfEwWP.jpeg",
+      aspectRatio: "square",
+    },
+    {
+      id: 15,
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%286%29-7R0Zfp7EqCtQ55Bj6ac6tRLO7qnY67.jpeg",
+      aspectRatio: "portrait",
+    },
+  ]
+
   useEffect(() => {
     const initializeEngines = async () => {
       try {
@@ -1089,35 +1172,32 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     <div
       className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
     >
-      {/* Orb Background Animation */}
-      <div className="fixed inset-0 z-0">
-        <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
+      <div className="absolute inset-0 opacity-40 pointer-events-none">
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4 p-4">
+          {backgroundPosts.map((post) => (
+            <div key={post.id} className="break-inside-avoid mb-4">
+              <div className="relative bg-white/5 rounded-2xl overflow-hidden">
+                <Image
+                  src={post.image || "/placeholder.svg"}
+                  alt=""
+                  width={400}
+                  height={post.aspectRatio === "portrait" ? 600 : post.aspectRatio === "square" ? 400 : 300}
+                  className="w-full object-cover"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Dark overlay for better text readability */}
-      <div className="fixed inset-0 z-0 bg-black/20" />
+      <div className="absolute inset-0 z-0 bg-black/60" />
 
-      {/* Subtle Starfield Background */}
-      <Starfield />
-
-      {/* Minimal Logo Watermark */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
-        <MemoizedImage
-          src="/verified-apex-verify-logo-2.png"
-          alt=""
-          width={isMobile ? 200 : 400}
-          height={isMobile ? 200 : 400}
-          className="opacity-[0.008] select-none"
-          priority={false}
-        />
-      </div>
-
-      {/* Clean Navigation */}
-      <nav className="relative z-10 py-2 sm:py-3 border-b border-white/5 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="relative z-10 py-6">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
+              <span className="text-white/60 group-hover:text-white/90 transition-colors">Back to Home</span>
             </Link>
           </div>
         </div>
@@ -1289,203 +1369,212 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 {/* Single Comprehensive Analysis Summary */}
                 <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 shadow-xl">
                   <div className="space-y-6 text-left">
-                    {/* Header */}
                     <div className="border-b border-white/10 pb-4">
                       <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                        Apex Verify AI Analysis: COMPLETE & REFINED
+                        Apex Verify AI Analysis: COMPLETE
                       </h2>
                       <div className="flex items-center space-x-4">
                         <span className="text-lg font-semibold text-white">
-                          Authenticity Score: <span className="text-green-400">97%</span>
+                          * Authenticity Score:{" "}
+                          <span className="text-green-400">{(result.confidence * 100).toFixed(1)}%</span> -{" "}
+                          {result.isDeepfake ? "MANIPULATED MEDIA" : "GENUINE MEDIA"}
                         </span>
-                        <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-gradient-to-r from-green-400/10 to-emerald-400/10 backdrop-blur-sm border border-green-400/20 rounded-md">
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                          <span className="text-green-400 text-xs font-mono tracking-wider uppercase">VERIFIED</span>
-                        </div>
                       </div>
-                    </div>
-
-                    {/* Assessment */}
-                    <div className="space-y-3">
-                      <p className="text-white/90 leading-relaxed">
-                        <strong>Assessment:</strong>{" "}
-                        {result.confidence >= 0.95 && !result.isDeepfake
-                          ? "Flawless. My deep-scan confirms this media is 100% authentic with 95%+ confidence. It's a pristine capture, free from any digital trickery or manipulation. You're looking at the real deal and it qualifies for the Apex Verify™ Seal."
-                          : result.isDeepfake
-                            ? "Analysis detected potential digital manipulation. My deep-scan reveals inconsistencies in the media that suggest artificial generation or editing. This content requires careful verification before sharing."
-                            : "While this content shows no clear signs of manipulation, it falls below our 95% authenticity threshold required for full verification. Additional analysis recommended before considering it completely authentic."}
+                      <p className="text-white/90 leading-relaxed mt-3">
+                        * Assessment:{" "}
+                        {result.isDeepfake
+                          ? `Flagged. The image shows signs of digital manipulation. Our matrix detects anomalies; forensic markers indicate potential artificial generation or significant alteration.`
+                          : `Confirmed. The image is an authentic photograph. Our matrix detects no anomalies; all forensic markers point to genuine media from a verifiable source.`}
                       </p>
                     </div>
 
-                    {/* The Scene in Focus */}
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-white">The Scene in Focus</h3>
                       <p className="text-white/80 leading-relaxed">
-                        {file.type.startsWith("image/") ? (
+                        {result.spatialAnalysis ? (
                           <>
-                            Now, for the good stuff. What you're seeing is{" "}
-                            {result.isDeepfake ? "potentially manipulated content" : "authentic visual content"} that
-                            has been meticulously analyzed.
+                            This image captures{" "}
+                            {result.spatialAnalysis.objects.length > 0 &&
+                              result.spatialAnalysis.objects
+                                .map((obj, index) => {
+                                  const description = `${obj.label.toLowerCase()}`
+                                  if (obj.attributes) {
+                                    const attrs = Object.entries(obj.attributes)
+                                      .map(([key, value]) => `${key}: ${value}`)
+                                      .join(", ")
+                                    return `${description} with ${attrs}`
+                                  }
+                                  return description
+                                })
+                                .join(", ")}
+                            .
+                            <br />
+                            <br />* Foreground:{" "}
+                            {result.spatialAnalysis.objects[0]
+                              ? `${result.spatialAnalysis.objects[0].label} positioned prominently in the frame`
+                              : "Primary subject matter clearly visible"}
+                            <br />* Background:{" "}
+                            {result.spatialAnalysis.technicalAnalysis
+                              ? `${result.spatialAnalysis.technicalAnalysis.lighting.overall} lighting environment with ${result.spatialAnalysis.technicalAnalysis.lighting.shadows} shadows`
+                              : "Supporting elements and environmental context"}
+                            {result.spatialAnalysis.faces.length > 0 && (
+                              <>
+                                <br />* People: {result.spatialAnalysis.faces.length} individual(s) detected -{" "}
+                                {result.spatialAnalysis.faces
+                                  .map(
+                                    (face, index) =>
+                                      `Person ${index + 1}: ${face.attributes.age} years old with ${face.attributes.emotion} expression`,
+                                  )
+                                  .join(", ")}
+                              </>
+                            )}
                           </>
                         ) : (
                           <>
-                            This {file.type.startsWith("video/") ? "video content" : "audio recording"} has been
-                            thoroughly examined for authenticity markers.
+                            This{" "}
+                            {file.type.startsWith("image/")
+                              ? "image"
+                              : file.type.startsWith("video/")
+                                ? "video"
+                                : "media file"}
+                            shows{" "}
+                            {result.isDeepfake
+                              ? "artificially generated or manipulated content"
+                              : "authentic visual content"}
+                            .
+                            <br />
+                            <br />* Primary Content: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                            <br />* Technical Quality:{" "}
+                            {result.confidence >= 0.8
+                              ? "High-resolution authentic media"
+                              : "Mixed quality indicators detected"}
                           </>
                         )}
                       </p>
-
-                      {!result.isDeepfake && (
-                        <div className="space-y-2 ml-4">
-                          <p className="text-white/80 leading-relaxed">
-                            <strong>Foreground:</strong> The primary subject matter shows clear, unmanipulated
-                            characteristics with consistent lighting, shadows, and pixel-level authenticity markers.
-                          </p>
-                          <p className="text-white/80 leading-relaxed">
-                            <strong>Background:</strong> Environmental elements display natural compression patterns and
-                            authentic depth-of-field characteristics consistent with genuine capture devices.
-                          </p>
-                          <p className="text-white/80 leading-relaxed">
-                            <strong>Technical Markers:</strong> EXIF data, compression artifacts, and sensor noise
-                            patterns all align with authentic{" "}
-                            {file.type.startsWith("image/") ? "photography" : "recording"} standards.
-                          </p>
-                        </div>
-                      )}
                     </div>
 
-                    {/* The Story Behind the Content */}
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-white">The Story Behind the Content</h3>
                       <p className="text-white/80 leading-relaxed">
-                        This{" "}
-                        {file.type.startsWith("image/")
-                          ? "image"
-                          : file.type.startsWith("video/")
-                            ? "video"
-                            : "audio file"}{" "}
-                        has been processed through our comprehensive verification pipeline, analyzing over 50 different
-                        authenticity markers in {tensorFlowResult.technicalDetails.processingTime}ms.
+                        {result.spatialAnalysis?.reasoning.summary ? (
+                          <>
+                            {result.spatialAnalysis.reasoning.summary}
+                            <br />
+                            <br />
+                            This content appears to be{" "}
+                            {result.isDeepfake
+                              ? "digitally manipulated or artificially generated"
+                              : "genuine media captured through standard photography/recording methods"}
+                            .
+                            {result.spatialAnalysis.technicalAnalysis && (
+                              <>
+                                The technical analysis reveals{" "}
+                                {result.spatialAnalysis.technicalAnalysis.resolution.width}x
+                                {result.spatialAnalysis.technicalAnalysis.resolution.height} resolution with{" "}
+                                {result.spatialAnalysis.technicalAnalysis.colorSpace} color encoding.
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            Based on our comprehensive analysis, this{" "}
+                            {file.type.startsWith("image/") ? "photograph" : "media file"}
+                            {result.isDeepfake
+                              ? "exhibits characteristics consistent with artificial generation or significant digital manipulation. The AI models identified patterns that deviate from natural media creation processes."
+                              : "demonstrates authentic characteristics typical of genuine media. All forensic markers align with natural content creation without signs of manipulation."}
+                            <br />
+                            <br />
+                            The file metadata and technical properties support{" "}
+                            {result.isDeepfake ? "concerns about authenticity" : "the conclusion of genuine content"}.
+                          </>
+                        )}
                       </p>
-
-                      {!result.isDeepfake && (
-                        <div className="space-y-2">
-                          <p className="text-white/80 leading-relaxed">
-                            <strong>Content Analysis:</strong> Our AI has identified genuine characteristics including
-                            natural lighting patterns, authentic compression signatures, and consistent metadata that
-                            confirms this content's legitimacy.
-                          </p>
-                          <p className="text-white/80 leading-relaxed">
-                            <strong>Source Verification:</strong> The file structure, encoding parameters, and digital
-                            fingerprint all match patterns consistent with authentic capture devices and genuine content
-                            creation workflows.
-                          </p>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Digital Footprint & The Real Evidence */}
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-white">Digital Footprint & The Real Evidence</h3>
                       <p className="text-white/80 leading-relaxed">
-                        {result.isDeepfake
-                          ? "Our analysis has identified concerning digital artifacts and inconsistencies:"
-                          : "I've located high-value, verified technical markers that provide direct proof of authenticity. These are the key indicators you want to know about:"}
-                      </p>
-
-                      <div className="space-y-3 ml-4">
-                        {!result.isDeepfake ? (
+                        Our targeted analysis has identified the following technical evidence and forensic markers:
+                        <br />
+                        <br />* File Analysis: {result.fileInfo.name} ({(result.fileInfo.size / 1024 / 1024).toFixed(2)}{" "}
+                        MB, {result.fileInfo.type})
+                        {result.fileInfo.dimensions && (
                           <>
-                            <div className="space-y-2">
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                <strong>Technical Verification (Direct Source):</strong> Advanced neural network
-                                analysis confirms authentic pixel-level characteristics with 99.9% confidence. No signs
-                                of AI generation or digital manipulation detected.
-                              </p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                <strong>Metadata Analysis:</strong> Original capture information preserved, including
-                                device signatures, timestamp consistency, and authentic compression patterns that match
-                                genuine recording equipment.
-                              </p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                <strong>Content Provenance:</strong> File structure analysis reveals authentic creation
-                                workflow with no signs of post-processing manipulation or artificial generation
-                                artifacts.
-                              </p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                <strong>Visual Evidence Markers:</strong> Natural lighting consistency, authentic shadow
-                                patterns, and genuine depth-of-field characteristics confirm this content was captured
-                                in real-world conditions.
-                              </p>
-                            </div>
-
-                            {/* Simulated social media and source links for authentic content */}
-                            <div className="space-y-2 border-t border-white/10 pt-3">
-                              <p className="text-white/70 text-sm">
-                                <strong>Verification Sources:</strong>
-                              </p>
-                              <div className="space-y-1 ml-2">
-                                <p className="text-blue-400 text-sm hover:text-blue-300 cursor-pointer">
-                                  📸 Original Source Verification: Content authenticity confirmed through technical
-                                  analysis
-                                </p>
-                                <p className="text-blue-400 text-sm hover:text-blue-300 cursor-pointer">
-                                  🔍 Reverse Image Analysis: No matches found in deepfake databases or manipulation
-                                  archives
-                                </p>
-                                <p className="text-blue-400 text-sm hover:text-blue-300 cursor-pointer">
-                                  ✅ Technical Validation: Advanced AI models confirm genuine content characteristics
-                                </p>
-                              </div>
-                            </div>
+                            , Resolution: {result.fileInfo.dimensions.width}x{result.fileInfo.dimensions.height}
                           </>
-                        ) : (
-                          <div className="space-y-2">
-                            {tensorFlowResult.issues.slice(0, 4).map((issue: string, index: number) => (
-                              <div key={index} className="flex items-start space-x-3">
-                                <span className="text-red-400">⚠</span>
-                                <span className="text-white/70 text-sm leading-relaxed">{issue}</span>
+                        )}
+                        <br />* Processing Engine: Analyzed using {result.technicalDetails.modelVersions.join(", ")}
+                        on {result.technicalDetails.processingNodes.join(", ")} in {result.processingTime.toFixed(0)}ms
+                        <br />
+                        <br />
+                        <strong>Forensic Markers:</strong>
+                        <br />* Face Consistency Analysis: {(result.analysisDetails.faceConsistency * 100).toFixed(1)}%
+                        -{" "}
+                        {result.analysisDetails.faceConsistency > 0.8
+                          ? "Natural patterns detected"
+                          : "Inconsistencies found"}
+                        <br />* Temporal Analysis: {(result.analysisDetails.temporalConsistency * 100).toFixed(1)}% -{" "}
+                        {result.analysisDetails.temporalConsistency > 0.8
+                          ? "Consistent frame progression"
+                          : "Temporal anomalies detected"}
+                        <br />* Frequency Domain: {(result.analysisDetails.frequencyAnalysis * 100).toFixed(1)}% -{" "}
+                        {result.analysisDetails.frequencyAnalysis > 0.8
+                          ? "Natural frequency distribution"
+                          : "Artificial frequency patterns"}
+                        <br />* Metadata Integrity: {(result.analysisDetails.metadataIntegrity * 100).toFixed(1)}% -{" "}
+                        {result.analysisDetails.metadataIntegrity > 0.8
+                          ? "Authentic metadata structure"
+                          : "Metadata inconsistencies"}
+                        {result.manipulationRegions && result.manipulationRegions.length > 0 && (
+                          <>
+                            <br />
+                            <br />
+                            <strong>Manipulation Regions Identified:</strong>
+                            {result.manipulationRegions.map((region, index) => (
+                              <div key={index}>
+                                * Region {index + 1}: Coordinates ({region.x},{region.y}) - {region.width}x
+                                {region.height} pixels - {(region.confidence * 100).toFixed(1)}% confidence of
+                                manipulation
                               </div>
                             ))}
-                          </div>
+                          </>
                         )}
-                      </div>
+                      </p>
                     </div>
 
-                    {/* AI Summary */}
                     <div className="space-y-3 border-t border-white/10 pt-4">
                       <h3 className="text-lg font-semibold text-white">AI Summary</h3>
                       <p className="text-white/80">
                         {result.isDeepfake ? (
                           <>
-                            Your{" "}
-                            {file.type.startsWith("image/")
-                              ? "image"
-                              : file.type.startsWith("video/")
-                                ? "video"
-                                : "audio"}{" "}
-                            has been flagged for potential manipulation with a confidence level of{" "}
-                            {(result.confidence * 100).toFixed(1)}%. The detected anomalies suggest artificial
-                            generation or post-processing manipulation that compromises the content's authenticity.
+                            The {file.type.startsWith("image/") ? "photo" : "media"} shows signs of digital manipulation
+                            and has been flagged as potentially artificial. The AI detected{" "}
+                            {result.spatialAnalysis?.deepfakeEvidence?.length || "multiple"} indicators suggesting
+                            non-authentic content creation.
+                            {result.aiProvider && (
+                              <>The analysis suggests possible generation using {result.aiProvider} technology.</>
+                            )}
                           </>
                         ) : (
                           <>
-                            In short, your{" "}
-                            {file.type.startsWith("image/")
-                              ? "image"
-                              : file.type.startsWith("video/")
-                                ? "video"
-                                : "audio"}{" "}
-                            is a genuine and verified piece of authentic content. The technical analysis confirms this
-                            media is 100% legitimate with a confidence score of 97%. The evidence provided directly
-                            links the content's authenticity through comprehensive AI verification.
+                            The {file.type.startsWith("image/") ? "photo" : "media"} is genuine and shows authentic{" "}
+                            {result.spatialAnalysis?.objects.length > 0
+                              ? result.spatialAnalysis.objects.map((obj) => obj.label.toLowerCase()).join(" and ")
+                              : "content"}
+                            .
+                            {result.spatialAnalysis?.faces.length > 0 && (
+                              <>
+                                The {result.spatialAnalysis.faces.length} individual(s) detected show natural
+                                characteristics with no signs of digital face manipulation.
+                              </>
+                            )}
                           </>
                         )}
                       </p>
-                      <p className="text-white/80">
-                        {result.isDeepfake
-                          ? "We strongly recommend additional verification before sharing or using this content. The detected patterns indicate significant concerns about the media's authenticity and potential artificial generation."
-                          : "Your media's authenticity is verified beyond a shadow of a doubt. You can now confidently use this content knowing it represents genuine, unmanipulated media that has passed our most rigorous verification standards."}
+                      <p className="text-white/80 mt-3">
+                        Your media is{" "}
+                        {result.isDeepfake ? "flagged for potential manipulation" : "verified as authentic"}.
+                        {!result.isDeepfake && "You can now secure your file with our seal of authenticity."}
                       </p>
                     </div>
 
