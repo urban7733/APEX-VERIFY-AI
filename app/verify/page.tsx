@@ -1172,11 +1172,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     <div
       className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
     >
+      {/* Background Grid - Mobile Optimized */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4 p-4">
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-2 sm:gap-4 p-2 sm:p-4">
           {backgroundPosts.map((post) => (
-            <div key={post.id} className="break-inside-avoid mb-4">
-              <div className="relative bg-white/5 rounded-2xl overflow-hidden">
+            <div key={post.id} className="break-inside-avoid mb-2 sm:mb-4">
+              <div className="relative bg-white/5 rounded-lg sm:rounded-2xl overflow-hidden">
                 <Image
                   src={post.image || "/placeholder.svg"}
                   alt=""
@@ -1192,42 +1193,43 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
       <div className="absolute inset-0 z-0 bg-black/60" />
 
-      <nav className="relative z-10 py-6">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      {/* Navigation - Mobile Optimized */}
+      <nav className="relative z-10 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
-              <span className="text-white/60 group-hover:text-white/90 transition-colors">Back to Home</span>
+              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base">Back to Home</span>
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
+      {/* Main Content - Mobile Optimized */}
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {!file ? (
-          /* Minimalist Upload Section */
-          <div className="text-center space-y-12">
-            <div className="space-y-6">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight space-y-1">
+          /* Minimalist Upload Section - Mobile Optimized */
+          <div className="text-center space-y-8 sm:space-y-12">
+            <div className="space-y-4 sm:space-y-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight space-y-1 px-2">
                 <div className="mb-1">
                   <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg">
                     AI-Powered Verification
                   </span>
                 </div>
                 <div>
-                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent text-xl sm:text-2xl md:text-3xl lg:text-4xl drop-shadow-lg">
+                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl drop-shadow-lg">
                     Upload. Analyze. Verify.
                   </span>
                 </div>
               </h1>
-              <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+              <p className="text-base sm:text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md px-4">
                 Advanced deepfake detection and media authenticity verification powered by cutting-edge AI
               </p>
             </div>
 
             <div
-              className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.01] ${
+              className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.01] active:scale-[0.98] ${
                 dragActive ? "scale-[1.01]" : ""
               }`}
               onDragEnter={handleDrag}
@@ -1236,20 +1238,20 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 sm:p-12 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden min-h-[300px] flex items-center justify-center">
+              <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden min-h-[250px] sm:min-h-[300px] flex items-center justify-center">
                 {/* Subtle scan line effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out"></div>
 
-                <div className="relative z-10 flex flex-col items-center space-y-8">
-                  <div className="w-16 h-16 rounded-xl bg-white/15 border border-white/40 flex items-center justify-center group-hover:bg-white/25 group-hover:border-white/50 transition-all duration-300">
-                    <Upload className="h-6 w-6 text-white/90 group-hover:text-white transition-colors" />
+                <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-8">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-white/15 border border-white/40 flex items-center justify-center group-hover:bg-white/25 group-hover:border-white/50 transition-all duration-300">
+                    <Upload className="h-4 w-4 sm:h-6 sm:w-6 text-white/90 group-hover:text-white transition-colors" />
                   </div>
-                  <div className="text-center space-y-4">
-                    <h3 className="font-light text-white text-lg drop-shadow-md">Drop your files here</h3>
-                    <p className="text-sm text-white/40 drop-shadow-md">Images, videos, and audio files up to 100MB</p>
-                    <div className="pt-6">
+                  <div className="text-center space-y-3 sm:space-y-4 px-2">
+                    <h3 className="font-light text-white text-base sm:text-lg drop-shadow-md">Drop your files here</h3>
+                    <p className="text-xs sm:text-sm text-white/40 drop-shadow-md">Images, videos, and audio files up to 100MB</p>
+                    <div className="pt-4 sm:pt-6">
                       <GradientText
-                        className="px-8 py-3 border border-white/10 rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90"
+                        className="px-6 sm:px-8 py-2 sm:py-3 border border-white/10 rounded-lg sm:rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90 text-sm sm:text-base"
                         colors={["#3b82f6", "#8b5cf6", "#3b82f6"]}
                       >
                         Select Files
@@ -1269,35 +1271,35 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
             </div>
           </div>
         ) : (
-          /* Clean Analysis Section */
-          <div className="space-y-8">
-            {/* File Preview Card */}
-            <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/15 border border-white/40 rounded-xl flex items-center justify-center">
+          /* Clean Analysis Section - Mobile Optimized */
+          <div className="space-y-6 sm:space-y-8">
+            {/* File Preview Card - Mobile Optimized */}
+            <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+                <div className="flex items-center space-x-3 sm:space-x-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/40 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
                     {file.type.startsWith("image/") ? (
-                      <FileImage className="h-5 w-5 text-white/60" />
+                      <FileImage className="h-4 w-4 sm:h-5 sm:w-5 text-white/60" />
                     ) : file.type.startsWith("video/") ? (
-                      <FileVideo className="h-5 w-5 text-white/60" />
+                      <FileVideo className="h-4 w-4 sm:h-5 sm:w-5 text-white/60" />
                     ) : (
-                      <FileAudio className="h-5 w-5 text-white/60" />
+                      <FileAudio className="h-4 w-4 sm:h-5 sm:w-5 text-white/60" />
                     )}
                   </div>
-                  <div>
-                    <h3 className="font-light text-white text-lg">{file.name}</h3>
-                    <p className="text-sm text-white/40">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-light text-white text-base sm:text-lg truncate">{file.name}</h3>
+                    <p className="text-xs sm:text-sm text-white/40">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 justify-end">
                   {result && !result.isDeepfake && result.confidence * 100 >= 95 && (
                     <div className="relative">
                       <Image
                         src="/verification-seal.png"
                         alt="Apex Verify Seal"
-                        width={48}
-                        height={48}
-                        className="animate-pulse"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 sm:w-12 sm:h-12 animate-pulse"
                       />
                     </div>
                   )}
@@ -1305,7 +1307,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     variant="ghost"
                     size="sm"
                     onClick={resetAnalysis}
-                    className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-xl"
+                    className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-lg sm:rounded-xl p-2"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -1313,7 +1315,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               </div>
 
               {previewUrl && (
-                <div className="mb-8">
+                <div className="mb-6 sm:mb-8">
                   {file.type.startsWith("image/") ? (
                     <div className="relative max-w-lg mx-auto">
                       <MemoizedImage
@@ -1321,7 +1323,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                         alt="Preview"
                         width={isMobile ? 300 : 500}
                         height={isMobile ? 240 : 400}
-                        className="rounded-xl object-cover w-full border border-white/5"
+                        className="rounded-lg sm:rounded-xl object-cover w-full border border-white/5"
                         priority={false}
                       />
                     </div>
@@ -1330,7 +1332,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                       <video
                         src={previewUrl}
                         controls
-                        className="rounded-xl w-full border border-white/5"
+                        className="rounded-lg sm:rounded-xl w-full border border-white/5"
                         style={{ maxHeight: isMobile ? "250px" : "400px" }}
                         preload={isMobile ? "metadata" : "auto"}
                         playsInline
@@ -1344,7 +1346,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 <Button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing}
-                  className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-4 font-light transition-all duration-300"
+                  className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl py-3 sm:py-4 font-light transition-all duration-300 text-sm sm:text-base"
                 >
                   Start Analysis
                 </Button>
@@ -1362,25 +1364,24 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               />
             )}
 
-            {/* Clean Results Display */}
-
+            {/* Clean Results Display - Mobile Optimized */}
             {result && tensorFlowResult && (
-              <div className="space-y-8">
-                {/* Single Comprehensive Analysis Summary */}
-                <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 shadow-xl">
-                  <div className="space-y-6 text-left">
-                    <div className="border-b border-white/10 pb-4">
-                      <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              <div className="space-y-6 sm:space-y-8">
+                {/* Single Comprehensive Analysis Summary - Mobile Optimized */}
+                <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl">
+                  <div className="space-y-4 sm:space-y-6 text-left">
+                    <div className="border-b border-white/10 pb-3 sm:pb-4">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">
                         Apex Verify AI Analysis: COMPLETE
                       </h2>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-lg font-semibold text-white">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <span className="text-base sm:text-lg font-semibold text-white">
                           * Authenticity Score:{" "}
                           <span className="text-green-400">{(result.confidence * 100).toFixed(1)}%</span> -{" "}
                           {result.isDeepfake ? "MANIPULATED MEDIA" : "GENUINE MEDIA"}
                         </span>
                       </div>
-                      <p className="text-white/90 leading-relaxed mt-3">
+                      <p className="text-white/90 leading-relaxed mt-3 text-sm sm:text-base">
                         * Assessment:{" "}
                         {result.isDeepfake
                           ? `Flagged. The image shows signs of digital manipulation. Our matrix detects anomalies; forensic markers indicate potential artificial generation or significant alteration.`
@@ -1389,8 +1390,8 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     </div>
 
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-white">The Scene in Focus</h3>
-                      <p className="text-white/80 leading-relaxed">
+                      <h3 className="text-base sm:text-lg font-semibold text-white">The Scene in Focus</h3>
+                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
                         {result.spatialAnalysis ? (
                           <>
                             This image captures{" "}
@@ -1454,8 +1455,8 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     </div>
 
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-white">The Story Behind the Content</h3>
-                      <p className="text-white/80 leading-relaxed">
+                      <h3 className="text-base sm:text-lg font-semibold text-white">The Story Behind the Content</h3>
+                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
                         {result.spatialAnalysis?.reasoning.summary ? (
                           <>
                             {result.spatialAnalysis.reasoning.summary}
@@ -1492,8 +1493,8 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     </div>
 
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-white">Digital Footprint & The Real Evidence</h3>
-                      <p className="text-white/80 leading-relaxed">
+                      <h3 className="text-base sm:text-lg font-semibold text-white">Digital Footprint & The Real Evidence</h3>
+                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
                         Our targeted analysis has identified the following technical evidence and forensic markers:
                         <br />
                         <br />* File Analysis: {result.fileInfo.name} ({(result.fileInfo.size / 1024 / 1024).toFixed(2)}{" "}
@@ -1531,7 +1532,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                             <br />
                             <strong>Manipulation Regions Identified:</strong>
                             {result.manipulationRegions.map((region, index) => (
-                              <div key={index}>
+                              <div key={index} className="text-xs sm:text-sm">
                                 * Region {index + 1}: Coordinates ({region.x},{region.y}) - {region.width}x
                                 {region.height} pixels - {(region.confidence * 100).toFixed(1)}% confidence of
                                 manipulation
@@ -1542,9 +1543,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                       </p>
                     </div>
 
-                    <div className="space-y-3 border-t border-white/10 pt-4">
-                      <h3 className="text-lg font-semibold text-white">AI Summary</h3>
-                      <p className="text-white/80">
+                    <div className="space-y-3 border-t border-white/10 pt-3 sm:pt-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-white">AI Summary</h3>
+                      <p className="text-white/80 text-sm sm:text-base">
                         {result.isDeepfake ? (
                           <>
                             The {file.type.startsWith("image/") ? "photo" : "media"} shows signs of digital manipulation
@@ -1571,18 +1572,18 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                           </>
                         )}
                       </p>
-                      <p className="text-white/80 mt-3">
+                      <p className="text-white/80 mt-3 text-sm sm:text-base">
                         Your media is{" "}
                         {result.isDeepfake ? "flagged for potential manipulation" : "verified as authentic"}.
                         {!result.isDeepfake && "You can now secure your file with our seal of authenticity."}
                       </p>
                     </div>
 
-                    {/* Download Seal */}
-                    <div className="border-t border-white/10 pt-4 text-center">
+                    {/* Download Seal - Mobile Optimized */}
+                    <div className="border-t border-white/10 pt-3 sm:pt-4 text-center">
                       <Button
                         onClick={() => downloadWithWatermark(file, previewUrl)}
-                        className="bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl px-6 py-3 font-medium backdrop-blur-md"
+                        className="bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl px-4 sm:px-6 py-2 sm:py-3 font-medium backdrop-blur-md text-sm sm:text-base w-full sm:w-auto"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Download with Apex Verify™ Seal
@@ -1591,19 +1592,19 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   </div>
                 </div>
 
-                {/* Simple Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                {/* Simple Action Buttons - Mobile Optimized */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <Button
                     onClick={resetAnalysis}
                     variant="outline"
-                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light backdrop-blur-md"
+                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-lg sm:rounded-xl py-2 sm:py-3 font-light backdrop-blur-md text-sm sm:text-base"
                   >
                     New Analysis
                   </Button>
                   <Button
                     onClick={downloadReport}
                     variant="outline"
-                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-xl py-3 font-light backdrop-blur-md"
+                    className="flex-1 border-white/10 text-white/70 hover:bg-white/5 bg-transparent rounded-lg sm:rounded-xl py-2 sm:py-3 font-light backdrop-blur-md text-sm sm:text-base"
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Download Report

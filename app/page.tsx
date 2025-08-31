@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Upload, ArrowRight } from "lucide-react"
+import { Upload, ArrowRight, Menu, X } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 
@@ -92,6 +92,7 @@ export default function Home() {
   const router = useRouter()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleFileUpload = () => {
     router.push("/verify")
@@ -102,13 +103,18 @@ export default function Home() {
     setAuthDialogOpen(true)
   }
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
   return (
-    <div className="min-h-screen text-white antialiased relative overflow-hidden">
+    <div className="min-h-screen text-white antialiased relative overflow-x-hidden">
+      {/* Background Grid - Optimized for mobile */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4 p-4">
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-2 sm:gap-4 p-2 sm:p-4">
           {backgroundPosts.map((post) => (
-            <div key={post.id} className="break-inside-avoid mb-4">
-              <div className="relative bg-white/5 rounded-2xl overflow-hidden">
+            <div key={post.id} className="break-inside-avoid mb-2 sm:mb-4">
+              <div className="relative bg-white/5 rounded-lg sm:rounded-2xl overflow-hidden">
                 <Image
                   src={post.image || "/placeholder.svg"}
                   alt=""
@@ -124,17 +130,19 @@ export default function Home() {
 
       <div className="absolute inset-0 z-0 bg-black/60" />
 
-      <nav className="relative z-10 py-6">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      {/* Navigation - Mobile Optimized */}
+      <nav className="relative z-10 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-2xl font-bold text-white">Apex Verify AI</span>
+              <span className="text-xl sm:text-2xl font-bold text-white">Apex Verify AI</span>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <button
                 onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
+                className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -143,51 +151,101 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/verify")}
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
               >
                 EXPLORE
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-full text-white text-sm font-medium transition-all duration-200"
               >
                 Our Mission
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-4 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl p-4 space-y-3">
+              <button
+                onClick={() => {
+                  handleLogin()
+                  setMobileMenuOpen(false)
+                }}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-lg text-white text-sm font-medium transition-all duration-200"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
+                <span>Log in</span>
+              </button>
+              <button
+                onClick={() => {
+                  router.push("/verify")
+                  setMobileMenuOpen(false)
+                }}
+                className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-lg text-white text-sm font-medium transition-all duration-200"
+              >
+                EXPLORE
+              </button>
+              <button
+                onClick={() => {
+                  router.push("/about")
+                  setMobileMenuOpen(false)
+                }}
+                className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-lg text-white text-sm font-medium transition-all duration-200"
+              >
+                Our Mission
+              </button>
+            </div>
+          )}
         </div>
       </nav>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6">
-        <div className="text-center max-w-4xl mx-auto w-full space-y-8">
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white leading-none tracking-tight">
+      {/* Main Content - Mobile Optimized */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-4 sm:px-6">
+        <div className="text-center max-w-4xl mx-auto w-full space-y-6 sm:space-y-8">
+          {/* Hero Title - Responsive Typography */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white leading-none tracking-tight px-2">
             Apex Verify
           </h1>
 
-          <div className="w-full max-w-2xl mx-auto">
+          {/* Upload Section - Mobile Optimized */}
+          <div className="w-full max-w-2xl mx-auto px-2">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
+              className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className="relative w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full overflow-hidden group-hover:bg-white/15 group-hover:border-white/30 transition-all duration-300 shadow-lg">
-                <div className="flex items-center justify-between h-16 px-6">
-                  <div className="flex items-center space-x-4">
-                    <Upload className="w-5 h-5 text-white/60" />
-                    <span className="text-white/60 text-lg">Upload image to verify authenticity...</span>
+                <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6">
+                  <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                    <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-white/60 flex-shrink-0" />
+                    <span className="text-white/60 text-sm sm:text-lg truncate">
+                      Upload image to verify authenticity...
+                    </span>
                   </div>
-                  <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200">
-                    <ArrowRight className="w-5 h-5 text-black" />
+                  <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200 flex-shrink-0 ml-2">
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-2 max-w-3xl mx-auto">
-            <p className="text-white text-lg leading-relaxed">
+          {/* Description Text - Mobile Optimized */}
+          <div className="space-y-2 max-w-3xl mx-auto px-4">
+            <p className="text-white text-base sm:text-lg leading-relaxed">
               Apex Verify AI is the most advanced deepfake detection platform in the world.
             </p>
-            <p className="text-white text-lg leading-relaxed">
+            <p className="text-white text-base sm:text-lg leading-relaxed">
               Protect yourself from AI-generated content with our cutting-edge verification technology.
             </p>
           </div>
