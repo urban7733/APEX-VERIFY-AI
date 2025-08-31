@@ -6,7 +6,7 @@ This is the **clean, modular backend** exactly as specified in your requirements
 
 ## 📁 **Project Structure**
 
-```
+\`\`\`
 backend/
 ├── app/
 │   ├── __init__.py
@@ -21,7 +21,7 @@ backend/
 ├── env.example              # Environment variables template
 ├── start_local.py           # Local development startup script
 └── README_LOCAL.md          # This file
-```
+\`\`\`
 
 ## 🎯 **What's Implemented**
 
@@ -54,7 +54,7 @@ backend/
 ### ✅ **3. Technical Requirements**
 
 #### **Dependencies** (requirements.txt)
-```
+\`\`\`
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 torch>=2.0.0
@@ -65,14 +65,14 @@ python-multipart>=0.0.6
 python-dotenv>=0.19.0
 requests>=2.25.0
 numpy>=1.21.0
-```
+\`\`\`
 
 #### **Environment Variables** (.env)
-```
+\`\`\`
 GEMINI_API_KEY=your_key_here
 DINOV3_MODEL_PATH=./models/dinov3_vit7b16b.pth
 ENVIRONMENT=development
-```
+\`\`\`
 
 #### **Authenticity Score Logic**
 - ✅ Score >95% = "REAL"
@@ -82,7 +82,7 @@ ENVIRONMENT=development
 ### ✅ **4. Frontend Integration**
 
 #### **API Response Format** (exact match)
-```json
+\`\`\`json
 {
   "success": true,
   "authenticity_score": 87.3,
@@ -90,7 +90,7 @@ ENVIRONMENT=development
   "report": "Apex Verify AI Analysis: COMPLETE & REFINED\nAuthenticity Score: 87.3% - REAL\nAssessment: This image shows authentic characteristics...\n\n[Detailed analysis continues...]",
   "processing_time": 2.1
 }
-```
+\`\`\`
 
 #### **CORS Configuration**
 - ✅ Frontend origin support
@@ -112,47 +112,47 @@ ENVIRONMENT=development
 ## 🚀 **Quick Start**
 
 ### **1. Install Dependencies**
-```bash
+\`\`\`bash
 cd backend
 pip install -r requirements.txt
-```
+\`\`\`
 
 ### **2. Configure Environment**
-```bash
+\`\`\`bash
 # Copy environment template
 cp env.example .env
 
 # Edit .env with your values
 GEMINI_API_KEY=your_actual_gemini_api_key
 DINOV3_MODEL_PATH=./models/dinov3_vit7b16b.pth
-```
+\`\`\`
 
 ### **3. Place DINOv3 Model**
-```bash
+\`\`\`bash
 # Create models directory
 mkdir -p models
 
 # Copy your .pth file (adjust path as needed)
 cp ~/Downloads/dinov3_vit7b16b.pth models/
-```
+\`\`\`
 
 ### **4. Start Backend**
-```bash
+\`\`\`bash
 # Option 1: Use startup script (recommended)
 python start_local.py
 
 # Option 2: Direct uvicorn
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
+\`\`\`
 
 ### **5. Test API**
-```bash
+\`\`\`bash
 # Health check
 curl http://localhost:8000/health
 
 # API documentation
 open http://localhost:8000/docs
-```
+\`\`\`
 
 ## 🔧 **API Endpoints**
 
@@ -181,7 +181,7 @@ open http://localhost:8000/docs
 ## 📊 **Response Format**
 
 ### **Success Response**
-```json
+\`\`\`json
 {
   "success": true,
   "authenticity_score": 87.3,
@@ -195,10 +195,10 @@ open http://localhost:8000/docs
     "gemini": "gemini-pro-vision"
   }
 }
-```
+\`\`\`
 
 ### **Error Response**
-```json
+\`\`\`json
 {
   "success": false,
   "error": "Verification failed: Model not loaded",
@@ -207,67 +207,67 @@ open http://localhost:8000/docs
   "classification": "ERROR",
   "report": "Analysis failed due to system error."
 }
-```
+\`\`\`
 
 ## 🧪 **Testing**
 
 ### **Test with Sample Image**
-```bash
+\`\`\`bash
 # Test the verify endpoint
 curl -X POST \
   -F "file=@sample_image.jpg" \
   http://localhost:8000/api/verify
-```
+\`\`\`
 
 ### **Test Gemini Connection**
-```bash
+\`\`\`bash
 curl http://localhost:8000/services/gemini/test
-```
+\`\`\`
 
 ### **Test DINOv3 Model**
-```bash
+\`\`\`bash
 curl http://localhost:8000/models/dinov3/info
-```
+\`\`\`
 
 ## 🔍 **Troubleshooting**
 
 ### **Common Issues**
 
 #### **1. Module Import Errors**
-```bash
+\`\`\`bash
 # Ensure you're in the backend directory
 cd backend
 
 # Use the startup script
 python start_local.py
-```
+\`\`\`
 
 #### **2. DINOv3 Model Not Found**
-```bash
+\`\`\`bash
 # Check model path
 ls -la models/
 
 # Verify .env configuration
 cat .env
-```
+\`\`\`
 
 #### **3. Gemini API Errors**
-```bash
+\`\`\`bash
 # Check API key
 echo $GEMINI_API_KEY
 
 # Test connection
 curl http://localhost:8000/services/gemini/test
-```
+\`\`\`
 
 #### **4. CUDA/GPU Issues**
-```bash
+\`\`\`bash
 # Check PyTorch installation
 python -c "import torch; print(torch.cuda.is_available())"
 
 # Install CPU version if needed
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-```
+\`\`\`
 
 ## 🚀 **Next Steps**
 

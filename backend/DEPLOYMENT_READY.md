@@ -26,10 +26,10 @@ Your world-class deepfake detection pipeline is fully configured and ready to de
 
 ## 🚀 **Quick Start (Recommended)**
 
-```bash
+\`\`\`bash
 cd backend
 ./quick_deploy.sh
-```
+\`\`\`
 
 **That's it!** The script will automatically:
 - ✅ Set up Google Cloud project
@@ -43,10 +43,10 @@ cd backend
 ## 🔧 **Manual Deployment**
 
 If you prefer step-by-step control:
-```bash
+\`\`\`bash
 cd backend
 python deploy_to_vertex_ai.py
-```
+\`\`\`
 
 ## 📋 **What You'll Get**
 
@@ -112,21 +112,21 @@ Auto-scaling, monitoring, and security features make it production-ready for any
 ## 🚀 **Deployment Commands**
 
 ### **Option 1: One-Click Deployment**
-```bash
+\`\`\`bash
 cd backend
 ./quick_deploy.sh
-```
+\`\`\`
 
 ### **Option 2: Python Deployment**
-```bash
+\`\`\`bash
 cd backend
 python deploy_to_vertex_ai.py
-```
+\`\`\`
 
 ### **Option 3: Manual Commands**
-```bash
+\`\`\`bash
 # Follow DEPLOYMENT_GUIDE.md for step-by-step instructions
-```
+\`\`\`
 
 ## 📈 **Post-Deployment**
 

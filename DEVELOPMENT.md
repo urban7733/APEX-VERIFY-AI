@@ -9,14 +9,14 @@
 ## 🚀 Quick Start
 
 ### 1. **Clone and Setup**
-```bash
+\`\`\`bash
 git clone https://github.com/urban7733/apexv0dev.git
 cd apexv0dev
 npm run setup
-```
+\`\`\`
 
 ### 2. **Configure Environment Variables**
-```bash
+\`\`\`bash
 # Backend - Copy and edit with your API keys
 cp backend/env.example backend/.env
 # Edit backend/.env and add your GEMINI_API_KEY
@@ -24,10 +24,10 @@ cp backend/env.example backend/.env
 # Frontend - Copy and edit with your backend URL
 cp env.local.example app/.env.local
 # Edit app/.env.local and set BACKEND_URL
-```
+\`\`\`
 
 ### 3. **Start Development Environment**
-```bash
+\`\`\`bash
 # Start both frontend and backend
 npm run full:dev
 
@@ -37,7 +37,7 @@ npm run dev
 
 # Terminal 2: Backend  
 npm run backend:dev
-```
+\`\`\`
 
 ### 4. **Access the Application**
 - **Frontend**: http://localhost:3000
@@ -46,7 +46,7 @@ npm run backend:dev
 
 ## 🏗️ Project Structure
 
-```
+\`\`\`
 apexv0dev/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes (proxies to FastAPI)
@@ -65,23 +65,23 @@ apexv0dev/
 │   ├── verification-results.tsx   # Results display
 │   └── status-indicator.tsx       # Health status
 └── lib/                   # Shared utilities
-```
+\`\`\`
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
 **Frontend** (`.env.local`):
-```bash
+\`\`\`bash
 BACKEND_URL=http://localhost:8000
-```
+\`\`\`
 
 **Backend** (`.env`):
-```bash
+\`\`\`bash
 ENVIRONMENT=development
 GEMINI_API_KEY=your_gemini_api_key_here
 LOG_LEVEL=INFO
-```
+\`\`\`
 
 ### API Keys Required
 
@@ -102,7 +102,7 @@ Visit `/api/health` to check system status
 4. View results
 
 ### 3. **Backend API Testing**
-```bash
+\`\`\`bash
 # Health check
 curl http://localhost:8000/health
 
@@ -112,7 +112,7 @@ curl http://localhost:8000/api/status
 # Test image upload (replace with actual image)
 curl -X POST http://localhost:8000/api/verify \
   -F "file=@test-image.jpg"
-```
+\`\`\`
 
 ## 🔍 Development Workflow
 
@@ -153,20 +153,20 @@ curl -X POST http://localhost:8000/api/verify \
 ## 📦 Production Deployment
 
 ### Frontend (Vercel)
-```bash
+\`\`\`bash
 npm run build
 # Deploy to Vercel
-```
+\`\`\`
 
 ### Backend (Google Cloud)
-```bash
+\`\`\`bash
 # Set production environment
 export ENVIRONMENT=production
 export GEMINI_API_KEY=your_production_key
 
 # Deploy to Google Cloud Run or App Engine
 gcloud app deploy backend/
-```
+\`\`\`
 
 ## 🤝 Contributing
 

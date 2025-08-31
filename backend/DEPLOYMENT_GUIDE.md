@@ -15,7 +15,7 @@ This guide will deploy APEX VERIFY AI to Google Cloud Vertex AI with GPU acceler
 ## 📋 Prerequisites
 
 ### 1. Google Cloud Setup
-```bash
+\`\`\`bash
 # Install gcloud CLI
 curl https://sdk.cloud.google.com | bash
 exec -l $SHELL
@@ -25,33 +25,33 @@ gcloud auth login
 gcloud config set project apex-ai-467219
 gcloud config set compute/region us-central1
 gcloud config set compute/zone us-central1-a
-```
+\`\`\`
 
 ### 2. Enable Required APIs
-```bash
+\`\`\`bash
 gcloud services enable aiplatform.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable storage.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
-```
+\`\`\`
 
 ### 3. Install Dependencies
-```bash
+\`\`\`bash
 # Install Python dependencies
 pip install -r vertex_ai_requirements.txt
 
 # Install Docker (for containerization)
 # macOS: brew install docker
 # Ubuntu: sudo apt-get install docker.io
-```
+\`\`\`
 
 ## 🚀 Quick Deployment
 
 ### Option 1: Automated Deployment (Recommended)
-```bash
+\`\`\`bash
 cd backend
 python deploy_to_vertex_ai.py
-```
+\`\`\`
 
 ### Option 2: Manual Step-by-Step
 Follow the detailed steps below for full control over the deployment process.
@@ -59,7 +59,7 @@ Follow the detailed steps below for full control over the deployment process.
 ## 🔧 Manual Deployment Steps
 
 ### Step 1: Create GPU Instance
-```bash
+\`\`\`bash
 # Create NVIDIA L4 GPU instance
 gcloud compute instances create apex-verify-ai-gpu \
     --zone=us-central1-a \
@@ -71,19 +71,19 @@ gcloud compute instances create apex-verify-ai-gpu \
     --boot-disk-size=100GB \
     --boot-disk-type=pd-ssd \
     --scopes=cloud-platform
-```
+\`\`\`
 
 ### Step 2: Upload Code to Cloud Storage
-```bash
+\`\`\`bash
 # Create storage bucket
 gsutil mb -l us-central1 gs://apex-ai-467219-apex-verify-ai
 
 # Upload backend code
 gsutil cp -r backend/ gs://apex-ai-467219-apex-verify-ai/
-```
+\`\`\`
 
 ### Step 3: Build and Push Container
-```bash
+\`\`\`bash
 # Configure Docker for gcloud
 gcloud auth configure-docker
 
@@ -92,10 +92,10 @@ docker build -t gcr.io/apex-ai-467219/apex-verify-ai:latest .
 
 # Push to Google Container Registry
 docker push gcr.io/apex-ai-467219/apex-verify-ai:latest
-```
+\`\`\`
 
 ### Step 4: Deploy to Vertex AI
-```bash
+\`\`\`bash
 # Initialize Vertex AI
 gcloud ai init --project=apex-ai-467219 --region=us-central1
 
@@ -117,12 +117,12 @@ gcloud ai endpoints deploy-model \
     --accelerator=type=nvidia-l4,count=1 \
     --min-replica-count=1 \
     --max-replica-count=10
-```
+\`\`\`
 
 ## 🧪 Testing the Deployment
 
 ### Test the Endpoint
-```bash
+\`\`\`bash
 # Get endpoint URL
 ENDPOINT_URL=$(gcloud ai endpoints describe apex-verify-ai-endpoint --region=us-central1 --format="value(predictHttpUri)")
 
@@ -132,16 +132,16 @@ curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"instances": [{"image": "base64_encoded_image_data"}]}' \
     $ENDPOINT_URL
-```
+\`\`\`
 
 ### Monitor Performance
-```bash
+\`\`\`bash
 # View endpoint metrics
 gcloud ai endpoints describe apex-verify-ai-endpoint --region=us-central1
 
 # Check GPU utilization
 gcloud compute instances describe apex-verify-ai-gpu --zone=us-central1-a
-```
+\`\`\`
 
 ## 🔍 AI Model Detection Capabilities
 
@@ -183,52 +183,52 @@ gcloud compute instances describe apex-verify-ai-gpu --zone=us-central1-a
 ### Common Issues
 
 #### 1. GPU Not Available
-```bash
+\`\`\`bash
 # Check GPU availability
 gcloud compute accelerator-types list --filter="zone:us-central1-a AND name~nvidia"
 
 # Verify GPU instance
 gcloud compute instances describe apex-verify-ai-gpu --zone=us-central1-a
-```
+\`\`\`
 
 #### 2. Container Build Failures
-```bash
+\`\`\`bash
 # Check Docker logs
 docker logs $(docker ps -q --filter ancestor=gcr.io/apex-ai-467219/apex-verify-ai:latest)
 
 # Rebuild container
 docker build --no-cache -t gcr.io/apex-ai-467219/apex-verify-ai:latest .
-```
+\`\`\`
 
 #### 3. API Errors
-```bash
+\`\`\`bash
 # Check API status
 gcloud services list --enabled --filter="name:aiplatform.googleapis.com"
 
 # Verify authentication
 gcloud auth list --filter=status:ACTIVE
-```
+\`\`\`
 
 #### 4. Memory Issues
-```bash
+\`\`\`bash
 # Increase instance memory
 gcloud compute instances set-machine-type apex-verify-ai-gpu \
     --machine-type=n1-standard-8 \
     --zone=us-central1-a
-```
+\`\`\`
 
 ## 🔐 Security & Best Practices
 
 ### Environment Variables
-```bash
+\`\`\`bash
 # Set secure environment variables
 export GEMINI_API_KEY="your_gemini_api_key"
 export GOOGLE_CLOUD_PROJECT="apex-ai-467219"
 export GOOGLE_CLOUD_REGION="us-central1"
-```
+\`\`\`
 
 ### IAM Permissions
-```bash
+\`\`\`bash
 # Create service account
 gcloud iam service-accounts create apex-verify-ai-sa \
     --description="APEX VERIFY AI Service Account"
@@ -241,18 +241,18 @@ gcloud projects add-iam-policy-binding apex-ai-467219 \
 gcloud projects add-iam-policy-binding apex-ai-467219 \
     --member="serviceAccount:apex-verify-ai-sa@apex-ai-467219.iam.gserviceaccount.com" \
     --role="roles/storage.admin"
-```
+\`\`\`
 
 ## 📈 Monitoring & Optimization
 
 ### Cloud Monitoring Dashboard
-```bash
+\`\`\`bash
 # Create monitoring dashboard
 gcloud monitoring dashboards create --config-from-file=monitoring_dashboard.json
-```
+\`\`\`
 
 ### Performance Optimization
-```bash
+\`\`\`bash
 # Enable GPU monitoring
 gcloud compute instances add-metadata apex-verify-ai-gpu \
     --metadata=enable-gpu-monitoring=true \
@@ -263,7 +263,7 @@ gcloud ai endpoints update apex-verify-ai-endpoint \
     --region=us-central1 \
     --min-replica-count=2 \
     --max-replica-count=20
-```
+\`\`\`
 
 ## 🎯 Next Steps
 
