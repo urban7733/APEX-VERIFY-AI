@@ -1,24 +1,20 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import uvicorn
-from ai_pipeline import ai_pipeline
+import tempfile
 import os
-from dotenv import load_dotenv
+from deepfake_detector import analyze_image
+import logging
 
-# Load environment variables
-load_dotenv()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(
-    title="APEX VERIFY AI",
-    description="Simple and effective AI-powered image authenticity verification",
-    version="1.0.0"
-)
+app = FastAPI(title="Apex Verify AI Backend", version="1.0.0")
 
-# CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to your frontend domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,95 +22,62 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    """Root endpoint with API information."""
-    return {
-        "message": "APEX VERIFY AI - Image Authenticity Verification",
-        "version": "1.0.0",
-        "status": "running",
-        "endpoints": {
-            "health": "/health",
-            "verify": "/verify",
-            "status": "/status"
-        },
-        "features": [
-            "AI-powered image analysis",
-            "Feature extraction and anomaly detection",
-            "Gemini Pro Vision integration",
-            "Authenticity scoring (0-100%)",
-            "Detailed analysis reports"
-        ]
-    }
+    return {"message": "Apex Verify AI Backend - Deepfake Detection Service"}
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "timestamp": "2024-08-25T00:00:00Z",
-        "services": {
-            "ai_pipeline": "operational",
-            "gemini_api": "configured" if os.getenv('GEMINI_API_KEY') else "not_configured"
-        }
-    }
+    return {"status": "healthy", "service": "deepfake-detection"}
 
-@app.post("/verify")
-async def verify_image(file: UploadFile = File(...)):
+@app.post("/analyze")
+async def analyze_media(file: UploadFile = File(...)):
     """
-    Verify image authenticity using AI pipeline.
-    
-    Args:
-        file: Image file to verify
-        
-    Returns:
-        Verification result with authenticity score and analysis
+    Analyze uploaded media for deepfake detection
     """
     try:
         # Validate file type
         if not file.content_type.startswith('image/'):
-            raise HTTPException(status_code=400, detail="File must be an image")
+            raise HTTPException(status_code=400, detail="Only image files are supported")
         
-        # Read file content
-        image_data = await file.read()
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_file_path = temp_file.name
         
-        if len(image_data) == 0:
-            raise HTTPException(status_code=400, detail="Empty file")
-        
-        # Analyze image with AI pipeline
-        result = ai_pipeline.analyze_image(image_data)
-        
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-        
-        return result
-        
-    except HTTPException:
-        raise
+        try:
+            # Analyze the image
+            logger.info(f"Analyzing image: {file.filename}")
+            result = analyze_image(temp_file_path)
+            
+            # Format response to match frontend expectations
+            response = {
+                "authenticity_score": result["confidence"],
+                "is_deepfake": not result["is_authentic"],
+                "classification": result["classification"],
+                "probabilities": result["probabilities"],
+                "analysis": {
+                    "model_used": "prithivMLmods/deepfake-detector-model-v1",
+                    "confidence": result["confidence"],
+                    "verdict": "AUTHENTIC" if result["is_authentic"] else "DEEPFAKE_DETECTED"
+                },
+                "technical_details": {
+                    "real_probability": result["probabilities"]["real"],
+                    "fake_probability": result["probabilities"]["fake"],
+                    "model_architecture": "SiglipForImageClassification"
+                }
+            }
+            
+            logger.info(f"Analysis complete: {result['classification']} ({result['confidence']:.2%})")
+            return response
+            
+        finally:
+            # Clean up temporary file
+            os.unlink(temp_file_path)
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Verification failed: {str(e)}")
-
-@app.get("/status")
-async def get_status():
-    """Get system status and configuration."""
-    return {
-        "system": "APEX VERIFY AI",
-        "version": "1.0.0",
-        "status": "operational",
-        "ai_pipeline": {
-            "status": "ready",
-            "features": [
-                "Image validation",
-                "Feature extraction",
-                "Anomaly detection",
-                "Gemini Pro Vision analysis",
-                "Authenticity scoring"
-            ]
-        },
-        "configuration": {
-            "gemini_api_configured": bool(os.getenv('GEMINI_API_KEY')),
-            "max_file_size": "10MB",
-            "supported_formats": ["JPEG", "PNG", "GIF", "BMP", "TIFF"]
-        }
-    }
+        logger.error(f"Analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8014)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
