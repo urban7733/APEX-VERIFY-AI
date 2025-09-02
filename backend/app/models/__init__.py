@@ -1,4 +1,4 @@
 # Models Package
-from .dinov3_model import DINOv3Analyzer
+from .simple_analyzer import SimpleAnalyzer
 
-__all__ = ['DINOv3Analyzer']
+__all__ = ['SimpleAnalyzer']

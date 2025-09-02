@@ -270,7 +270,7 @@ Your media is verified. You can now secure your file with our seal of authentici
     
     def _create_fallback_report(self, analysis: Dict[str, Any]) -> str:
         """
-        Create fallback report when Gemini API fails
+        Create fallback report in the exact format requested
         
         Args:
             analysis: Analysis results
@@ -286,6 +286,8 @@ Your media is verified. You can now secure your file with our seal of authentici
         # Create professional fallback report in the exact format
         if classification == "GENUINE MEDIA":
             assessment = "Confirmed. The image is an authentic photograph. Our matrix detects no anomalies; all forensic markers point to genuine media from a verifiable source."
+        elif classification == "LIKELY AUTHENTIC":
+            assessment = "The image appears to be authentic with high confidence. Our analysis shows strong indicators of genuine photographic content."
         else:
             assessment = "Analysis indicates potential concerns with image authenticity. Further verification may be required."
         
