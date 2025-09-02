@@ -6,24 +6,16 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
 interface VerificationResult {
+  success: boolean
   authenticity_score: number
-  verdict: string
-  confidence: string
-  analysis: {
-    model_used: string
-    processing_time_ms: number
-    anomalies_detected: number
-  }
-  technical_details: {
-    dinov3_features: string
-    gemini_analysis: string
-    final_score: number
-  }
-  recommendations: string[]
-  metadata?: {
-    filename: string
-    file_size_bytes: number
-    processing_pipeline: string
+  classification: string
+  report: string  // The structured report in the exact format requested
+  processing_time: number
+  confidence: number
+  feature_anomalies: string[]
+  model_info: {
+    simple_analyzer: any
+    gemini: string
   }
   digital_seal?: {
     seal_id: string
@@ -42,13 +34,13 @@ interface VerificationResultsProps {
 }
 
 export function VerificationResults({ result, previewUrl, onReset }: VerificationResultsProps) {
-  const getVerdictColor = (verdict: string) => {
-    switch (verdict) {
-      case 'REAL':
+  const getVerdictColor = (classification: string) => {
+    switch (classification) {
+      case 'GENUINE MEDIA':
         return 'text-green-400'
-      case 'LIKELY_REAL':
+      case 'LIKELY AUTHENTIC':
         return 'text-green-300'
-      case 'UNCERTAIN':
+      case 'SUSPICIOUS':
         return 'text-yellow-400'
       case 'FAKE':
         return 'text-red-400'
@@ -57,13 +49,13 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
     }
   }
 
-  const getVerdictIcon = (verdict: string) => {
-    switch (verdict) {
-      case 'REAL':
+  const getVerdictIcon = (classification: string) => {
+    switch (classification) {
+      case 'GENUINE MEDIA':
         return <CheckCircle className="w-6 h-6 text-green-400" />
-      case 'LIKELY_REAL':
+      case 'LIKELY AUTHENTIC':
         return <CheckCircle className="w-6 h-6 text-green-300" />
-      case 'UNCERTAIN':
+      case 'SUSPICIOUS':
         return <Clock className="w-6 h-6 text-yellow-400" />
       case 'FAKE':
         return <AlertTriangle className="w-6 h-6 text-red-400" />
@@ -72,17 +64,10 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
     }
   }
 
-  const getConfidenceColor = (confidence: string) => {
-    switch (confidence) {
-      case 'HIGH':
-        return 'text-green-400'
-      case 'MEDIUM':
-        return 'text-yellow-400'
-      case 'LOW':
-        return 'text-red-400'
-      default:
-        return 'text-white/70'
-    }
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 0.8) return 'text-green-400'
+    if (confidence >= 0.6) return 'text-yellow-400'
+    return 'text-red-400'
   }
 
   const handleDownloadSealed = async () => {
@@ -95,31 +80,80 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
           },
           body: JSON.stringify({
             sealed_image_path: result.digital_seal.sealed_image_path,
-            filename: result.metadata?.filename ? `${result.metadata.filename.replace(/\.[^/.]+$/, '')}_sealed.png` : 'sealed_image.png'
+            filename: 'verified_image_sealed.png'
           }),
         })
 
-        if (!response.ok) {
+        if (response.ok) {
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'verified_image_sealed.png'
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        } else {
           throw new Error('Download failed')
         }
-
-        // Create blob and download
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = result.metadata?.filename ? `${result.metadata.filename.replace(/\.[^/.]+$/, '')}_sealed.png` : 'sealed_image.png'
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-
       } catch (error) {
         console.error('Download failed:', error)
         alert('Failed to download sealed image. Please try again.')
       }
     }
   }
+
+  // Parse the structured report
+  const parseReport = (report: string) => {
+    const lines = report.split('\n').filter(line => line.trim())
+    const sections: { [key: string]: string } = {}
+    let currentSection = ''
+    let currentContent: string[] = []
+
+    for (const line of lines) {
+      if (line.startsWith('Apex Verify AI Analysis:')) {
+        sections['header'] = line
+      } else if (line.startsWith('* Authenticity Score:')) {
+        sections['score'] = line
+      } else if (line.startsWith('* Assessment:')) {
+        sections['assessment'] = line
+      } else if (line === 'The Scene in Focus') {
+        currentSection = 'scene'
+        currentContent = []
+      } else if (line === 'The Story Behind the Picture') {
+        if (currentSection) {
+          sections[currentSection] = currentContent.join('\n')
+        }
+        currentSection = 'story'
+        currentContent = []
+      } else if (line === 'Digital Footprint & Source Links') {
+        if (currentSection) {
+          sections[currentSection] = currentContent.join('\n')
+        }
+        currentSection = 'footprint'
+        currentContent = []
+      } else if (line === 'AI Summary') {
+        if (currentSection) {
+          sections[currentSection] = currentContent.join('\n')
+        }
+        currentSection = 'summary'
+        currentContent = []
+      } else if (line.startsWith('Your media is verified')) {
+        sections['footer'] = line
+      } else if (currentSection && line.trim()) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection) {
+      sections[currentSection] = currentContent.join('\n')
+    }
+
+    return sections
+  }
+
+  const reportSections = parseReport(result.report)
 
   return (
     <div className="space-y-8">
@@ -149,60 +183,87 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
                 className="rounded-lg object-cover w-full border border-white/10"
               />
             )}
-            {result.metadata && (
-              <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+            <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <p className="text-white/70 text-sm">
+                <strong>Processing Time:</strong> {result.processing_time}s
+              </p>
+              <p className="text-white/70 text-sm">
+                <strong>Confidence:</strong> <span className={getConfidenceColor(result.confidence)}>{(result.confidence * 100).toFixed(1)}%</span>
+              </p>
+              {result.image_hash && (
                 <p className="text-white/70 text-sm">
-                  <strong>File:</strong> {result.metadata.filename}
+                  <strong>Hash:</strong> {result.image_hash.substring(0, 16)}...
                 </p>
-                <p className="text-white/70 text-sm">
-                  <strong>Size:</strong> {(result.metadata.file_size_bytes / 1024 / 1024).toFixed(2)} MB
-                </p>
-                {result.image_hash && (
-                  <p className="text-white/70 text-sm">
-                    <strong>Hash:</strong> {result.image_hash.substring(0, 16)}...
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Results */}
+        {/* Structured Report */}
         <div className="space-y-6">
-          {/* Verdict */}
+          {/* Header */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
             <div className="flex items-center space-x-3 mb-4">
-              {getVerdictIcon(result.verdict)}
-              <h3 className="text-2xl font-bold">Verdict</h3>
+              {getVerdictIcon(result.classification)}
+              <h3 className="text-2xl font-bold">Analysis Complete</h3>
             </div>
-            <p className={`text-3xl font-bold ${getVerdictColor(result.verdict)}`}>
-              {result.verdict}
+            <p className={`text-3xl font-bold ${getVerdictColor(result.classification)}`}>
+              {result.classification}
             </p>
-            <p className={`text-white/70 mt-2 ${getConfidenceColor(result.confidence)}`}>
-              Confidence: {result.confidence}
+            <p className="text-4xl font-bold text-blue-400 mt-2">
+              {result.authenticity_score}%
             </p>
           </div>
 
-          {/* Score */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Authenticity Score</h3>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-400 mb-2">
-                {result.authenticity_score}%
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `${result.authenticity_score}%` }}
-                />
-              </div>
-              <div className="mt-2 text-sm text-white/60">
-                {result.authenticity_score >= 95 ? 'Excellent' : 
-                 result.authenticity_score >= 80 ? 'Good' : 
-                 result.authenticity_score >= 60 ? 'Fair' : 'Poor'}
-              </div>
+          {/* Assessment */}
+          {reportSections.assessment && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">Assessment</h3>
+              <p className="text-white/90 leading-relaxed">
+                {reportSections.assessment.replace('* Assessment: ', '')}
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Scene in Focus */}
+          {reportSections.scene && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">The Scene in Focus</h3>
+              <p className="text-white/90 leading-relaxed">
+                {reportSections.scene}
+              </p>
+            </div>
+          )}
+
+          {/* Story Behind the Picture */}
+          {reportSections.story && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">The Story Behind the Picture</h3>
+              <p className="text-white/90 leading-relaxed">
+                {reportSections.story}
+              </p>
+            </div>
+          )}
+
+          {/* Digital Footprint */}
+          {reportSections.footprint && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">Digital Footprint & Source Links</h3>
+              <p className="text-white/90 leading-relaxed">
+                {reportSections.footprint}
+              </p>
+            </div>
+          )}
+
+          {/* AI Summary */}
+          {reportSections.summary && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">AI Summary</h3>
+              <p className="text-white/90 leading-relaxed">
+                {reportSections.summary}
+              </p>
+            </div>
+          )}
 
           {/* Digital Seal Status */}
           {result.digital_seal && (
@@ -230,71 +291,19 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
                 className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download Sealed Image
+                Download with Apex Verify™ Seal
               </Button>
             </div>
           )}
 
-          {/* Technical Details */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Technical Analysis</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-white/70">Processing Time:</span>
-                <span className="text-white">{result.analysis.processing_time_ms}ms</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/70">Anomalies Detected:</span>
-                <span className="text-white">{result.analysis.anomalies_detected}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/70">DINOv3 Features:</span>
-                <span className="text-white">{result.technical_details.dinov3_features}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/70">Gemini Analysis:</span>
-                <span className="text-white">{result.technical_details.gemini_analysis}</span>
-              </div>
+          {/* Footer */}
+          {reportSections.footer && (
+            <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-6 text-center">
+              <p className="text-green-400 font-semibold text-lg">
+                {reportSections.footer}
+              </p>
             </div>
-          </div>
-
-          {/* AI Models Used */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">AI Models Used</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Zap className="w-5 h-5 text-blue-400" />
-                <span className="text-white/90">DINOv3 Feature Extraction</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Target className="w-5 h-5 text-purple-400" />
-                <span className="text-white/90">Gemini Pro Vision Analysis</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Shield className="w-5 h-5 text-green-400" />
-                <span className="text-white/90">Authenticity Scoring</span>
-              </div>
-              {result.digital_seal && (
-                <div className="flex items-center space-x-3">
-                  <Lock className="w-5 h-5 text-green-400" />
-                  <span className="text-white/90">Digital Seal Embedding</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Recommendations */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Recommendations</h3>
-            <ul className="space-y-2">
-              {result.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span className="text-white/90 text-sm">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          )}
         </div>
       </div>
 
