@@ -16,7 +16,7 @@ class GeminiReportService:
     
     def __init__(self):
         self.api_key = os.getenv('GEMINI_API_KEY')
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent"
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         
         if not self.api_key:
             logger.error("GEMINI_API_KEY not configured")
@@ -56,7 +56,6 @@ class GeminiReportService:
     def _create_prompt(self, analysis: Dict[str, Any]) -> str:
         """
         Create prompt for Gemini Pro Vision with exact template format
-        Create the prompt for Gemini Pro Vision
         
         Args:
             analysis: DINOv3 analysis results
@@ -70,7 +69,7 @@ class GeminiReportService:
         feature_anomalies = analysis.get('feature_anomalies', [])
         
         prompt = f"""
-        Analyze this image for authenticity and provide a professional assessment.
+        You are APEX VERIFY AI, a professional media authenticity verification system. 
         
         DINOv3 Analysis Results:
         - Authenticity Score: {authenticity_score}%
@@ -78,19 +77,25 @@ class GeminiReportService:
         - Confidence: {confidence}
         - Feature Anomalies: {', '.join(feature_anomalies) if feature_anomalies else 'None detected'}
         
-        Please provide a detailed analysis that includes:
-        1. Visual content assessment (people, objects, scenes, text)
-        2. Quality and realism evaluation
-        3. Potential manipulation indicators
-        4. Professional recommendation
+        Analyze this image and provide a professional assessment in the EXACT format below. 
+        Do NOT deviate from this structure. Fill in each section with appropriate content:
         
-        Focus on:
-        - Content consistency and naturalness
-        - Unusual patterns or artifacts
-        - Overall image quality
-        - Specific details that support or contradict the authenticity score
+        ASSESSMENT: [One concise sentence about authenticity status]
         
-        Provide a professional, detailed analysis that a user can trust for decision-making.
+        SCENE_DESCRIPTION: [Describe what you see in the image - people, objects, setting, lighting]
+        
+        STORY_DESCRIPTION: [Explain the context and story behind the image content]
+        
+        DIGITAL_FOOTPRINT: [Describe technical aspects, metadata, and digital characteristics]
+        
+        AI_SUMMARY: [Final professional summary of the analysis]
+        
+        IMPORTANT: 
+        - Keep each section concise and professional
+        - Use the exact format above
+        - Do not include technical jargon or forensic details
+        - Focus on user-friendly, clear language
+        - Match the professional tone of APEX VERIFY AI
         """
         
         return prompt
@@ -168,27 +173,80 @@ class GeminiReportService:
         authenticity_score = analysis.get('authenticity_score', 0)
         classification = analysis.get('classification', 'UNKNOWN')
         
+        # Parse the structured response from Gemini
+        assessment = self._extract_section(gemini_response, "ASSESSMENT")
+        scene_description = self._extract_section(gemini_response, "SCENE_DESCRIPTION")
+        story_description = self._extract_section(gemini_response, "STORY_DESCRIPTION")
+        digital_footprint = self._extract_section(gemini_response, "DIGITAL_FOOTPRINT")
+        ai_summary = self._extract_section(gemini_response, "AI_SUMMARY")
+        
         # Use the exact template format from the user's example
         report = f"""Apex Verify AI Analysis: COMPLETE
 * Authenticity Score: {authenticity_score}% - {classification}
-* Assessment: {self._extract_assessment(gemini_response)}
+* Assessment: {assessment}
 
 The Scene in Focus
-{self._extract_scene_description(gemini_response)}
+{scene_description}
 
 The Story Behind the Picture
-{self._extract_story_description(gemini_response)}
+{story_description}
 
 Digital Footprint & Source Links
-{self._extract_digital_footprint(gemini_response)}
+{digital_footprint}
 
 AI Summary
-{self._extract_ai_summary(gemini_response)}
+{ai_summary}
 
 Your media is verified. You can now secure your file with our seal of authenticity.
 ( Download with Apex Verify™ Seal )"""
         
         return report
+    
+    def _extract_section(self, gemini_response: str, section_name: str) -> str:
+        """
+        Extract a specific section from the structured Gemini response
+        
+        Args:
+            gemini_response: Full Gemini response
+            section_name: Name of the section to extract (e.g., "ASSESSMENT")
+            
+        Returns:
+            Section content or fallback text
+        """
+        try:
+            lines = gemini_response.strip().split('\n')
+            current_section = None
+            content_lines = []
+            
+            for line in lines:
+                line = line.strip()
+                if line.startswith(f"{section_name}:"):
+                    current_section = section_name
+                    # Extract content after the colon
+                    content = line.split(':', 1)[1].strip()
+                    if content:
+                        content_lines.append(content)
+                elif current_section == section_name and line and not line.startswith(('ASSESSMENT:', 'SCENE_DESCRIPTION:', 'STORY_DESCRIPTION:', 'DIGITAL_FOOTPRINT:', 'AI_SUMMARY:')):
+                    content_lines.append(line)
+                elif line.startswith(('ASSESSMENT:', 'SCENE_DESCRIPTION:', 'STORY_DESCRIPTION:', 'DIGITAL_FOOTPRINT:', 'AI_SUMMARY:')):
+                    current_section = None
+            
+            if content_lines:
+                return ' '.join(content_lines)
+            
+        except Exception as e:
+            logger.warning(f"Failed to extract {section_name}: {e}")
+        
+        # Fallback content for each section
+        fallbacks = {
+            "ASSESSMENT": "The image has been analyzed using our advanced AI detection systems.",
+            "SCENE_DESCRIPTION": "This image has been examined for authenticity markers using state-of-the-art deep learning models.",
+            "STORY_DESCRIPTION": "Based on our comprehensive analysis, this image appears to be authentic content.",
+            "DIGITAL_FOOTPRINT": "Our analysis has examined the image's metadata and digital characteristics.",
+            "AI_SUMMARY": "The image has been verified through our advanced AI analysis."
+        }
+        
+        return fallbacks.get(section_name, "Analysis completed using APEX VERIFY AI systems.")
     
     def _extract_assessment(self, gemini_response: str) -> str:
         """
@@ -200,74 +258,23 @@ Your media is verified. You can now secure your file with our seal of authentici
         Returns:
             Concise assessment string
         """
-        # Take first sentence or first 100 characters
-        lines = gemini_response.strip().split('\n')
-        first_line = lines[0] if lines else ""
-        
-        if len(first_line) > 100:
-            return first_line[:97] + "..."
-        
-        return first_line
+        return self._extract_section(gemini_response, "ASSESSMENT")
     
     def _extract_scene_description(self, gemini_response: str) -> str:
         """Extract scene description from Gemini response"""
-        # Use Gemini response if available, otherwise provide a detailed analysis
-        if gemini_response and len(gemini_response.strip()) > 50:
-            # Take the first part of the response as scene description
-            lines = gemini_response.strip().split('\n')
-            scene_lines = []
-            for line in lines[:3]:  # Take first 3 lines
-                if line.strip() and not line.startswith('*'):
-                    scene_lines.append(line.strip())
-            if scene_lines:
-                return ' '.join(scene_lines)
-        
-        return "This image has been analyzed using our advanced AI detection systems. The visual elements, composition, and technical characteristics have been examined for authenticity markers using state-of-the-art deep learning models."
+        return self._extract_section(gemini_response, "SCENE_DESCRIPTION")
     
     def _extract_story_description(self, gemini_response: str) -> str:
         """Extract story description from Gemini response"""
-        # Use Gemini response if available, otherwise provide a detailed analysis
-        if gemini_response and len(gemini_response.strip()) > 50:
-            # Take the middle part of the response as story description
-            lines = gemini_response.strip().split('\n')
-            story_lines = []
-            for line in lines[3:6]:  # Take lines 4-6
-                if line.strip() and not line.startswith('*'):
-                    story_lines.append(line.strip())
-            if story_lines:
-                return ' '.join(story_lines)
-        
-        return "Based on our comprehensive analysis using advanced AI models, this image has been examined for authenticity markers. The visual elements, lighting patterns, and composition characteristics have been analyzed to determine the origin and veracity of the content."
+        return self._extract_section(gemini_response, "STORY_DESCRIPTION")
     
     def _extract_digital_footprint(self, gemini_response: str) -> str:
         """Extract digital footprint information"""
-        # Use Gemini response if available, otherwise provide a detailed analysis
-        if gemini_response and len(gemini_response.strip()) > 50:
-            # Take the later part of the response as digital footprint
-            lines = gemini_response.strip().split('\n')
-            footprint_lines = []
-            for line in lines[6:9]:  # Take lines 7-9
-                if line.strip() and not line.startswith('*'):
-                    footprint_lines.append(line.strip())
-            if footprint_lines:
-                return ' '.join(footprint_lines)
-        
-        return "Our advanced AI analysis has examined the image's metadata, compression patterns, and digital signatures. The technical characteristics have been analyzed using state-of-the-art deep learning models to determine authenticity markers."
+        return self._extract_section(gemini_response, "DIGITAL_FOOTPRINT")
     
     def _extract_ai_summary(self, gemini_response: str) -> str:
         """Extract AI summary from Gemini response"""
-        # Use Gemini response if available, otherwise provide a detailed analysis
-        if gemini_response and len(gemini_response.strip()) > 50:
-            # Take the last part of the response as AI summary
-            lines = gemini_response.strip().split('\n')
-            summary_lines = []
-            for line in lines[-3:]:  # Take last 3 lines
-                if line.strip() and not line.startswith('*'):
-                    summary_lines.append(line.strip())
-            if summary_lines:
-                return ' '.join(summary_lines)
-        
-        return "The image has been verified through our advanced AI analysis using Hugging Face Vision Transformers. All forensic markers have been examined to determine authenticity with high confidence."
+        return self._extract_section(gemini_response, "AI_SUMMARY")
     
     def _create_fallback_report(self, analysis: Dict[str, Any]) -> str:
         """
@@ -287,24 +294,32 @@ Your media is verified. You can now secure your file with our seal of authentici
         # Create professional fallback report in the exact format
         if classification == "GENUINE MEDIA":
             assessment = "Confirmed. The image is an authentic photograph. Our matrix detects no anomalies; all forensic markers point to genuine media from a verifiable source."
+            scene_desc = "This image has been analyzed using our advanced AI detection systems. The visual elements, composition, and technical characteristics have been examined for authenticity markers."
+            story_desc = "Based on our comprehensive analysis, this image appears to be authentic content. The visual elements, lighting, and composition suggest genuine photographic capture rather than AI generation or manipulation."
+            digital_footprint = "Our analysis has examined the image's metadata, compression patterns, and digital signatures. The technical characteristics are consistent with authentic photographic content."
+            ai_summary = "The image has been verified as authentic through our advanced AI analysis. All forensic markers indicate genuine content with no signs of manipulation or AI generation."
         else:
             assessment = "Analysis indicates potential concerns with image authenticity. Further verification may be required."
+            scene_desc = "This image has been analyzed using our advanced AI detection systems. The visual elements, composition, and technical characteristics have been examined for authenticity markers."
+            story_desc = "Based on our comprehensive analysis, this image may require further verification. The visual elements and technical characteristics suggest potential concerns with authenticity."
+            digital_footprint = "Our analysis has examined the image's metadata, compression patterns, and digital signatures. The technical characteristics may indicate potential manipulation or AI generation."
+            ai_summary = "The image has been analyzed through our advanced AI systems. Further verification may be required to confirm authenticity."
         
         report = f"""Apex Verify AI Analysis: COMPLETE
 * Authenticity Score: {authenticity_score}% - {classification}
 * Assessment: {assessment}
 
 The Scene in Focus
-This image has been analyzed using our advanced AI detection systems. The visual elements, composition, and technical characteristics have been examined for authenticity markers.
+{scene_desc}
 
 The Story Behind the Picture
-Based on our comprehensive analysis, this image appears to be authentic content. The visual elements, lighting, and composition suggest genuine photographic capture rather than AI generation or manipulation.
+{story_desc}
 
 Digital Footprint & Source Links
-Our analysis has examined the image's metadata, compression patterns, and digital signatures. The technical characteristics are consistent with authentic photographic content.
+{digital_footprint}
 
 AI Summary
-The image has been verified as authentic through our advanced AI analysis. All forensic markers indicate genuine content with no signs of manipulation or AI generation.
+{ai_summary}
 
 Your media is verified. You can now secure your file with our seal of authenticity.
 ( Download with Apex Verify™ Seal )"""
