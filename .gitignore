@@ -25,3 +25,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+backend/.env
+
+# Environment files
+.env*
+*.env
+backend/.env
+backend/__pycache__/
+backend/services/__pycache__/

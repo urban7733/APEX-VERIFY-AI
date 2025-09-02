@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Apex Verify AI - AI Deepfake Detection",
   description:
     "AI-powered deepfake detection and media authentication platform for creators, journalists, and digital professionals.",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
   generator: "v0.dev",
 }
 
