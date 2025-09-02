@@ -195,10 +195,11 @@ export default function Home() {
 
       <div className="absolute inset-0 opacity-25 pointer-events-none">
         <div className="flex gap-2 sm:gap-4 md:gap-6 h-full p-2 sm:p-4">
-          {/* Show fewer columns on mobile */}
-          <div className="block sm:hidden">
-            {createScrollingColumn(backgroundPosts.slice(0, 3), "animate-scroll-up", "mobile-col-1")}
-            {createScrollingColumn(backgroundPosts.slice(3, 6), "animate-scroll-up-delayed", "mobile-col-2")}
+          <div className="flex gap-2 w-full sm:hidden">
+            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "mobile-col-1")}
+            {createScrollingColumn(backgroundPosts.slice(2, 4), "animate-scroll-up-delayed", "mobile-col-2")}
+            {createScrollingColumn(backgroundPosts.slice(4, 6), "animate-scroll-up-slow", "mobile-col-3")}
+            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "mobile-col-4")}
           </div>
           {/* Show all columns on larger screens */}
           <div className="hidden sm:flex gap-4 md:gap-6 w-full">
