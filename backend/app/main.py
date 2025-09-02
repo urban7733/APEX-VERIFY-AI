@@ -10,8 +10,8 @@ from PIL import Image
 import io
 
 # Import our services
-from models.simple_analyzer import SimpleAnalyzer
-from services.workflow_orchestrator import WorkflowOrchestrator
+from app.models.simple_analyzer import SimpleAnalyzer
+from app.services.workflow_orchestrator import WorkflowOrchestrator
 
 # Load environment variables
 load_dotenv()
