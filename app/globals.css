@@ -172,7 +172,135 @@ textarea:focus-visible {
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* Lightweight CSS-only animations */
+/* Tech Grid Background */
+.tech-grid-bg {
+  background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.01) 0%, transparent 50%),
+    linear-gradient(0deg, #000000 0%, #0a0a0a 100%);
+}
+
+.tech-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Premium Glass Overlay */
+.premium-glass-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 50%,
+    rgba(255, 255, 255, 0.005) 100%
+  );
+  backdrop-filter: blur(1px);
+}
+
+/* Premium Navigation */
+.premium-nav {
+  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Premium Logo */
+.premium-logo {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  letter-spacing: -0.02em;
+  animation: premiumGlow 4s ease-in-out infinite;
+}
+
+/* Premium Buttons */
+.premium-button {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+}
+
+.premium-button-primary {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-button-primary:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+}
+
+/* Premium Mobile Menu */
+.premium-mobile-menu {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Premium Heading */
+.premium-heading {
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.04em;
+}
+
+/* Premium Upload Area */
+.premium-upload-area {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-upload-area:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.premium-upload-button {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+}
+
+.premium-upload-button:hover {
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Subtle Animations */
+@keyframes premiumGlow {
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+  }
+}
+
 @keyframes float {
   0%,
   100% {
@@ -323,6 +451,15 @@ textarea:focus-visible {
   .badge-option-unselected {
     backdrop-filter: none;
     box-shadow: none;
+  }
+
+  .premium-heading {
+    letter-spacing: -0.02em;
+  }
+
+  .premium-button,
+  .premium-button-primary {
+    letter-spacing: 0.02em;
   }
 }
 

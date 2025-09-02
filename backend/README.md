@@ -15,20 +15,20 @@ This backend provides a simple but effective deepfake detection service using Hu
 ## Installation
 
 1. Install dependencies:
-```bash
+\`\`\`bash
 pip install -r requirements.txt
-```
+\`\`\`
 
 2. Set up environment variables:
-```bash
+\`\`\`bash
 cp env.example .env
 # Edit .env and add your GEMINI_API_KEY
-```
+\`\`\`
 
 3. Start the backend:
-```bash
+\`\`\`bash
 python start_local.py
-```
+\`\`\`
 
 ## API Endpoints
 
@@ -50,7 +50,7 @@ The system uses a Vision Transformer model from Hugging Face that has been adapt
 
 The API returns structured analysis reports in this format:
 
-```
+\`\`\`
 Apex Verify AI Analysis: COMPLETE
 * Authenticity Score: 99.9% - GENUINE MEDIA
 * Assessment: [Assessment text]
@@ -69,15 +69,15 @@ AI Summary
 
 Your media is verified. You can now secure your file with our seal of authenticity.
 ( Download with Apex Verify™ Seal )
-```
+\`\`\`
 
 ## Testing
 
 Run the test script to verify the model works:
 
-```bash
+\`\`\`bash
 python test_model.py
-```
+\`\`\`
 
 ## Dependencies
 

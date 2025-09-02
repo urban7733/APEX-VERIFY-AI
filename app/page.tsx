@@ -139,13 +139,13 @@ export default function Home() {
                 />
                 {/* Apex Verify AI Seal */}
                 <div className="absolute bottom-3 right-3 z-20">
-                  <div className="bg-white/90 backdrop-blur-none rounded-full p-2 shadow-lg filter-none">
+                  <div className="bg-white/95 backdrop-blur-none rounded-full p-2.5 shadow-xl border border-white/20 filter-none">
                     <Image
                       src="/apex-verify-seal.png"
                       alt="Apex Verify AI Verified"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 filter-none"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 filter-none opacity-100"
                       loading="lazy"
                     />
                   </div>
@@ -190,8 +190,10 @@ export default function Home() {
   )
 
   return (
-    <div className="min-h-screen text-white antialiased relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
+    <div className="min-h-screen text-white antialiased relative overflow-hidden tech-grid-bg">
+      <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
+
+      <div className="absolute inset-0 opacity-25 pointer-events-none">
         <div className="flex gap-2 sm:gap-4 md:gap-6 h-full p-2 sm:p-4">
           {/* Show fewer columns on mobile */}
           <div className="block sm:hidden">
@@ -210,119 +212,124 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="absolute inset-0 z-0 glass-overlay" />
+      <div className="absolute inset-0 z-0 premium-glass-overlay" />
 
-      <nav className="relative z-10 py-4 sm:py-6">
+      <nav className="relative z-10 py-6 sm:py-8 premium-nav">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-lg sm:text-xl md:text-2xl font-bold text-white">Apex Verify AI</span>
+              <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight premium-logo">
+                APEX VERIFY AI
+              </span>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-6">
               <button
                 onClick={handleLogin}
-                className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-white text-sm font-medium transition-all duration-200 min-h-[44px]"
+                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
-                <span>Log in</span>
+                <span>ACCESS</span>
               </button>
               <button
                 onClick={() => router.push("/verify")}
-                className="px-4 sm:px-6 py-2 sm:py-3 rounded-full text-white text-sm font-medium transition-all duration-200 min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
               >
-                Verify
+                VERIFY
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="px-4 sm:px-6 py-2 sm:py-3 rounded-full text-white text-sm font-medium transition-all duration-200 min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
               >
-                Our Mission
+                MISSION
               </button>
             </div>
 
             <button
               onClick={toggleMobileMenu}
-              className="md:hidden p-3 text-white rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 premium-button min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden mt-4 rounded-xl p-4 space-y-3">
+            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4 premium-mobile-menu">
               <button
                 onClick={() => {
                   handleLogin()
                   setMobileMenuOpen(false)
                 }}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-lg text-white text-base font-medium transition-all duration-200 min-h-[48px]"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button min-h-[48px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
-                <span>Log in</span>
+                <span>ACCESS</span>
               </button>
               <button
                 onClick={() => {
                   router.push("/verify")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-lg text-white text-base font-medium transition-all duration-200 min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button-primary min-h-[48px]"
               >
-                Verify
+                VERIFY
               </button>
               <button
                 onClick={() => {
                   router.push("/about")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-lg text-white text-base font-medium transition-all duration-200 min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button min-h-[48px]"
               >
-                Our Mission
+                MISSION
               </button>
             </div>
           )}
         </div>
       </nav>
 
-      {/* Main Content - Mobile Optimized */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-4 sm:px-6">
-        <div className="text-center max-w-4xl mx-auto w-full space-y-6 sm:space-y-8">
-          <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white leading-none tracking-tight px-2">
-            Apex Verify
-          </h1>
+      {/* Main Content - Enhanced Premium Design */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-4 sm:px-6">
+        <div className="text-center max-w-6xl mx-auto w-full space-y-8 sm:space-y-12">
+          <div className="relative">
+            <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black text-white leading-none tracking-tighter premium-heading">
+              APEX VERIFY AI
+            </h1>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </div>
 
-          <div className="w-full max-w-2xl mx-auto px-2">
+          <div className="w-full max-w-3xl mx-auto px-2">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
             >
-              <div className="relative w-full rounded-full overflow-hidden transition-all duration-300 shadow-lg bg-white/5 backdrop-blur-sm border border-white/10">
-                <div className="flex items-center justify-between h-16 sm:h-16 px-4 sm:px-6">
-                  <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                    <Upload className="w-5 h-5 sm:w-5 sm:h-5 text-white/60 flex-shrink-0" />
-                    <span className="text-white/60 text-base sm:text-lg truncate">
-                      Upload image to verify authenticity...
+              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500 premium-upload-area">
+                <div className="flex items-center justify-between h-18 sm:h-20 px-6 sm:px-8">
+                  <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
+                    <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white/70 flex-shrink-0" />
+                    <span className="text-white/70 text-lg sm:text-xl font-light tracking-wide truncate">
+                      UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-10 h-10 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors duration-200 flex-shrink-0 ml-2">
-                    <ArrowRight className="w-5 h-5 sm:w-5 sm:h-5 text-black" />
+                  <button className="w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 premium-upload-button">
+                    <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 max-w-3xl mx-auto px-4">
-            <p className="text-white text-lg sm:text-lg leading-relaxed">
-              Apex Verify AI is the most advanced deepfake detection platform in the world.
+          <div className="space-y-6 max-w-4xl mx-auto px-4">
+            <p className="text-white/80 text-xl sm:text-2xl font-light leading-relaxed tracking-wide">
+              Advanced AI-powered deepfake detection technology.
             </p>
-            <p className="text-white text-lg sm:text-lg leading-relaxed">
-              Protect yourself from AI-generated content with our cutting-edge verification technology.
+            <p className="text-white/60 text-lg sm:text-xl font-light leading-relaxed tracking-wide">
+              Engineered for precision. Built for the future.
             </p>
           </div>
         </div>
