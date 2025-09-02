@@ -30,31 +30,14 @@ export async function POST(request: NextRequest) {
       console.log("Python backend not available, using fallback analysis")
     }
 
-    // Fallback: Generate realistic demo results
-    const confidence = 0.97 // Fixed 97% as requested
-    const isDeepfake = false // Always show as authentic for demo
-
-    const mockResult = {
-      authenticity_score: confidence,
-      is_deepfake: isDeepfake,
-      classification: "real",
-      probabilities: {
-        real: confidence,
-        fake: 1 - confidence,
-      },
-      analysis: {
-        model_used: "prithivMLmods/deepfake-detector-model-v1",
-        confidence: confidence,
-        verdict: "AUTHENTIC",
-      },
-      technical_details: {
-        real_probability: confidence,
-        fake_probability: 1 - confidence,
-        model_architecture: "SiglipForImageClassification",
-      },
-    }
-
-    return NextResponse.json(mockResult)
+    // Fallback: Return error if backend is not available
+    return NextResponse.json(
+      { 
+        error: "Backend service unavailable", 
+        message: "Please ensure the backend service is running" 
+      }, 
+      { status: 503 }
+    )
   } catch (error) {
     console.error("Analysis error:", error)
     return NextResponse.json({ error: "Analysis failed" }, { status: 500 })

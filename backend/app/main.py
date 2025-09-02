@@ -10,7 +10,7 @@ from PIL import Image
 import io
 
 # Import our services
-from models.dinov3_model import DINOv3Analyzer
+from models.simple_analyzer import SimpleAnalyzer
 from services.gemini_service import GeminiReportService
 
 # Load environment variables
@@ -42,23 +42,20 @@ app.add_middleware(
 )
 
 # Global service instances
-dinov3_analyzer = None
+simple_analyzer = None
 gemini_service = None
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global dinov3_analyzer, gemini_service
+    global simple_analyzer, gemini_service
     
     logger.info("Starting APEX VERIFY AI Backend...")
     
     try:
-        # Initialize DINOv3 analyzer
-        model_path = os.getenv('DINOV3_MODEL_PATH', './models/dinov3_vit7b16b.pth')
-        logger.info(f"Loading DINOv3 model from: {model_path}")
-        
-        dinov3_analyzer = DINOv3Analyzer(model_path)
-        logger.info("DINOv3 analyzer initialized successfully")
+        # Initialize Simple analyzer
+        simple_analyzer = SimpleAnalyzer()
+        logger.info("Simple analyzer initialized successfully")
         
         # Initialize Gemini service
         gemini_service = GeminiReportService()
@@ -87,14 +84,14 @@ async def root():
             "status": "/status"
         },
         "features": [
-            "DINOv3 deep learning analysis",
+            "Advanced AI analysis",
             "Gemini Pro Vision content analysis",
             "Authenticity scoring (0-100%)",
             "AI generation detection",
             "Professional analysis reports"
         ],
         "models": {
-            "dinov3": "loaded" if dinov3_analyzer else "not_loaded",
+            "simple_analyzer": "loaded" if simple_analyzer else "not_loaded",
             "gemini": "connected" if gemini_service else "not_connected"
         }
     }
@@ -103,8 +100,8 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     try:
-        # Check DINOv3 status
-        dinov3_status = "healthy" if dinov3_analyzer else "unhealthy"
+        # Check Simple analyzer status
+        analyzer_status = "healthy" if simple_analyzer else "unhealthy"
         
         # Check Gemini status
         gemini_status = "healthy"
@@ -116,10 +113,10 @@ async def health_check():
                 gemini_status = "unhealthy"
         
         return {
-            "status": "healthy" if dinov3_status == "healthy" and gemini_status == "connected" else "degraded",
+            "status": "healthy" if analyzer_status == "healthy" and gemini_status == "connected" else "degraded",
             "timestamp": "2024-01-01T00:00:00Z",
             "services": {
-                "dinov3_analyzer": dinov3_status,
+                "simple_analyzer": analyzer_status,
                 "gemini_api": gemini_status
             }
         }
@@ -134,7 +131,7 @@ async def health_check():
 @app.post("/api/verify")
 async def verify_image(file: UploadFile = File(...)):
     """
-    Verify image authenticity using DINOv3 and Gemini Pro Vision
+    Verify image authenticity using Simple Analyzer and Gemini Pro Vision
     
     Args:
         file: Image file to verify (jpg, png, webp)
@@ -182,21 +179,21 @@ async def verify_image(file: UploadFile = File(...)):
                 detail=f"Invalid image file: {str(e)}"
             )
         
-        # 3. Run DINOv3 analysis
-        if not dinov3_analyzer:
+        # 3. Run Simple analysis
+        if not simple_analyzer:
             raise HTTPException(
                 status_code=500,
-                detail="DINOv3 analyzer not initialized"
+                detail="Simple analyzer not initialized"
             )
         
         try:
-            dinov3_analysis = dinov3_analyzer.analyze_image(image)
-            logger.info(f"DINOv3 analysis completed: {dinov3_analysis['authenticity_score']}%")
+            analysis = simple_analyzer.analyze_image(image)
+            logger.info(f"Analysis completed: {analysis['authenticity_score']}%")
         except Exception as e:
-            logger.error(f"DINOv3 analysis failed: {e}")
+            logger.error(f"Analysis failed: {e}")
             raise HTTPException(
                 status_code=500,
-                detail=f"DINOv3 analysis failed: {str(e)}"
+                detail=f"Analysis failed: {str(e)}"
             )
         
         # 4. Generate Gemini Pro report
@@ -207,12 +204,12 @@ async def verify_image(file: UploadFile = File(...)):
             )
         
         try:
-            report = gemini_service.generate_report(file_content, dinov3_analysis)
+            report = gemini_service.generate_report(file_content, analysis)
             logger.info("Gemini report generated successfully")
         except Exception as e:
             logger.error(f"Gemini report generation failed: {e}")
             # Use fallback report
-            report = gemini_service._create_fallback_report(dinov3_analysis)
+            report = gemini_service._create_fallback_report(analysis)
         
         # 5. Calculate processing time
         processing_time = round(time.time() - start_time, 2)
@@ -220,14 +217,14 @@ async def verify_image(file: UploadFile = File(...)):
         # 6. Return structured JSON for frontend (exact format specified)
         return {
             "success": True,
-            "authenticity_score": dinov3_analysis['authenticity_score'],
-            "classification": dinov3_analysis['classification'],
-            "report": report,  # Full Gemini-generated text
+            "authenticity_score": analysis['authenticity_score'],
+            "classification": analysis['classification'],
+            "report": report,  # Full Gemini-generated text in the exact format requested
             "processing_time": processing_time,
-            "confidence": dinov3_analysis.get('confidence', 0),
-            "feature_anomalies": dinov3_analysis.get('feature_anomalies', []),
+            "confidence": analysis.get('confidence', 0),
+            "feature_anomalies": analysis.get('feature_anomalies', []),
             "model_info": {
-                "dinov3": dinov3_analyzer.get_model_info(),
+                "simple_analyzer": simple_analyzer.get_model_info(),
                 "gemini": "gemini-pro-vision"
             }
         }
@@ -251,7 +248,7 @@ async def verify_image(file: UploadFile = File(...)):
 async def get_status():
     """Get system status and configuration"""
     try:
-        dinov3_info = dinov3_analyzer.get_model_info() if dinov3_analyzer else {"status": "not_loaded"}
+        analyzer_info = simple_analyzer.get_model_info() if simple_analyzer else {"status": "not_loaded"}
         gemini_info = gemini_service.test_connection() if gemini_service else {"status": "not_connected"}
         
         return {
@@ -259,11 +256,10 @@ async def get_status():
             "version": "1.0.0",
             "status": "operational",
             "services": {
-                "dinov3_analyzer": dinov3_info,
+                "simple_analyzer": analyzer_info,
                 "gemini_service": gemini_info
             },
             "configuration": {
-                "model_path": os.getenv('DINOV3_MODEL_PATH', 'not_set'),
                 "gemini_api_key": "configured" if os.getenv('GEMINI_API_KEY') else "not_configured",
                 "environment": os.getenv('ENVIRONMENT', 'development')
             },
@@ -282,13 +278,13 @@ async def get_status():
             "error": str(e)
         }
 
-@app.get("/models/dinov3/info")
-async def get_dinov3_info():
-    """Get DINOv3 model information"""
-    if not dinov3_analyzer:
-        raise HTTPException(status_code=500, detail="DINOv3 analyzer not initialized")
+@app.get("/models/analyzer/info")
+async def get_analyzer_info():
+    """Get analyzer information"""
+    if not simple_analyzer:
+        raise HTTPException(status_code=500, detail="Simple analyzer not initialized")
     
-    return dinov3_analyzer.get_model_info()
+    return simple_analyzer.get_model_info()
 
 @app.get("/services/gemini/test")
 async def test_gemini():
