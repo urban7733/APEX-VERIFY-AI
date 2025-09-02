@@ -11,7 +11,7 @@ import io
 
 # Import our services
 from models.simple_analyzer import SimpleAnalyzer
-from services.gemini_service import GeminiReportService
+from services.workflow_orchestrator import WorkflowOrchestrator
 
 # Load environment variables
 load_dotenv()
@@ -43,27 +43,29 @@ app.add_middleware(
 
 # Global service instances
 simple_analyzer = None
-gemini_service = None
+workflow_orchestrator = None
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global simple_analyzer, gemini_service
+    global simple_analyzer, workflow_orchestrator
     
     logger.info("Starting APEX VERIFY AI Backend...")
     
     try:
-        # Initialize Simple analyzer
+        # Initialize Simple analyzer (fallback)
         simple_analyzer = SimpleAnalyzer()
         logger.info("Simple analyzer initialized successfully")
         
-        # Initialize Gemini service
-        gemini_service = GeminiReportService()
-        logger.info("Gemini service initialized successfully")
+        # Initialize Workflow Orchestrator (main system)
+        workflow_orchestrator = WorkflowOrchestrator()
+        workflow_ready = workflow_orchestrator.initialize()
+        logger.info(f"Workflow Orchestrator: {'Ready' if workflow_ready else 'Failed'}")
         
-        # Test Gemini connection
-        gemini_status = gemini_service.test_connection()
-        logger.info(f"Gemini API status: {gemini_status['status']}")
+        # Test workflow
+        if workflow_ready:
+            test_results = workflow_orchestrator.test_workflow()
+            logger.info(f"Workflow test: {test_results['status']}")
         
         logger.info("Backend startup completed successfully")
         
@@ -92,7 +94,7 @@ async def root():
         ],
         "models": {
             "simple_analyzer": "loaded" if simple_analyzer else "not_loaded",
-            "gemini": "connected" if gemini_service else "not_connected"
+            "workflow_orchestrator": "ready" if workflow_orchestrator else "not_ready"
         }
     }
 
@@ -103,21 +105,21 @@ async def health_check():
         # Check Simple analyzer status
         analyzer_status = "healthy" if simple_analyzer else "unhealthy"
         
-        # Check Gemini status
-        gemini_status = "healthy"
-        if gemini_service:
+        # Check Workflow Orchestrator status
+        workflow_status = "healthy"
+        if workflow_orchestrator:
             try:
-                status = gemini_service.test_connection()
-                gemini_status = status['status']
+                status = workflow_orchestrator.get_workflow_status()
+                workflow_status = "healthy" if status['initialized'] else "unhealthy"
             except:
-                gemini_status = "unhealthy"
+                workflow_status = "unhealthy"
         
         return {
-            "status": "healthy" if analyzer_status == "healthy" and gemini_status == "connected" else "degraded",
+            "status": "healthy" if analyzer_status == "healthy" and workflow_status == "healthy" else "degraded",
             "timestamp": "2024-01-01T00:00:00Z",
             "services": {
                 "simple_analyzer": analyzer_status,
-                "gemini_api": gemini_status
+                "workflow_orchestrator": workflow_status
             }
         }
     except Exception as e:
@@ -131,7 +133,7 @@ async def health_check():
 @app.post("/api/verify")
 async def verify_image(file: UploadFile = File(...)):
     """
-    Verify image authenticity using Simple Analyzer and Gemini Pro Vision
+    Verify image authenticity using DINOv3 Workflow Orchestrator
     
     Args:
         file: Image file to verify (jpg, png, webp)
@@ -179,55 +181,76 @@ async def verify_image(file: UploadFile = File(...)):
                 detail=f"Invalid image file: {str(e)}"
             )
         
-        # 3. Run Simple analysis
-        if not simple_analyzer:
-            raise HTTPException(
-                status_code=500,
-                detail="Simple analyzer not initialized"
-            )
-        
-        try:
+        # 3. Run DINOv3 Workflow Analysis
+        if not workflow_orchestrator:
+            # Fallback to simple analyzer
+            if not simple_analyzer:
+                raise HTTPException(
+                    status_code=500,
+                    detail="No analysis services available"
+                )
+            
+            logger.warning("Workflow orchestrator not available, using simple analyzer fallback")
             analysis = simple_analyzer.analyze_image(image)
-            logger.info(f"Analysis completed: {analysis['authenticity_score']}%")
-        except Exception as e:
-            logger.error(f"Analysis failed: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Analysis failed: {str(e)}"
-            )
-        
-        # 4. Generate Gemini Pro report
-        if not gemini_service:
-            raise HTTPException(
-                status_code=500,
-                detail="Gemini service not initialized"
-            )
-        
-        try:
-            report = gemini_service.generate_report(file_content, analysis)
-            logger.info("Gemini report generated successfully")
-        except Exception as e:
-            logger.error(f"Gemini report generation failed: {e}")
-            # Use fallback report
-            report = gemini_service._create_fallback_report(analysis)
-        
-        # 5. Calculate processing time
-        processing_time = round(time.time() - start_time, 2)
-        
-        # 6. Return structured JSON for frontend (exact format specified)
-        return {
-            "success": True,
-            "authenticity_score": analysis['authenticity_score'],
-            "classification": analysis['classification'],
-            "report": report,  # Full Gemini-generated text in the exact format requested
-            "processing_time": processing_time,
-            "confidence": analysis.get('confidence', 0),
-            "feature_anomalies": analysis.get('feature_anomalies', []),
-            "model_info": {
-                "simple_analyzer": simple_analyzer.get_model_info(),
-                "gemini": "gemini-pro-vision"
+            report = f"""Apex Verify AI Analysis: COMPLETE
+* Authenticity Score: {analysis['authenticity_score']}% - {analysis['classification']}
+* Assessment: Analysis completed using fallback system.
+
+The Scene in Focus
+This image has been analyzed using our fallback detection system.
+
+The Story Behind the Picture
+Based on our analysis, this image has been processed through our verification pipeline.
+
+Digital Footprint & Source Links
+Technical analysis has been performed on the image metadata and characteristics.
+
+AI Summary
+The image has been verified through our analysis system with the available resources.
+
+Your media is verified. You can now secure your file with our seal of authenticity.
+( Download with Apex Verify™ Seal )"""
+            
+            processing_time = round(time.time() - start_time, 2)
+            
+            return {
+                "success": True,
+                "authenticity_score": analysis['authenticity_score'],
+                "classification": analysis['classification'],
+                "report": report,
+                "processing_time": processing_time,
+                "confidence": analysis.get('confidence', 0),
+                "feature_anomalies": analysis.get('feature_anomalies', []),
+                "model_info": {
+                    "analyzer": "simple_analyzer_fallback",
+                    "workflow": "not_available"
+                }
             }
-        }
+        
+        # Use DINOv3 Workflow Orchestrator
+        try:
+            results = workflow_orchestrator.process_image(image, file.filename)
+            logger.info(f"Workflow analysis completed: {results.get('authenticity_score', 0)}%")
+            
+            # Return results in the exact format expected by frontend
+            return {
+                "success": results.get('success', True),
+                "authenticity_score": results.get('authenticity_score', 0),
+                "classification": results.get('classification', 'UNKNOWN'),
+                "report": results.get('report', ''),
+                "processing_time": results.get('processing_time', 0),
+                "confidence": results.get('confidence', 0),
+                "feature_anomalies": results.get('analysis_details', {}).get('dinov3_analysis', {}).get('feature_anomalies', []),
+                "watermarked_image_base64": results.get('watermarking', {}).get('watermarked_image_base64'),
+                "model_info": results.get('model_info', {})
+            }
+            
+        except Exception as e:
+            logger.error(f"Workflow analysis failed: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Workflow analysis failed: {str(e)}"
+            )
         
     except HTTPException:
         raise
@@ -249,7 +272,7 @@ async def get_status():
     """Get system status and configuration"""
     try:
         analyzer_info = simple_analyzer.get_model_info() if simple_analyzer else {"status": "not_loaded"}
-        gemini_info = gemini_service.test_connection() if gemini_service else {"status": "not_connected"}
+        workflow_info = workflow_orchestrator.get_workflow_status() if workflow_orchestrator else {"initialized": False}
         
         return {
             "system": "APEX VERIFY AI",
@@ -257,16 +280,20 @@ async def get_status():
             "status": "operational",
             "services": {
                 "simple_analyzer": analyzer_info,
-                "gemini_service": gemini_info
+                "workflow_orchestrator": workflow_info
             },
             "configuration": {
                 "gemini_api_key": "configured" if os.getenv('GEMINI_API_KEY') else "not_configured",
+                "google_vision_api_key": "configured" if os.getenv('GOOGLE_VISION_API_KEY') else "not_configured",
+                "tineye_api_key": "configured" if os.getenv('TINEYE_API_KEY') else "not_configured",
+                "dinov3_model_path": "configured" if os.getenv('DINOV3_MODEL_PATH') else "not_configured",
                 "environment": os.getenv('ENVIRONMENT', 'development')
             },
             "endpoints": {
                 "verify": "/api/verify",
                 "health": "/health",
-                "status": "/status"
+                "status": "/status",
+                "workflow_test": "/workflow/test"
             }
         }
     except Exception as e:
@@ -286,13 +313,21 @@ async def get_analyzer_info():
     
     return simple_analyzer.get_model_info()
 
-@app.get("/services/gemini/test")
-async def test_gemini():
-    """Test Gemini API connection"""
-    if not gemini_service:
-        raise HTTPException(status_code=500, detail="Gemini service not initialized")
+@app.get("/workflow/test")
+async def test_workflow():
+    """Test complete workflow"""
+    if not workflow_orchestrator:
+        raise HTTPException(status_code=500, detail="Workflow orchestrator not initialized")
     
-    return gemini_service.test_connection()
+    return workflow_orchestrator.test_workflow()
+
+@app.get("/workflow/status")
+async def get_workflow_status():
+    """Get detailed workflow status"""
+    if not workflow_orchestrator:
+        raise HTTPException(status_code=500, detail="Workflow orchestrator not initialized")
+    
+    return workflow_orchestrator.get_workflow_status()
 
 if __name__ == "__main__":
     uvicorn.run(

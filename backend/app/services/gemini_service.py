@@ -55,6 +55,7 @@ class GeminiReportService:
     
     def _create_prompt(self, analysis: Dict[str, Any]) -> str:
         """
+        Create prompt for Gemini Pro Vision with exact template format
         Create the prompt for Gemini Pro Vision
         
         Args:

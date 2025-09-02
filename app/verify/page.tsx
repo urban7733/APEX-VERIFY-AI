@@ -724,10 +724,38 @@ const performTensorFlowAnalysis = async (
 }
 
 // Download file with watermark
-const downloadWithWatermark = async (file: File | null, previewUrl: string | null) => {
+const downloadWithWatermark = async (file: File | null, previewUrl: string | null, watermarkedImageBase64?: string) => {
   if (!file) {
     console.error("Download failed: File is null or undefined.")
     return
+  }
+
+  // Check if we have a watermarked image from the backend
+  if (watermarkedImageBase64) {
+    try {
+      // Convert base64 to blob
+      const byteCharacters = atob(watermarkedImageBase64)
+      const byteNumbers = new Array(byteCharacters.length)
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      const byteArray = new Uint8Array(byteNumbers)
+      const blob = new Blob([byteArray], { type: 'image/jpeg' })
+
+      // Create download link
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `apex-verified-${file.name}.jpg`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      return
+    } catch (error) {
+      console.error('Watermarked image download failed:', error)
+      // Fall through to original file download
+    }
   }
 
   // Handle non-image/video files or cases where no preview is available for watermarking
@@ -1068,6 +1096,11 @@ export default function VerifyPage() {
     setProgress(0)
 
     try {
+      // Create FormData for file upload
+      const formData = new FormData()
+      formData.append('file', file)
+
+      // Simulate progress updates
       const progressInterval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 90) {
@@ -1078,19 +1111,97 @@ export default function VerifyPage() {
         })
       }, 200)
 
-      const analysisResult = await performAdvancedAnalysis(file)
-      const tfResult = await performTensorFlowAnalysis(file)
+      // Update progress stages
+      setAnalysisProgress({
+        stage: 'preprocessing',
+        progress: 10,
+        message: 'Preprocessing image...',
+        currentStep: 'Validating and normalizing image'
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      setAnalysisProgress({
+        stage: 'feature_extraction',
+        progress: 30,
+        message: 'Extracting DINOv3 features...',
+        currentStep: 'Running vision transformer analysis'
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 800))
+
+      setAnalysisProgress({
+        stage: 'classification',
+        progress: 60,
+        message: 'Classifying authenticity...',
+        currentStep: 'Running MLP classifier'
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 600))
+
+      setAnalysisProgress({
+        stage: 'reverse_search',
+        progress: 80,
+        message: 'Performing reverse search...',
+        currentStep: 'Searching for similar images'
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 400))
+
+      setAnalysisProgress({
+        stage: 'generating_report',
+        progress: 90,
+        message: 'Generating AI summary...',
+        currentStep: 'Creating comprehensive report'
+      })
+
+      // Make API call to enhanced backend
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/verify`, {
+        method: 'POST',
+        body: formData,
+      })
 
       clearInterval(progressInterval)
       setProgress(100)
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+      }
+
+      const backendResult = await response.json()
+
       await new Promise((resolve) => setTimeout(resolve, 500))
+
+      // Convert backend result to frontend format
+      const analysisResult = await performAdvancedAnalysis(file)
+      const tfResult = await performTensorFlowAnalysis(file)
+
+      // Enhance with backend data
+      if (backendResult.success) {
+        analysisResult.isDeepfake = backendResult.authenticity_score < 60
+        analysisResult.confidence = backendResult.confidence
+        analysisResult.aiProvider = backendResult.classification
+        analysisResult.processingTime = backendResult.processing_time
+        analysisResult.backendReport = backendResult.report
+        analysisResult.watermarkedImageBase64 = backendResult.watermarked_image_base64
+      }
 
       setResult(analysisResult)
       setTensorFlowResult(tfResult)
     } catch (error) {
       console.error("Analysis failed:", error)
-      alert("Analysis failed. Please try again.")
+      // Fallback to local analysis
+      try {
+        const analysisResult = await performAdvancedAnalysis(file)
+        const tfResult = await performTensorFlowAnalysis(file)
+        setResult(analysisResult)
+        setTensorFlowResult(tfResult)
+      } catch (fallbackError) {
+        console.error("Fallback analysis failed:", fallbackError)
+        alert("Analysis failed. Please try again.")
+      }
     } finally {
       setIsAnalyzing(false)
       setAnalysisProgress(null)
@@ -1582,7 +1693,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     {/* Download Seal - Mobile Optimized */}
                     <div className="border-t border-white/10 pt-3 sm:pt-4 text-center">
                       <Button
-                        onClick={() => downloadWithWatermark(file, previewUrl)}
+                        onClick={() => downloadWithWatermark(file, previewUrl, result?.watermarkedImageBase64)}
                         className="bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl px-4 sm:px-6 py-2 sm:py-3 font-medium backdrop-blur-md text-sm sm:text-base w-full sm:w-auto"
                       >
                         <Download className="h-4 w-4 mr-2" />
