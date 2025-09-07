@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Upload, ArrowRight, Menu, X, Heart, MessageCircle, Share, MoreHorizontal } from "lucide-react"
+import { Upload, ArrowRight, Menu, X, Heart, MessageCircle, Share } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 
@@ -96,22 +96,22 @@ export default function Home() {
     setMobileMenuOpen(!mobileMenuOpen)
   }
 
-  const createScrollingColumn = (images: typeof backgroundPosts, animationClass: string, columnKey: string) => (
-    <div key={columnKey} className="flex-1 flex flex-col space-y-4">
-      <div className={`flex flex-col space-y-4 ${animationClass}`}>
-        {[...images, ...images, ...images].map((post, index) => (
-          <div key={`${post.id}-${index}`} className="relative">
-            <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10">
+  const createBackgroundScrollingPosts = () => (
+    <div className="absolute inset-0 w-full h-full overflow-hidden opacity-35 pointer-events-none">
+      <div className="flex space-x-2 animate-scroll-horizontal h-full items-center">
+        {[...backgroundPosts, ...backgroundPosts, ...backgroundPosts, ...backgroundPosts].map((post, index) => (
+          <div key={`${post.id}-${index}`} className="flex-shrink-0 w-32">
+            <div className="relative bg-black/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/15">
               {/* Post Header */}
-              <div className="flex items-center justify-between p-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">{post.username.charAt(0).toUpperCase()}</span>
+              <div className="flex items-center justify-between p-1">
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                    <span className="text-white text-[8px] font-bold">{post.username.charAt(0).toUpperCase()}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <span className="text-white text-sm font-medium">{post.username}</span>
+                    <span className="text-white/95 text-[10px] font-medium truncate max-w-[60px]">{post.username}</span>
                     {post.verified && (
-                      <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-2 h-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                         <path
                           fillRule="evenodd"
                           d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -120,11 +120,7 @@ export default function Home() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-white/60 text-xs">• {post.timeAgo}</span>
                 </div>
-                <button className="p-2 -m-2">
-                  <MoreHorizontal className="w-5 h-5 text-white/60" />
-                </button>
               </div>
 
               {/* Post Image */}
@@ -132,20 +128,20 @@ export default function Home() {
                 <Image
                   src={post.image || "/placeholder.svg"}
                   alt=""
-                  width={300}
-                  height={post.aspectRatio === "portrait" ? 400 : post.aspectRatio === "square" ? 300 : 200}
+                  width={128}
+                  height={post.aspectRatio === "portrait" ? 160 : post.aspectRatio === "square" ? 128 : 80}
                   className="w-full object-cover"
                   loading="lazy"
                 />
                 {/* Apex Verify AI Seal */}
-                <div className="absolute bottom-3 right-3 z-20">
-                  <div className="bg-white/95 backdrop-blur-none rounded-full p-2.5 shadow-xl border border-white/20 filter-none">
+                <div className="absolute bottom-1 right-1 z-20">
+                  <div className="backdrop-blur-none rounded-full filter-none">
                     <Image
                       src="/apex-verify-seal.png"
                       alt="Apex Verify AI Verified"
-                      width={24}
-                      height={24}
-                      className="w-6 h-6 filter-none opacity-100"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4 filter-none opacity-100 drop-shadow-lg"
                       loading="lazy"
                     />
                   </div>
@@ -153,34 +149,29 @@ export default function Home() {
               </div>
 
               {/* Post Actions */}
-              <div className="p-3 space-y-2">
+              <div className="p-1 space-y-1">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-6">
-                    <button className="p-1 -m-1">
-                      <Heart className="w-6 h-6 text-white/70 hover:text-red-400 transition-colors" />
+                  <div className="flex items-center space-x-2">
+                    <button className="p-0.5">
+                      <Heart className="w-3 h-3 text-white/80" />
                     </button>
-                    <button className="p-1 -m-1">
-                      <MessageCircle className="w-6 h-6 text-white/70 hover:text-white transition-colors" />
+                    <button className="p-0.5">
+                      <MessageCircle className="w-3 h-3 text-white/80" />
                     </button>
-                    <button className="p-1 -m-1">
-                      <Share className="w-6 h-6 text-white/70 hover:text-white transition-colors" />
+                    <button className="p-0.5">
+                      <Share className="w-3 h-3 text-white/80" />
                     </button>
                   </div>
                 </div>
 
                 {/* Likes Count */}
-                <div className="text-white text-sm font-medium">{post.likes.toLocaleString()} likes</div>
+                <div className="text-white/95 text-[9px] font-medium">{post.likes.toLocaleString()}</div>
 
                 {/* Caption */}
-                <div className="text-white text-sm">
-                  <span className="font-medium">{post.username}</span>{" "}
-                  <span className="text-white/90">{post.caption}</span>
+                <div className="text-white text-[9px]">
+                  <span className="font-medium text-white/95">{post.username}</span>{" "}
+                  <span className="text-white/90 truncate block">{post.caption.substring(0, 20)}...</span>
                 </div>
-
-                {/* Comments */}
-                <button className="text-white/60 text-sm hover:text-white/80 transition-colors text-left">
-                  View all {post.comments} comments
-                </button>
               </div>
             </div>
           </div>
@@ -190,28 +181,10 @@ export default function Home() {
   )
 
   return (
-    <div className="min-h-screen text-white antialiased relative overflow-hidden tech-grid-bg">
+    <div className="h-screen text-white antialiased relative overflow-hidden tech-grid-bg">
       <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
 
-      <div className="absolute inset-0 opacity-25 pointer-events-none">
-        <div className="flex gap-2 sm:gap-4 md:gap-6 h-full p-2 sm:p-4">
-          <div className="flex gap-2 w-full sm:hidden">
-            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "mobile-col-1")}
-            {createScrollingColumn(backgroundPosts.slice(2, 4), "animate-scroll-up-delayed", "mobile-col-2")}
-            {createScrollingColumn(backgroundPosts.slice(4, 6), "animate-scroll-up-slow", "mobile-col-3")}
-            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "mobile-col-4")}
-          </div>
-          {/* Show all columns on larger screens */}
-          <div className="hidden sm:flex gap-4 md:gap-6 w-full">
-            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "col-1")}
-            {createScrollingColumn(backgroundPosts.slice(2, 4), "animate-scroll-up-delayed", "col-2")}
-            {createScrollingColumn(backgroundPosts.slice(4, 6), "animate-scroll-up-slow", "col-3")}
-            {createScrollingColumn(backgroundPosts.slice(0, 2), "animate-scroll-up", "col-4")}
-            {createScrollingColumn(backgroundPosts.slice(2, 4), "animate-scroll-up-delayed", "col-5")}
-            {createScrollingColumn(backgroundPosts.slice(4, 6), "animate-scroll-up-slow", "col-6")}
-          </div>
-        </div>
-      </div>
+      {createBackgroundScrollingPosts()}
 
       <div className="absolute inset-0 z-0 premium-glass-overlay" />
 
@@ -295,10 +268,10 @@ export default function Home() {
       </nav>
 
       {/* Main Content - Enhanced Premium Design */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-4 sm:px-6">
-        <div className="text-center max-w-6xl mx-auto w-full space-y-8 sm:space-y-12">
+      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
+        <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
           <div className="relative">
-            <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black text-white leading-none tracking-tighter premium-heading">
+            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter premium-heading">
               APEX VERIFY AI
             </h1>
             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -310,27 +283,27 @@ export default function Home() {
               className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
             >
               <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500 premium-upload-area">
-                <div className="flex items-center justify-between h-18 sm:h-20 px-6 sm:px-8">
+                <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
                   <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
-                    <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white/70 flex-shrink-0" />
-                    <span className="text-white/70 text-lg sm:text-xl font-light tracking-wide truncate">
+                    <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
+                    <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
                       UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 premium-upload-button">
-                    <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 premium-upload-button">
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6 max-w-4xl mx-auto px-4">
-            <p className="text-white/80 text-xl sm:text-2xl font-light leading-relaxed tracking-wide">
-              Advanced AI-powered deepfake detection technology.
+          <div className="space-y-3 max-w-4xl mx-auto px-4">
+            <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
+              ADVANCED AI-POWERED DEEPFAKE DETECTION TECHNOLOGY.
             </p>
-            <p className="text-white/60 text-lg sm:text-xl font-light leading-relaxed tracking-wide">
-              Engineered for precision. Built for the future.
+            <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading">
+              ENGINEERED FOR PRECISION. BUILT FOR THE FUTURE.
             </p>
           </div>
         </div>

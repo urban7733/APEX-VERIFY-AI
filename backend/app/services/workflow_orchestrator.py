@@ -8,11 +8,11 @@ import hashlib
 import json
 
 # Import our services
-from app.models.dinov3_model import DINOv3Analyzer
-from app.services.reverse_search_service import ReverseSearchService
-from app.services.spatial_analysis_service import SpatialAnalysisService
-from app.services.gemini_service import GeminiReportService
-from app.services.watermarking_service import WatermarkingService
+from models.dinov3_model import DINOv3Analyzer
+from services.reverse_search_service import ReverseSearchService
+from services.spatial_analysis_service import SpatialAnalysisService
+from services.gemini_service import GeminiReportService
+from services.watermarking_service import WatermarkingService
 
 logger = logging.getLogger(__name__)
 

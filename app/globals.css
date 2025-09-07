@@ -74,6 +74,7 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --radius: 0.75rem; /* Slightly larger radius */
     --sidebar-background: 0 0% 10%; /* Darker sidebar */
     --sidebar-foreground: 0 0% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -212,46 +213,51 @@ textarea:focus-visible {
 
 /* Premium Buttons */
 .premium-button {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Improved contrast with darker background and better opacity */
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   letter-spacing: 0.05em;
   font-weight: 500;
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   will-change: transform, box-shadow;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-button:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  /* Enhanced hover state with better contrast */
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .premium-button-primary {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* Improved primary button contrast with darker gradient */
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
   letter-spacing: 0.05em;
   font-weight: 600;
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   will-change: transform, box-shadow;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-button-primary:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
-  border-color: rgba(255, 255, 255, 0.25);
+  /* Enhanced primary button hover with better contrast */
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* Premium Mobile Menu */
 .premium-mobile-menu {
-  background: rgba(0, 0, 0, 0.4);
+  /* Improved mobile menu contrast */
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Premium Heading */
@@ -369,6 +375,23 @@ textarea:focus-visible {
   }
 }
 
+/* Horizontal scrolling animation for posts */
+@keyframes scrollHorizontal {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-horizontal {
+  animation: scrollHorizontal 30s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 /* Animation utility classes */
 .animate-float {
   animation: float 4s ease-in-out infinite;
@@ -403,63 +426,112 @@ textarea:focus-visible {
 /* Performance optimizations */
 .animate-float,
 .animate-float-delayed,
-.animate-float-slow {
+.animate-float-slow,
+.animate-scroll-horizontal,
+.animate-float-particle,
+.animate-float-particle-delayed,
+.animate-float-particle-slow {
   will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Remove will-change after animation completes */
 .animate-float:hover,
 .animate-float-delayed:hover,
-.animate-float-slow:hover {
+.animate-float-slow:hover,
+.animate-scroll-horizontal:hover,
+.animate-float-particle:hover,
+.animate-float-particle-delayed:hover,
+.animate-float-particle-slow:hover {
   will-change: auto;
 }
 
 /* Mobile optimizations */
-@media (max-width: 640px) {
-  /* Prevent horizontal overflow */
+@media (max-width: 768px) {
+  /* Prevent horizontal scrolling on mobile */
   body {
     overflow-x: hidden;
-    width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Better touch targets */
+  /* Improve touch targets - minimum 44px for accessibility */
   button,
+  [role="button"],
+  input,
+  select,
+  textarea,
   a {
     min-height: 44px;
+    min-width: 44px;
   }
 
-  /* Fix for status badge */
-  .inline-flex {
-    max-width: 100%;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  /* Improve text readability on small screens */
-  h1,
-  h2,
-  h3 {
-    word-break: break-word;
-  }
-
-  /* Reduce button effects on mobile for performance */
-  .button-selected,
-  .button-unselected,
-  .file-selector-selected,
-  .file-selector-unselected,
-  .badge-option-selected,
-  .badge-option-unselected {
-    backdrop-filter: none;
-    box-shadow: none;
-  }
-
-  .premium-heading {
-    letter-spacing: -0.02em;
-  }
-
+  /* Better spacing for mobile */
   .premium-button,
   .premium-button-primary {
-    letter-spacing: 0.02em;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  /* Optimize text rendering on mobile */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Improve tap highlights */
+  button,
+  [role="button"],
+  a {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Optimize animations for mobile performance */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Better mobile typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* Mobile-specific spacing */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+}
+
+/* Prevent zoom on input focus for iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px;
+  }
+}
+
+/* Added responsive horizontal scrolling for mobile */
+@media (max-width: 640px) {
+  .animate-scroll-horizontal {
+    animation-duration: 20s; /* Faster on mobile for better performance */
+  }
+
+  /* Reduce post width on mobile */
+  .flex-shrink-0.w-80 {
+    width: 16rem; /* Smaller posts on mobile */
   }
 }
 
@@ -588,72 +660,4 @@ textarea:focus-visible {
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-/* Performance optimizations for animations */
-.animate-scroll-up,
-.animate-scroll-up-delayed,
-.animate-scroll-up-slow,
-.animate-float-particle,
-.animate-float-particle-delayed,
-.animate-float-particle-slow {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* Mobile-specific optimizations */
-@media (max-width: 768px) {
-  /* Prevent horizontal scrolling on mobile */
-  body {
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Improve touch targets */
-  button,
-  [role="button"],
-  input,
-  select,
-  textarea {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Optimize text rendering on mobile */
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* Improve tap highlights */
-  button,
-  [role="button"],
-  a {
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
-  }
-
-  /* Optimize animations for mobile */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-}
-
-/* Prevent zoom on input focus for iOS */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  select,
-  textarea,
-  input {
-    font-size: 16px;
-  }
-}
-
-/* Optimize for high-DPI displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
 }

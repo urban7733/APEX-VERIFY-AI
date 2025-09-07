@@ -1,27 +1,62 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { ArrowLeft, Menu, X } from "lucide-react"
+import { AuthDialog } from "@/components/auth/auth-dialog"
 
 export default function PrivacyPolicy() {
+  const router = useRouter()
+  const [authDialogOpen, setAuthDialogOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const handleLogin = () => {
+    setAuthMode("login")
+    setAuthDialogOpen(true)
+  }
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Starfield background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]" />
-        {Array.from({ length: 100 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-px h-px bg-white rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div>
+    <div className="min-h-screen text-white antialiased relative overflow-hidden tech-grid-bg">
+      <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
+      <div className="absolute inset-0 z-0 premium-glass-overlay" />
+
+      {/* Navigation */}
+      <nav className="relative z-10 py-6 sm:py-8 premium-nav">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={() => router.push("/")}
+                className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight premium-logo"
+              >
+                APEX VERIFY AI
+              </button>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-6">{/* Existing desktop navigation code */}</div>
+
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 premium-button min-h-[44px] min-w-[44px] flex items-center justify-center"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4 premium-mobile-menu">
+              {/* Existing mobile menu code */}
+            </div>
+          )}
+        </div>
+      </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
         {/* Header */}
@@ -38,8 +73,9 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Content */}
-        <div className="prose prose-invert max-w-none">
-          <div className="space-y-12">
+        <div className="space-y-8">
+          {/* Content sections wrapped in glassmorphic cards */}
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">1. Information We Collect</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -61,7 +97,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">2. How We Use Your Information</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -76,7 +114,9 @@ export default function PrivacyPolicy() {
                 </ul>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">3. Information Sharing and Disclosure</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -93,7 +133,9 @@ export default function PrivacyPolicy() {
                 </ul>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">4. Data Security</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -113,7 +155,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">5. Data Retention</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -127,7 +171,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">6. Your Privacy Rights</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -155,7 +201,9 @@ export default function PrivacyPolicy() {
                 <p>To exercise these rights, please contact us through our website contact form.</p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">7. Cookies and Tracking Technologies</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -170,7 +218,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">8. Third-Party Services</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -181,7 +231,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">9. Children's Privacy</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -192,7 +244,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">10. International Data Transfers</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -203,7 +257,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">11. Changes to This Privacy Policy</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -214,7 +270,9 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
             </section>
+          </div>
 
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-white">12. Contact Information</h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
@@ -233,6 +291,8 @@ export default function PrivacyPolicy() {
           <p className="text-white/60 text-lg font-light">Located in San Francisco, CA</p>
         </div>
       </div>
+
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
     </div>
   )
 }
