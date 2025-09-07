@@ -6,10 +6,10 @@ The complete DINOv3-based deepfake detection and verification system has been su
 
 ## 🏗️ **Complete System Architecture**
 
-```
+\`\`\`
 User Upload → Preprocessing → DINOv3 Feature Extraction → MLP Classifier → 
 Reverse Search → Spatial Analysis → AI Summary → Watermarking → Result Output
-```
+\`\`\`
 
 ## ✅ **All Components Implemented**
 
@@ -99,7 +99,7 @@ Reverse Search → Spatial Analysis → AI Summary → Watermarking → Result O
 ## 🚀 **Quick Start Guide**
 
 ### **1. Backend Setup**
-```bash
+\`\`\`bash
 cd backend
 
 # Install dependencies
@@ -111,26 +111,26 @@ cp env.example .env
 
 # Start and test the system
 python start_and_test.py --full-tests
-```
+\`\`\`
 
 ### **2. Frontend Setup**
-```bash
+\`\`\`bash
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
-```
+\`\`\`
 
 ### **3. System Testing**
-```bash
+\`\`\`bash
 # Run comprehensive tests
 cd backend
 python test_complete_system.py
 
 # Or start and test together
 python start_and_test.py --full-tests
-```
+\`\`\`
 
 ## 🔧 **API Endpoints**
 
@@ -147,7 +147,7 @@ python start_and_test.py --full-tests
 
 ## 📊 **API Response Format**
 
-```json
+\`\`\`json
 {
   "success": true,
   "authenticity_score": 99.9,
@@ -162,7 +162,7 @@ python start_and_test.py --full-tests
     "workflow": {...}
   }
 }
-```
+\`\`\`
 
 ## 🎯 **Key Features Implemented**
 
@@ -249,7 +249,7 @@ The system is ready for:
 
 ## 📁 **File Structure**
 
-```
+\`\`\`
 APEX-VERIFY-AI-3/
 ├── backend/
 │   ├── app/
@@ -271,7 +271,7 @@ APEX-VERIFY-AI-3/
 │       ├── page.tsx                    # Enhanced verification page
 │       └── enhanced-page.tsx           # Alternative implementation
 └── SYSTEM_COMPLETE.md                  # This file
-```
+\`\`\`
 
 ## 🎉 **System Status: COMPLETE**
 

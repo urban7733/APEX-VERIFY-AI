@@ -6,14 +6,14 @@ This is the **enhanced, production-ready backend** implementing the complete DIN
 
 ## 🏗️ **System Architecture**
 
-```
+\`\`\`
 User Upload → Preprocessing → DINOv3 Feature Extraction → Deepfake Classifier → 
 Reverse Search → Scene Analysis → Structured AI Summary → Optional Watermark → Result Output
-```
+\`\`\`
 
 ## 📁 **Enhanced Project Structure**
 
-```
+\`\`\`
 backend/
 ├── app/
 │   ├── __init__.py
@@ -32,7 +32,7 @@ backend/
 ├── requirements.txt                     # Enhanced dependencies
 ├── env.example                          # Complete environment configuration
 └── README_ENHANCED.md                   # This file
-```
+\`\`\`
 
 ## 🎯 **What's Implemented**
 
@@ -81,21 +81,21 @@ backend/
 ## 🔧 **Technical Implementation Details**
 
 ### **DINOv3 Feature Extraction**
-```python
+\`\`\`python
 # DINOv3 as frozen backbone
 features = dinov3_model.extract_features(image)  # 768-dim vector
 authenticity_score, classification, confidence = mlp_classifier.predict(features)
-```
+\`\`\`
 
 ### **Workflow Pipeline**
-```python
+\`\`\`python
 # Complete workflow execution
 results = workflow_orchestrator.process_image(image, filename)
 # Returns: authenticity_score, report, watermarked_image, analysis_details
-```
+\`\`\`
 
 ### **API Response Format**
-```json
+\`\`\`json
 {
   "success": true,
   "authenticity_score": 99.9,
@@ -106,20 +106,20 @@ results = workflow_orchestrator.process_image(image, filename)
   "confidence": 0.95,
   "model_info": {...}
 }
-```
+\`\`\`
 
 ## 🚀 **Setup and Installation**
 
 ### **1. Install Dependencies**
-```bash
+\`\`\`bash
 pip install -r requirements.txt
-```
+\`\`\`
 
 ### **2. Environment Configuration**
-```bash
+\`\`\`bash
 cp env.example .env
 # Edit .env with your API keys and model paths
-```
+\`\`\`
 
 ### **3. Required API Keys**
 - **GEMINI_API_KEY**: For AI summary generation (required)
@@ -127,18 +127,18 @@ cp env.example .env
 - **TINEYE_API_KEY**: For reverse search (optional)
 
 ### **4. DINOv3 Model Setup**
-```bash
+\`\`\`bash
 # Place your DINOv3 model file at the specified path
 # Default: ./models/dinov3_vitb16.pth
 # Set DINOV3_MODEL_PATH in .env
-```
+\`\`\`
 
 ### **5. Start the Backend**
-```bash
+\`\`\`bash
 python start_local.py
 # or
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+\`\`\`
 
 ## 📊 **API Endpoints**
 
@@ -199,7 +199,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ## 🔍 **Example Analysis Output**
 
-```
+\`\`\`
 Apex Verify AI Analysis: COMPLETE
 * Authenticity Score: 99.9% - GENUINE MEDIA
 * Assessment: Confirmed. The image is an authentic photograph. Our matrix detects no anomalies; all forensic markers point to genuine media from a verifiable source.
@@ -218,7 +218,7 @@ The photo is genuine and shows authentic automotive content. The vehicles are ow
 
 Your media is verified. You can now secure your file with our seal of authenticity.
 ( Download with Apex Verify™ Seal )
-```
+\`\`\`
 
 ## 🚀 **Deployment and Scaling**
 
@@ -255,7 +255,7 @@ Your media is verified. You can now secure your file with our seal of authentici
 ## 🛠️ **Development and Testing**
 
 ### **Testing the System**
-```bash
+\`\`\`bash
 # Test workflow
 curl http://localhost:8000/workflow/test
 
@@ -264,15 +264,15 @@ curl http://localhost:8000/status
 
 # Health check
 curl http://localhost:8000/health
-```
+\`\`\`
 
 ### **API Testing**
-```bash
+\`\`\`bash
 # Upload and verify image
 curl -X POST "http://localhost:8000/api/verify" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@test_image.jpg"
-```
+\`\`\`
 
 ## 🎯 **Next Steps**
 
