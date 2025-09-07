@@ -188,6 +188,7 @@ interface DeepfakeAnalysisResult {
     confidence: number
     type: string
   }>
+  manipulationType?: "manual" | "ai" | "deepfake" | null
 }
 
 // Minimalistic Starfield component
@@ -740,11 +741,11 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
         byteNumbers[i] = byteCharacters.charCodeAt(i)
       }
       const byteArray = new Uint8Array(byteNumbers)
-      const blob = new Blob([byteArray], { type: 'image/jpeg' })
+      const blob = new Blob([byteArray], { type: "image/jpeg" })
 
       // Create download link
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
       link.download = `apex-verified-${file.name}.jpg`
       document.body.appendChild(link)
@@ -753,7 +754,7 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
       URL.revokeObjectURL(url)
       return
     } catch (error) {
-      console.error('Watermarked image download failed:', error)
+      console.error("Watermarked image download failed:", error)
       // Fall through to original file download
     }
   }
@@ -920,6 +921,7 @@ export default function VerifyPage() {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [currentStep, setCurrentStep] = useState<"upload" | "analysis" | "results">("upload")
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [visualizationMode, setVisualizationMode] = useState<"heatmap" | "boxes">("heatmap")
 
   const { isMobile } = useViewport()
 
@@ -1098,7 +1100,7 @@ export default function VerifyPage() {
     try {
       // Create FormData for file upload
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append("file", file)
 
       // Simulate progress updates
       const progressInterval = setInterval(() => {
@@ -1113,52 +1115,52 @@ export default function VerifyPage() {
 
       // Update progress stages
       setAnalysisProgress({
-        stage: 'preprocessing',
+        stage: "preprocessing",
         progress: 10,
-        message: 'Preprocessing image...',
-        currentStep: 'Validating and normalizing image'
+        message: "Preprocessing image...",
+        currentStep: "Validating and normalizing image",
       })
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       setAnalysisProgress({
-        stage: 'feature_extraction',
+        stage: "feature_extraction",
         progress: 30,
-        message: 'Extracting DINOv3 features...',
-        currentStep: 'Running vision transformer analysis'
+        message: "Extracting DINOv3 features...",
+        currentStep: "Running vision transformer analysis",
       })
 
-      await new Promise(resolve => setTimeout(resolve, 800))
+      await new Promise((resolve) => setTimeout(resolve, 800))
 
       setAnalysisProgress({
-        stage: 'classification',
+        stage: "classification",
         progress: 60,
-        message: 'Classifying authenticity...',
-        currentStep: 'Running MLP classifier'
+        message: "Classifying authenticity...",
+        currentStep: "Running MLP classifier",
       })
 
-      await new Promise(resolve => setTimeout(resolve, 600))
+      await new Promise((resolve) => setTimeout(resolve, 600))
 
       setAnalysisProgress({
-        stage: 'reverse_search',
+        stage: "reverse_search",
         progress: 80,
-        message: 'Performing reverse search...',
-        currentStep: 'Searching for similar images'
+        message: "Performing reverse search...",
+        currentStep: "Searching for similar images",
       })
 
-      await new Promise(resolve => setTimeout(resolve, 400))
+      await new Promise((resolve) => setTimeout(resolve, 400))
 
       setAnalysisProgress({
-        stage: 'generating_report',
+        stage: "generating_report",
         progress: 90,
-        message: 'Generating AI summary...',
-        currentStep: 'Creating comprehensive report'
+        message: "Generating AI summary...",
+        currentStep: "Creating comprehensive report",
       })
 
       // Make API call to enhanced backend
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       const response = await fetch(`${API_BASE_URL}/api/verify`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       })
 
@@ -1186,6 +1188,7 @@ export default function VerifyPage() {
         analysisResult.processingTime = backendResult.processing_time
         analysisResult.backendReport = backendResult.report
         analysisResult.watermarkedImageBase64 = backendResult.watermarked_image_base64
+        analysisResult.manipulationType = backendResult.manipulation_type
       }
 
       setResult(analysisResult)
@@ -1310,7 +1313,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
-              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base">Back to Home</span>
+              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base">
+                Back to Home
+              </span>
             </Link>
           </div>
         </div>
@@ -1359,7 +1364,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   </div>
                   <div className="text-center space-y-3 sm:space-y-4 px-2">
                     <h3 className="font-light text-white text-base sm:text-lg drop-shadow-md">Drop your files here</h3>
-                    <p className="text-xs sm:text-sm text-white/40 drop-shadow-md">Images, videos, and audio files up to 100MB</p>
+                    <p className="text-xs sm:text-sm text-white/40 drop-shadow-md">
+                      Images, videos, and audio files up to 100MB
+                    </p>
                     <div className="pt-4 sm:pt-6">
                       <GradientText
                         className="px-6 sm:px-8 py-2 sm:py-3 border border-white/10 rounded-lg sm:rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90 text-sm sm:text-base"
@@ -1478,223 +1485,67 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
             {/* Clean Results Display - Mobile Optimized */}
             {result && tensorFlowResult && (
               <div className="space-y-6 sm:space-y-8">
-                {/* Single Comprehensive Analysis Summary - Mobile Optimized */}
-                <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl">
-                  <div className="space-y-4 sm:space-y-6 text-left">
-                    <div className="border-b border-white/10 pb-3 sm:pb-4">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">
-                        Apex Verify AI Analysis: COMPLETE
-                      </h2>
-                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                        <span className="text-base sm:text-lg font-semibold text-white">
-                          * Authenticity Score:{" "}
-                          <span className="text-green-400">{(result.confidence * 100).toFixed(1)}%</span> -{" "}
-                          {result.isDeepfake ? "MANIPULATED MEDIA" : "GENUINE MEDIA"}
-                        </span>
+                <div className="relative bg-black/60 backdrop-blur-md border border-white/20 rounded-xl p-6 shadow-xl max-w-md mx-auto">
+                  <div className="text-center space-y-4">
+                    {/* Final Result */}
+                    <div className="space-y-2">
+                      <h2 className="text-xl font-bold text-white">Analysis Result</h2>
+                      <div className="text-3xl font-black text-white">{result.isDeepfake ? "MANIPULATED" : "REAL"}</div>
+                    </div>
+
+                    {/* Classification Categories */}
+                    <div className="space-y-2 text-left">
+                      <h3 className="text-sm font-semibold text-white/80 text-center">Classification</h3>
+                      <div className="space-y-1 text-sm">
+                        <div
+                          className={`p-2 rounded ${!result.isDeepfake ? "bg-green-500/20 text-green-400" : "bg-white/5 text-white/60"}`}
+                        >
+                          Real – Genuine, untouched media
+                        </div>
+                        <div
+                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "manual" ? "bg-orange-500/20 text-orange-400" : "bg-white/5 text-white/60"}`}
+                        >
+                          Manipulated (Manual Photoshop)
+                        </div>
+                        <div
+                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "ai" ? "bg-red-500/20 text-red-400" : "bg-white/5 text-white/60"}`}
+                        >
+                          Manipulated (AI Generated/Edited)
+                        </div>
+                        <div
+                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "deepfake" ? "bg-purple-500/20 text-purple-400" : "bg-white/5 text-white/60"}`}
+                        >
+                          Deepfake (AI Face/Body Swap)
+                        </div>
                       </div>
-                      <p className="text-white/90 leading-relaxed mt-3 text-sm sm:text-base">
-                        * Assessment:{" "}
-                        {result.isDeepfake
-                          ? `Flagged. The image shows signs of digital manipulation. Our matrix detects anomalies; forensic markers indicate potential artificial generation or significant alteration.`
-                          : `Confirmed. The image is an authentic photograph. Our matrix detects no anomalies; all forensic markers point to genuine media from a verifiable source.`}
-                      </p>
                     </div>
 
-                    <div className="space-y-3">
-                      <h3 className="text-base sm:text-lg font-semibold text-white">The Scene in Focus</h3>
-                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
-                        {result.spatialAnalysis ? (
-                          <>
-                            This image captures{" "}
-                            {result.spatialAnalysis.objects.length > 0 &&
-                              result.spatialAnalysis.objects
-                                .map((obj, index) => {
-                                  const description = `${obj.label.toLowerCase()}`
-                                  if (obj.attributes) {
-                                    const attrs = Object.entries(obj.attributes)
-                                      .map(([key, value]) => `${key}: ${value}`)
-                                      .join(", ")
-                                    return `${description} with ${attrs}`
-                                  }
-                                  return description
-                                })
-                                .join(", ")}
-                            .
-                            <br />
-                            <br />* Foreground:{" "}
-                            {result.spatialAnalysis.objects[0]
-                              ? `${result.spatialAnalysis.objects[0].label} positioned prominently in the frame`
-                              : "Primary subject matter clearly visible"}
-                            <br />* Background:{" "}
-                            {result.spatialAnalysis.technicalAnalysis
-                              ? `${result.spatialAnalysis.technicalAnalysis.lighting.overall} lighting environment with ${result.spatialAnalysis.technicalAnalysis.lighting.shadows} shadows`
-                              : "Supporting elements and environmental context"}
-                            {result.spatialAnalysis.faces.length > 0 && (
-                              <>
-                                <br />* People: {result.spatialAnalysis.faces.length} individual(s) detected -{" "}
-                                {result.spatialAnalysis.faces
-                                  .map(
-                                    (face, index) =>
-                                      `Person ${index + 1}: ${face.attributes.age} years old with ${face.attributes.emotion} expression`,
-                                  )
-                                  .join(", ")}
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            This{" "}
-                            {file.type.startsWith("image/")
-                              ? "image"
-                              : file.type.startsWith("video/")
-                                ? "video"
-                                : "media file"}
-                            shows{" "}
-                            {result.isDeepfake
-                              ? "artificially generated or manipulated content"
-                              : "authentic visual content"}
-                            .
-                            <br />
-                            <br />* Primary Content: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                            <br />* Technical Quality:{" "}
-                            {result.confidence >= 0.8
-                              ? "High-resolution authentic media"
-                              : "Mixed quality indicators detected"}
-                          </>
-                        )}
-                      </p>
-                    </div>
+                    {/* Spatial Analysis Options - Only show if manipulated */}
+                    {result.isDeepfake && (
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-white/80">Spatial Analysis</h3>
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => setVisualizationMode("heatmap")}
+                            className={`flex-1 text-xs py-2 ${visualizationMode === "heatmap" ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-white/60"}`}
+                          >
+                            Heatmap
+                          </Button>
+                          <Button
+                            onClick={() => setVisualizationMode("boxes")}
+                            className={`flex-1 text-xs py-2 ${visualizationMode === "boxes" ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-white/60"}`}
+                          >
+                            Bounding Boxes
+                          </Button>
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="space-y-3">
-                      <h3 className="text-base sm:text-lg font-semibold text-white">The Story Behind the Content</h3>
-                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
-                        {result.spatialAnalysis?.reasoning.summary ? (
-                          <>
-                            {result.spatialAnalysis.reasoning.summary}
-                            <br />
-                            <br />
-                            This content appears to be{" "}
-                            {result.isDeepfake
-                              ? "digitally manipulated or artificially generated"
-                              : "genuine media captured through standard photography/recording methods"}
-                            .
-                            {result.spatialAnalysis.technicalAnalysis && (
-                              <>
-                                The technical analysis reveals{" "}
-                                {result.spatialAnalysis.technicalAnalysis.resolution.width}x
-                                {result.spatialAnalysis.technicalAnalysis.resolution.height} resolution with{" "}
-                                {result.spatialAnalysis.technicalAnalysis.colorSpace} color encoding.
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            Based on our comprehensive analysis, this{" "}
-                            {file.type.startsWith("image/") ? "photograph" : "media file"}
-                            {result.isDeepfake
-                              ? "exhibits characteristics consistent with artificial generation or significant digital manipulation. The AI models identified patterns that deviate from natural media creation processes."
-                              : "demonstrates authentic characteristics typical of genuine media. All forensic markers align with natural content creation without signs of manipulation."}
-                            <br />
-                            <br />
-                            The file metadata and technical properties support{" "}
-                            {result.isDeepfake ? "concerns about authenticity" : "the conclusion of genuine content"}.
-                          </>
-                        )}
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-base sm:text-lg font-semibold text-white">Digital Footprint & The Real Evidence</h3>
-                      <p className="text-white/80 leading-relaxed text-sm sm:text-base">
-                        Our targeted analysis has identified the following technical evidence and forensic markers:
-                        <br />
-                        <br />* File Analysis: {result.fileInfo.name} ({(result.fileInfo.size / 1024 / 1024).toFixed(2)}{" "}
-                        MB, {result.fileInfo.type})
-                        {result.fileInfo.dimensions && (
-                          <>
-                            , Resolution: {result.fileInfo.dimensions.width}x{result.fileInfo.dimensions.height}
-                          </>
-                        )}
-                        <br />* Processing Engine: Analyzed using {result.technicalDetails.modelVersions.join(", ")}
-                        on {result.technicalDetails.processingNodes.join(", ")} in {result.processingTime.toFixed(0)}ms
-                        <br />
-                        <br />
-                        <strong>Forensic Markers:</strong>
-                        <br />* Face Consistency Analysis: {(result.analysisDetails.faceConsistency * 100).toFixed(1)}%
-                        -{" "}
-                        {result.analysisDetails.faceConsistency > 0.8
-                          ? "Natural patterns detected"
-                          : "Inconsistencies found"}
-                        <br />* Temporal Analysis: {(result.analysisDetails.temporalConsistency * 100).toFixed(1)}% -{" "}
-                        {result.analysisDetails.temporalConsistency > 0.8
-                          ? "Consistent frame progression"
-                          : "Temporal anomalies detected"}
-                        <br />* Frequency Domain: {(result.analysisDetails.frequencyAnalysis * 100).toFixed(1)}% -{" "}
-                        {result.analysisDetails.frequencyAnalysis > 0.8
-                          ? "Natural frequency distribution"
-                          : "Artificial frequency patterns"}
-                        <br />* Metadata Integrity: {(result.analysisDetails.metadataIntegrity * 100).toFixed(1)}% -{" "}
-                        {result.analysisDetails.metadataIntegrity > 0.8
-                          ? "Authentic metadata structure"
-                          : "Metadata inconsistencies"}
-                        {result.manipulationRegions && result.manipulationRegions.length > 0 && (
-                          <>
-                            <br />
-                            <br />
-                            <strong>Manipulation Regions Identified:</strong>
-                            {result.manipulationRegions.map((region, index) => (
-                              <div key={index} className="text-xs sm:text-sm">
-                                * Region {index + 1}: Coordinates ({region.x},{region.y}) - {region.width}x
-                                {region.height} pixels - {(region.confidence * 100).toFixed(1)}% confidence of
-                                manipulation
-                              </div>
-                            ))}
-                          </>
-                        )}
-                      </p>
-                    </div>
-
-                    <div className="space-y-3 border-t border-white/10 pt-3 sm:pt-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-white">AI Summary</h3>
-                      <p className="text-white/80 text-sm sm:text-base">
-                        {result.isDeepfake ? (
-                          <>
-                            The {file.type.startsWith("image/") ? "photo" : "media"} shows signs of digital manipulation
-                            and has been flagged as potentially artificial. The AI detected{" "}
-                            {result.spatialAnalysis?.deepfakeEvidence?.length || "multiple"} indicators suggesting
-                            non-authentic content creation.
-                            {result.aiProvider && (
-                              <>The analysis suggests possible generation using {result.aiProvider} technology.</>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            The {file.type.startsWith("image/") ? "photo" : "media"} is genuine and shows authentic{" "}
-                            {result.spatialAnalysis?.objects.length > 0
-                              ? result.spatialAnalysis.objects.map((obj) => obj.label.toLowerCase()).join(" and ")
-                              : "content"}
-                            .
-                            {result.spatialAnalysis?.faces.length > 0 && (
-                              <>
-                                The {result.spatialAnalysis.faces.length} individual(s) detected show natural
-                                characteristics with no signs of digital face manipulation.
-                              </>
-                            )}
-                          </>
-                        )}
-                      </p>
-                      <p className="text-white/80 mt-3 text-sm sm:text-base">
-                        Your media is{" "}
-                        {result.isDeepfake ? "flagged for potential manipulation" : "verified as authentic"}.
-                        {!result.isDeepfake && "You can now secure your file with our seal of authenticity."}
-                      </p>
-                    </div>
-
-                    {/* Download Seal - Mobile Optimized */}
-                    <div className="border-t border-white/10 pt-3 sm:pt-4 text-center">
+                    {/* Download Button */}
+                    <div className="pt-4 border-t border-white/10">
                       <Button
                         onClick={() => downloadWithWatermark(file, previewUrl, result?.watermarkedImageBase64)}
-                        className="bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl px-4 sm:px-6 py-2 sm:py-3 font-medium backdrop-blur-md text-sm sm:text-base w-full sm:w-auto"
+                        className="bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg px-4 py-2 font-medium backdrop-blur-md text-sm w-full"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Download with Apex Verify™ Seal
