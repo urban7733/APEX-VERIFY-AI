@@ -299,12 +299,14 @@ export default function Home() {
           </div>
 
           <div className="space-y-3 max-w-4xl mx-auto px-4">
-            <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
-              ADVANCED AI-POWERED DEEPFAKE DETECTION TECHNOLOGY.
-            </p>
-            <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading">
-              ENGINEERED FOR PRECISION. BUILT FOR THE FUTURE.
-            </p>
+            <div className="relative rounded-2xl overflow-hidden premium-upload-area p-6 sm:p-8">
+              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
+                EMPOWERING THE CREATOR ECONOMY WITH AUTHENTIC CONTENT VERIFICATION.
+              </p>
+              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading mt-3">
+                RESTORING TRUST. PRESERVING AUTHENTICITY. PROTECTING GENUINE CREATIVITY.
+              </p>
+            </div>
           </div>
         </div>
       </div>

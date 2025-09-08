@@ -923,6 +923,8 @@ export default function VerifyPage() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [visualizationMode, setVisualizationMode] = useState<"heatmap" | "boxes">("heatmap")
 
+  const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null)
+
   const { isMobile } = useViewport()
 
   const backgroundPosts = [
@@ -1284,37 +1286,15 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
   return (
     <div
-      className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"}`}
+      className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"} bg-black`}
     >
-      {/* Background Grid - Mobile Optimized */}
-      <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-2 sm:gap-4 p-2 sm:p-4">
-          {backgroundPosts.map((post) => (
-            <div key={post.id} className="break-inside-avoid mb-2 sm:mb-4">
-              <div className="relative bg-white/5 rounded-lg sm:rounded-2xl overflow-hidden">
-                <Image
-                  src={post.image || "/placeholder.svg"}
-                  alt=""
-                  width={400}
-                  height={post.aspectRatio === "portrait" ? 600 : post.aspectRatio === "square" ? 400 : 300}
-                  className="w-full object-cover"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="absolute inset-0 z-0 bg-black/60" />
-
-      {/* Navigation - Mobile Optimized */}
-      <nav className="relative z-10 py-4 sm:py-6">
+      <nav className="relative z-10 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
-              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base">
-                Back to Home
+              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base font-black tracking-tighter premium-heading">
+                BACK TO HOME
               </span>
             </Link>
           </div>
@@ -1326,55 +1306,42 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
         {!file ? (
           /* Minimalist Upload Section - Mobile Optimized */
           <div className="text-center space-y-8 sm:space-y-12">
-            <div className="space-y-4 sm:space-y-6">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight space-y-1 px-2">
-                <div className="mb-1">
-                  <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg">
-                    AI-Powered Verification
-                  </span>
-                </div>
-                <div>
-                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl drop-shadow-lg">
-                    Upload. Analyze. Verify.
-                  </span>
-                </div>
+            <div className="relative">
+              <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter premium-heading">
+                APEX VERIFY AI
               </h1>
-              <p className="text-base sm:text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md px-4">
-                Advanced deepfake detection and media authenticity verification powered by cutting-edge AI
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            </div>
+
+            <div className="space-y-3 max-w-4xl mx-auto px-4">
+              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
+                ADVANCED AI-POWERED DEEPFAKE DETECTION TECHNOLOGY.
+              </p>
+              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading">
+                UPLOAD IMAGES, VIDEOS, OR AUDIO FILES TO DETECT DEEPFAKES AND MANIPULATED CONTENT.
               </p>
             </div>
 
-            <div
-              className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.01] active:scale-[0.98] ${
-                dragActive ? "scale-[1.01]" : ""
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden min-h-[250px] sm:min-h-[300px] flex items-center justify-center">
-                {/* Subtle scan line effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out"></div>
-
-                <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-8">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-white/15 border border-white/40 flex items-center justify-center group-hover:bg-white/25 group-hover:border-white/50 transition-all duration-300">
-                    <Upload className="h-4 w-4 sm:h-6 sm:w-6 text-white/90 group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="text-center space-y-3 sm:space-y-4 px-2">
-                    <h3 className="font-light text-white text-base sm:text-lg drop-shadow-md">Drop your files here</h3>
-                    <p className="text-xs sm:text-sm text-white/40 drop-shadow-md">
-                      Images, videos, and audio files up to 100MB
-                    </p>
-                    <div className="pt-4 sm:pt-6">
-                      <GradientText
-                        className="px-6 sm:px-8 py-2 sm:py-3 border border-white/10 rounded-lg sm:rounded-xl text-white/70 font-light transition-all duration-300 cursor-pointer hover:border-white/20 hover:text-white/90 text-sm sm:text-base"
-                        colors={["#3b82f6", "#8b5cf6", "#3b82f6"]}
-                      >
-                        Select Files
-                      </GradientText>
+            <div className="w-full max-w-2xl mx-auto">
+              <div
+                className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500 premium-upload-area">
+                  <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
+                    <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
+                      <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
+                      <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
+                        DROP FILES HERE • OR CLICK TO SELECT
+                      </span>
                     </div>
+                    <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 premium-upload-button">
+                      <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1382,17 +1349,24 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               <input
                 ref={fileInputRef}
                 type="file"
-                className="hidden"
                 accept="image/*,video/*,audio/*"
                 onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                className="hidden"
+                multiple={false}
               />
+            </div>
+
+            <div className="text-center space-y-2 sm:space-y-3">
+              <p className="text-white/40 text-xs sm:text-sm">
+                Supported formats: JPG, PNG, GIF, MP4, MOV, MP3, WAV • Max size: 100MB
+              </p>
             </div>
           </div>
         ) : (
           /* Clean Analysis Section - Mobile Optimized */
           <div className="space-y-6 sm:space-y-8">
             {/* File Preview Card - Mobile Optimized */}
-            <div className="relative bg-black/60 backdrop-blur-md border border-white/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 group-hover:border-white/40 transition-all duration-300 shadow-xl group-hover:shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl overflow-hidden premium-upload-area p-6 sm:p-8 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
                 <div className="flex items-center space-x-3 sm:space-x-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/40 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
@@ -1503,40 +1477,105 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                           Real – Genuine, untouched media
                         </div>
                         <div
-                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "manual" ? "bg-orange-500/20 text-orange-400" : "bg-white/5 text-white/60"}`}
+                          className={`p-2 rounded cursor-pointer transition-all duration-200 hover:bg-orange-500/10 ${
+                            result.isDeepfake && result.manipulationType === "manual"
+                              ? "bg-orange-500/20 text-orange-400"
+                              : "bg-white/5 text-white/60"
+                          } ${selectedVisualization === "manual" ? "ring-2 ring-orange-400" : ""}`}
+                          onClick={() => {
+                            if (result.isDeepfake) {
+                              setSelectedVisualization(selectedVisualization === "manual" ? null : "manual")
+                            }
+                          }}
                         >
                           Manipulated (Manual Photoshop)
+                          {result.isDeepfake && (
+                            <span className="text-xs text-white/40 block">Click to highlight areas</span>
+                          )}
                         </div>
                         <div
-                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "ai" ? "bg-red-500/20 text-red-400" : "bg-white/5 text-white/60"}`}
+                          className={`p-2 rounded cursor-pointer transition-all duration-200 hover:bg-red-500/10 ${
+                            result.isDeepfake && result.manipulationType === "ai"
+                              ? "bg-red-500/20 text-red-400"
+                              : "bg-white/5 text-white/60"
+                          } ${selectedVisualization === "ai" ? "ring-2 ring-red-400" : ""}`}
+                          onClick={() => {
+                            if (result.isDeepfake) {
+                              setSelectedVisualization(selectedVisualization === "ai" ? null : "ai")
+                            }
+                          }}
                         >
                           Manipulated (AI Generated/Edited)
+                          {result.isDeepfake && (
+                            <span className="text-xs text-white/40 block">Click to highlight areas</span>
+                          )}
                         </div>
                         <div
-                          className={`p-2 rounded ${result.isDeepfake && result.manipulationType === "deepfake" ? "bg-purple-500/20 text-purple-400" : "bg-white/5 text-white/60"}`}
+                          className={`p-2 rounded cursor-pointer transition-all duration-200 hover:bg-purple-500/10 ${
+                            result.isDeepfake && result.manipulationType === "deepfake"
+                              ? "bg-purple-500/20 text-purple-400"
+                              : "bg-white/5 text-white/60"
+                          } ${selectedVisualization === "deepfake" ? "ring-2 ring-purple-400" : ""}`}
+                          onClick={() => {
+                            if (result.isDeepfake) {
+                              setSelectedVisualization(selectedVisualization === "deepfake" ? null : "deepfake")
+                            }
+                          }}
                         >
                           Deepfake (AI Face/Body Swap)
+                          {result.isDeepfake && (
+                            <span className="text-xs text-white/40 block">Click to highlight areas</span>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Spatial Analysis Options - Only show if manipulated */}
-                    {result.isDeepfake && (
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-semibold text-white/80">Spatial Analysis</h3>
-                        <div className="flex space-x-2">
-                          <Button
-                            onClick={() => setVisualizationMode("heatmap")}
-                            className={`flex-1 text-xs py-2 ${visualizationMode === "heatmap" ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-white/60"}`}
-                          >
-                            Heatmap
-                          </Button>
-                          <Button
-                            onClick={() => setVisualizationMode("boxes")}
-                            className={`flex-1 text-xs py-2 ${visualizationMode === "boxes" ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-white/60"}`}
-                          >
-                            Bounding Boxes
-                          </Button>
+                    {/* Visual Manipulation Overlay - Only show when option is selected and media is manipulated */}
+                    {result.isDeepfake && selectedVisualization && (
+                      <div className="relative">
+                        <div className="absolute inset-0 pointer-events-none">
+                          <div className="relative w-full h-48 bg-black/20 rounded-lg border border-white/10 overflow-hidden">
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center space-y-2">
+                                <div
+                                  className={`w-16 h-16 mx-auto rounded-full border-2 ${
+                                    selectedVisualization === "manual"
+                                      ? "border-orange-400 bg-orange-500/20"
+                                      : selectedVisualization === "ai"
+                                        ? "border-red-400 bg-red-500/20"
+                                        : "border-purple-400 bg-purple-500/20"
+                                  } animate-pulse`}
+                                ></div>
+                                <p className="text-xs text-white/60">
+                                  Highlighting{" "}
+                                  {selectedVisualization === "manual"
+                                    ? "Manual"
+                                    : selectedVisualization === "ai"
+                                      ? "AI"
+                                      : "Deepfake"}{" "}
+                                  manipulation areas
+                                </p>
+                                <div className="flex justify-center space-x-2">
+                                  {[...Array(3)].map((_, i) => (
+                                    <div
+                                      key={i}
+                                      className={`w-2 h-2 rounded-full ${
+                                        selectedVisualization === "manual"
+                                          ? "bg-orange-400"
+                                          : selectedVisualization === "ai"
+                                            ? "bg-red-400"
+                                            : "bg-purple-400"
+                                      }`}
+                                      style={{
+                                        animationDelay: `${i * 0.2}s`,
+                                        animation: "pulse 1.5s infinite",
+                                      }}
+                                    ></div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
