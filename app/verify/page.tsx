@@ -1335,7 +1335,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
                     <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
                       <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
-                      <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
+                      <span className="text-white/70 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading truncate">
                         DROP FILES HERE • OR CLICK TO SELECT
                       </span>
                     </div>
@@ -1438,9 +1438,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 <Button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing}
-                  className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl py-3 sm:py-4 font-light transition-all duration-300 text-sm sm:text-base"
+                  className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg sm:rounded-xl py-3 sm:py-4 font-black tracking-tighter premium-heading transition-all duration-300 text-sm sm:text-base"
                 >
-                  Start Analysis
+                  START ANALYSIS
                 </Button>
               )}
             </div>

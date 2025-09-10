@@ -58,7 +58,7 @@ export function AnalysisAnimation({ isActive, onComplete, fileType = "image" }: 
       <div className="flex flex-col items-center space-y-6 sm:space-y-8">
         <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
           <div className="absolute inset-0 rounded-full overflow-hidden">
-            <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={true} />
+            <Orb hoverIntensity={0.5} rotateOnHover={true} hue={240} forceHoverState={true} />
           </div>
         </div>
 
