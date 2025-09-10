@@ -153,10 +153,19 @@ const AboutPage = () => {
                 </span>
               </h3>
 
-              <ul className="text-base sm:text-lg font-black mb-4 sm:mb-6 ml-6 space-y-2 text-white/80 leading-tight tracking-tighter premium-heading">
-                <li>• INSTANT AUTHENTICITY CHECKS ON UPLOADS.</li>
-                <li>• CLASSIFICATION OF MANIPULATION — DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP.</li>
-                <li>• A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.</li>
+              <ul className="text-lg sm:text-xl font-black mb-4 sm:mb-6 space-y-3 sm:space-y-2 text-white/90 leading-relaxed tracking-tighter premium-heading list-none">
+                <li className="flex items-start">
+                  <span className="text-white/60 mr-3 flex-shrink-0">•</span>
+                  <span>INSTANT AUTHENTICITY CHECKS ON UPLOADS.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-white/60 mr-3 flex-shrink-0">•</span>
+                  <span>CLASSIFICATION OF MANIPULATION — DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-white/60 mr-3 flex-shrink-0">•</span>
+                  <span>A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.</span>
+                </li>
               </ul>
             </div>
 
