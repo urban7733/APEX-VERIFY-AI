@@ -153,20 +153,20 @@ const AboutPage = () => {
                 </span>
               </h3>
 
-              <ul className="text-xl sm:text-xl font-black mb-4 sm:mb-6 space-y-4 sm:space-y-3 text-white/90 leading-relaxed tracking-tighter premium-heading list-none">
-                <li className="flex items-start gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1">•</span>
-                  <span className="flex-1">INSTANT AUTHENTICITY CHECKS ON UPLOADS.</span>
+              <ul className="text-base sm:text-xl font-black mb-4 sm:mb-6 space-y-5 sm:space-y-3 text-white/90 leading-relaxed tracking-wide sm:tracking-tighter premium-heading list-none">
+                <li className="flex items-start gap-4 sm:gap-3">
+                  <span className="text-white/60 flex-shrink-0 mt-1 text-lg sm:text-xl">•</span>
+                  <span className="flex-1 leading-relaxed">INSTANT AUTHENTICITY CHECKS ON UPLOADS.</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1">•</span>
-                  <span className="flex-1">
+                <li className="flex items-start gap-4 sm:gap-3">
+                  <span className="text-white/60 flex-shrink-0 mt-1 text-lg sm:text-xl">•</span>
+                  <span className="flex-1 leading-relaxed">
                     CLASSIFICATION OF MANIPULATION — DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP.
                   </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1">•</span>
-                  <span className="flex-1">A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.</span>
+                <li className="flex items-start gap-4 sm:gap-3">
+                  <span className="text-white/60 flex-shrink-0 mt-1 text-lg sm:text-xl">•</span>
+                  <span className="flex-1 leading-relaxed">A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.</span>
                 </li>
               </ul>
             </div>
