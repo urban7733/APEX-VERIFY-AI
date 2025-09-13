@@ -3,17 +3,13 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
-import { AuthDialog } from "@/components/auth/auth-dialog"
 
 const AboutPage = () => {
   const router = useRouter()
-  const [authDialogOpen, setAuthDialogOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogin = () => {
-    setAuthMode("login")
-    setAuthDialogOpen(true)
+    router.push("/verify")
   }
 
   const toggleMobileMenu = () => {
@@ -147,28 +143,28 @@ const AboutPage = () => {
             </div>
 
             <div className="relative rounded-2xl overflow-hidden premium-upload-area p-6 sm:p-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white mb-4 sm:mb-6 tracking-tighter premium-heading">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white mb-6 sm:mb-8 tracking-tighter premium-heading">
                 <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
                   WHAT WE DO
                 </span>
               </h3>
 
-              <ul className="text-lg sm:text-xl font-black mb-6 sm:mb-6 space-y-6 sm:space-y-3 text-white/90 leading-relaxed tracking-wide sm:tracking-tighter premium-heading list-none">
+              <ul className="space-y-8 sm:space-y-6 list-none">
                 <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1.5 sm:mt-1 text-xl sm:text-xl">•</span>
-                  <span className="flex-1 leading-relaxed text-white/95 sm:text-white/90">
+                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
+                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter premium-heading">
                     INSTANT AUTHENTICITY CHECKS ON UPLOADS.
                   </span>
                 </li>
                 <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1.5 sm:mt-1 text-xl sm:text-xl">•</span>
-                  <span className="flex-1 leading-relaxed text-white/95 sm:text-white/90">
+                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
+                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter premium-heading">
                     CLASSIFICATION OF MANIPULATION — DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP.
                   </span>
                 </li>
                 <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-1.5 sm:mt-1 text-xl sm:text-xl">•</span>
-                  <span className="flex-1 leading-relaxed text-white/95 sm:text-white/90">
+                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
+                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter premium-heading">
                     A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.
                   </span>
                 </li>
@@ -198,8 +194,6 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-
-      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
     </div>
   )
 }
