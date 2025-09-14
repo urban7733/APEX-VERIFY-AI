@@ -1,0 +1,27 @@
+{
+  "name": "apex-verify-ai-2025-ultimate",
+  "description": "APEX VERIFY AI - 2025 ULTIMATE CUTTING-EDGE STACK",
+  "version": "2.0.0",
+  "handler": "handler.runpod_handler",
+  "containerDiskInGb": 100,
+  "volumeInGb": 0,
+  "volumeMountPath": "/workspace",
+  "env": {
+    "ENVIRONMENT": "production",
+    "DEVICE": "cuda",
+    "MIXED_PRECISION": "true",
+    "QUANTIZATION": "true",
+    "BATCH_SIZE": "4",
+    "CACHE_FEATURES": "true"
+  },
+  "gpuIds": [
+    "your-gpu-id-here"
+  ],
+  "networkVolumeId": "your-volume-id-here",
+  "maxConcurrency": 10,
+  "idleTimeout": 300,
+  "scaleSettings": {
+    "minInstances": 0,
+    "maxInstances": 5
+  }
+}
