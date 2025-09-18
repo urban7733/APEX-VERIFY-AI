@@ -181,18 +181,14 @@ export default function Home() {
   )
 
   return (
-    <div className="h-screen text-white antialiased relative overflow-hidden tech-grid-bg">
-      <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
-
+    <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
       {createBackgroundScrollingPosts()}
 
-      <div className="absolute inset-0 z-0 premium-glass-overlay" />
-
-      <nav className="relative z-10 py-6 sm:py-8 premium-nav">
+      <nav className="relative z-10 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight premium-logo">
+              <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
                 APEX VERIFY AI
               </span>
             </div>
@@ -201,7 +197,7 @@ export default function Home() {
             <div className="hidden md:flex items-center space-x-6">
               <button
                 onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -210,13 +206,13 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/verify")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
               >
                 VERIFY
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
               >
                 MISSION
               </button>
@@ -224,20 +220,20 @@ export default function Home() {
 
             <button
               onClick={toggleMobileMenu}
-              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 premium-button min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4 premium-mobile-menu">
+            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4">
               <button
                 onClick={() => {
                   handleLogin()
                   setMobileMenuOpen(false)
                 }}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button min-h-[48px]"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -249,7 +245,7 @@ export default function Home() {
                   router.push("/verify")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button-primary min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
               >
                 VERIFY
               </button>
@@ -258,7 +254,7 @@ export default function Home() {
                   router.push("/about")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 premium-button min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
               >
                 MISSION
               </button>
@@ -271,7 +267,7 @@ export default function Home() {
       <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
         <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
           <div className="relative">
-            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter premium-heading">
+            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
               APEX VERIFY AI
             </h1>
             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -282,7 +278,7 @@ export default function Home() {
               onClick={handleFileUpload}
               className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
             >
-              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500 premium-upload-area">
+              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500">
                 <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
                   <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
                     <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
@@ -290,7 +286,7 @@ export default function Home() {
                       UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 premium-upload-button">
+                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4">
                     <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </button>
                 </div>
@@ -299,11 +295,11 @@ export default function Home() {
           </div>
 
           <div className="space-y-3 max-w-4xl mx-auto px-4">
-            <div className="relative rounded-2xl overflow-hidden premium-upload-area p-6 sm:p-8">
-              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
+            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
+              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter">
                 EMPOWERING THE CREATOR ECONOMY WITH AUTHENTIC CONTENT VERIFICATION.
               </p>
-              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading mt-3">
+              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter mt-3">
                 RESTORING TRUST. PRESERVING AUTHENTICITY. PROTECTING GENUINE CREATIVITY.
               </p>
             </div>

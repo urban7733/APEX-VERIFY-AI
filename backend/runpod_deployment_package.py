@@ -148,7 +148,7 @@ Upload this entire folder to your RunPod serverless endpoint.
 - Output: Analysis results with authenticity score
 
 ### 6. Usage Example
-```python
+\`\`\`python
 import requests
 import base64
 
@@ -172,7 +172,7 @@ response = requests.post(
 
 result = response.json()
 print(f"Authenticity Score: {result['output']['authenticity_score']}%")
-```
+\`\`\`
 
 ## 🔥 Features
 - DINOv3 Universal Features (7B parameters)
