@@ -266,6 +266,19 @@ export default function Home() {
       {/* Main Content - Enhanced Premium Design */}
       <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
         <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
+          <div className="relative mb-8 sm:mb-12">
+            <div className="relative">
+              <Image
+                src="/apex-main-logo.png"
+                alt="Apex Verify AI"
+                width={120}
+                height={120}
+                className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mx-auto filter drop-shadow-2xl"
+                priority
+              />
+            </div>
+          </div>
+
           <div className="relative">
             <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
               APEX VERIFY AI
