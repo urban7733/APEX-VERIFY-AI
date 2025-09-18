@@ -1,15 +1,13 @@
 "use client"
-
-import React from 'react'
-import { CheckCircle, AlertTriangle, Clock, Shield, Zap, Target, Lock, Download } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
+import { CheckCircle, AlertTriangle, Clock, Lock, Download, ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 interface VerificationResult {
   success: boolean
   authenticity_score: number
   classification: string
-  report: string  // The structured report in the exact format requested
+  report: string // The structured report in the exact format requested
   processing_time: number
   confidence: number
   feature_anomalies: string[]
@@ -36,118 +34,118 @@ interface VerificationResultsProps {
 export function VerificationResults({ result, previewUrl, onReset }: VerificationResultsProps) {
   const getVerdictColor = (classification: string) => {
     switch (classification) {
-      case 'GENUINE MEDIA':
-        return 'text-green-400'
-      case 'LIKELY AUTHENTIC':
-        return 'text-green-300'
-      case 'SUSPICIOUS':
-        return 'text-yellow-400'
-      case 'FAKE':
-        return 'text-red-400'
+      case "GENUINE MEDIA":
+        return "text-green-400"
+      case "LIKELY AUTHENTIC":
+        return "text-green-300"
+      case "SUSPICIOUS":
+        return "text-yellow-400"
+      case "FAKE":
+        return "text-red-400"
       default:
-        return 'text-yellow-400'
+        return "text-yellow-400"
     }
   }
 
   const getVerdictIcon = (classification: string) => {
     switch (classification) {
-      case 'GENUINE MEDIA':
-        return <CheckCircle className="w-6 h-6 text-green-400" />
-      case 'LIKELY AUTHENTIC':
-        return <CheckCircle className="w-6 h-6 text-green-300" />
-      case 'SUSPICIOUS':
-        return <Clock className="w-6 h-6 text-yellow-400" />
-      case 'FAKE':
-        return <AlertTriangle className="w-6 h-6 text-red-400" />
+      case "GENUINE MEDIA":
+        return <CheckCircle className="w-8 h-8 text-green-400" />
+      case "LIKELY AUTHENTIC":
+        return <CheckCircle className="w-8 h-8 text-green-300" />
+      case "SUSPICIOUS":
+        return <Clock className="w-8 h-8 text-yellow-400" />
+      case "FAKE":
+        return <AlertTriangle className="w-8 h-8 text-red-400" />
       default:
-        return <Clock className="w-6 h-6 text-yellow-400" />
+        return <Clock className="w-8 h-8 text-yellow-400" />
     }
   }
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-green-400'
-    if (confidence >= 0.6) return 'text-yellow-400'
-    return 'text-red-400'
+    if (confidence >= 0.8) return "text-green-400"
+    if (confidence >= 0.6) return "text-yellow-400"
+    return "text-red-400"
   }
 
   const handleDownloadSealed = async () => {
     if (result.digital_seal?.sealed_image_path) {
       try {
-        const response = await fetch('/api/download-sealed', {
-          method: 'POST',
+        const response = await fetch("/api/download-sealed", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             sealed_image_path: result.digital_seal.sealed_image_path,
-            filename: 'verified_image_sealed.png'
+            filename: "verified_image_sealed.png",
           }),
         })
 
         if (response.ok) {
           const blob = await response.blob()
           const url = window.URL.createObjectURL(blob)
-          const a = document.createElement('a')
+          const a = document.createElement("a")
           a.href = url
-          a.download = 'verified_image_sealed.png'
+          a.download = "verified_image_sealed.png"
           document.body.appendChild(a)
           a.click()
           window.URL.revokeObjectURL(url)
           document.body.removeChild(a)
         } else {
-          throw new Error('Download failed')
+          throw new Error("Download failed")
         }
       } catch (error) {
-        console.error('Download failed:', error)
-        alert('Failed to download sealed image. Please try again.')
+        console.error("Download failed:", error)
+        alert("Failed to download sealed image. Please try again.")
       }
     }
   }
 
   // Parse the structured report
   const parseReport = (report: string) => {
-    const lines = report.split('\n').filter(line => line.trim())
+    const lines = report.split("\n").filter((line) => line.trim())
     const sections: { [key: string]: string } = {}
-    let currentSection = ''
+    let currentSection = ""
     let currentContent: string[] = []
 
     for (const line of lines) {
-      if (line.startsWith('Apex Verify AI Analysis:')) {
-        sections['header'] = line
-      } else if (line.startsWith('* Authenticity Score:')) {
-        sections['score'] = line
-      } else if (line.startsWith('* Assessment:')) {
-        sections['assessment'] = line
-      } else if (line === 'The Scene in Focus') {
-        currentSection = 'scene'
+      if (line.startsWith("Apex Verify AI Analysis:")) {
+        sections["header"] = line
+      } else if (line.startsWith("* Authenticity Score:")) {
+        sections["score"] = line
+      } else if (line.startsWith("* Assessment:")) {
+        sections["assessment"] = line
+      } else if (line === "The Scene in Focus") {
+        currentSection = "scene"
         currentContent = []
-      } else if (line === 'The Story Behind the Picture') {
+      } else if (line === "The Story Behind the Picture") {
         if (currentSection) {
-          sections[currentSection] = currentContent.join('\n')
+          sections[currentSection] = currentContent.join("\n")
         }
-        currentSection = 'story'
+        currentSection = "story"
         currentContent = []
-      } else if (line === 'Digital Footprint & Source Links') {
+      } else if (line === "Digital Footprint & Source Links") {
         if (currentSection) {
-          sections[currentSection] = currentContent.join('\n')
+          sections[currentSection] = currentContent.join("\n")
         }
-        currentSection = 'footprint'
+        currentSection = "footprint"
         currentContent = []
-      } else if (line === 'AI Summary') {
+      } else if (line === "AI Summary") {
         if (currentSection) {
-          sections[currentSection] = currentContent.join('\n')
+          sections[currentSection] = currentContent.join("\n")
         }
-        currentSection = 'summary'
+        currentSection = "summary"
         currentContent = []
-      } else if (line.startsWith('Your media is verified')) {
-        sections['footer'] = line
+      } else if (line.startsWith("Your media is verified")) {
+        sections["footer"] = line
       } else if (currentSection && line.trim()) {
         currentContent.push(line)
       }
     }
 
     if (currentSection) {
-      sections[currentSection] = currentContent.join('\n')
+      sections[currentSection] = currentContent.join("\n")
     }
 
     return sections
@@ -156,170 +154,182 @@ export function VerificationResults({ result, previewUrl, onReset }: Verificatio
   const reportSections = parseReport(result.report)
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Verification Results</h2>
-        <Button
-          variant="outline"
-          onClick={onReset}
-          className="border-white/20 text-white hover:bg-white/10"
-        >
-          Verify Another Image
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Image Preview */}
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Analyzed Image</h3>
-          <div className="relative">
-            {previewUrl && (
-              <Image
-                src={previewUrl}
-                alt="Analyzed image"
-                width={400}
-                height={400}
-                className="rounded-lg object-cover w-full border border-white/10"
-              />
-            )}
-            <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-lg">
-              <p className="text-white/70 text-sm">
-                <strong>Processing Time:</strong> {result.processing_time}s
-              </p>
-              <p className="text-white/70 text-sm">
-                <strong>Confidence:</strong> <span className={getConfidenceColor(result.confidence)}>{(result.confidence * 100).toFixed(1)}%</span>
-              </p>
-              {result.image_hash && (
-                <p className="text-white/70 text-sm">
-                  <strong>Hash:</strong> {result.image_hash.substring(0, 16)}...
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Structured Report */}
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              {getVerdictIcon(result.classification)}
-              <h3 className="text-2xl font-bold">Analysis Complete</h3>
-            </div>
-            <p className={`text-3xl font-bold ${getVerdictColor(result.classification)}`}>
-              {result.classification}
-            </p>
-            <p className="text-4xl font-bold text-blue-400 mt-2">
-              {result.authenticity_score}%
-            </p>
-          </div>
-
-          {/* Assessment */}
-          {reportSections.assessment && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Assessment</h3>
-              <p className="text-white/90 leading-relaxed">
-                {reportSections.assessment.replace('* Assessment: ', '')}
-              </p>
-            </div>
-          )}
-
-          {/* Scene in Focus */}
-          {reportSections.scene && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">The Scene in Focus</h3>
-              <p className="text-white/90 leading-relaxed">
-                {reportSections.scene}
-              </p>
-            </div>
-          )}
-
-          {/* Story Behind the Picture */}
-          {reportSections.story && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">The Story Behind the Picture</h3>
-              <p className="text-white/90 leading-relaxed">
-                {reportSections.story}
-              </p>
-            </div>
-          )}
-
-          {/* Digital Footprint */}
-          {reportSections.footprint && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Digital Footprint & Source Links</h3>
-              <p className="text-white/90 leading-relaxed">
-                {reportSections.footprint}
-              </p>
-            </div>
-          )}
-
-          {/* AI Summary */}
-          {reportSections.summary && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">AI Summary</h3>
-              <p className="text-white/90 leading-relaxed">
-                {reportSections.summary}
-              </p>
-            </div>
-          )}
-
-          {/* Digital Seal Status */}
-          {result.digital_seal && (
-            <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Lock className="w-6 h-6 text-green-400" />
-                <h3 className="text-xl font-semibold text-green-400">Digital Seal Applied</h3>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-white/70">Seal ID:</span>
-                  <span className="text-white font-mono">{result.digital_seal.seal_id}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">Sealed At:</span>
-                  <span className="text-white">{new Date(result.digital_seal.sealed_at).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">Status:</span>
-                  <span className="text-green-400 font-semibold">Immutable</span>
-                </div>
-              </div>
-              <Button
-                onClick={handleDownloadSealed}
-                className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white"
+    <div className="min-h-screen bg-black text-white antialiased">
+      <div className="relative z-10 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <button
+                onClick={onReset}
+                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 hover:bg-white/10"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download with Apex Verify™ Seal
-              </Button>
+                <ArrowLeft className="w-4 h-4" />
+                <span>BACK</span>
+              </button>
+              <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                VERIFICATION RESULTS
+              </span>
             </div>
-          )}
-
-          {/* Footer */}
-          {reportSections.footer && (
-            <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-6 text-center">
-              <p className="text-green-400 font-semibold text-lg">
-                {reportSections.footer}
-              </p>
-            </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="text-center pt-6 border-t border-white/10">
-        <p className="text-white/50 text-sm">
-          Analysis completed using enterprise-grade AI technology
-        </p>
-        {result.digital_seal && (
-          <p className="text-green-400 text-sm mt-1">
-            🔒 Image digitally sealed and tamper-evident
-          </p>
-        )}
-        <p className="text-white/30 text-xs mt-1">
-          APEX VERIFY AI • Trust in Digital Content
-        </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="space-y-12">
+          {/* Hero Result Section */}
+          <div className="text-center space-y-8">
+            <div className="flex items-center justify-center space-x-4">
+              {getVerdictIcon(result.classification)}
+              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none">
+                <span className={getVerdictColor(result.classification)}>{result.classification}</span>
+              </h1>
+            </div>
+
+            <div className="space-y-4">
+              <div className="text-6xl sm:text-8xl md:text-9xl font-black tracking-tighter text-white">
+                {result.authenticity_score}%
+              </div>
+              <div className="text-white/60 text-lg sm:text-xl font-medium tracking-wide">AUTHENTICITY SCORE</div>
+            </div>
+          </div>
+
+          {/* Image and Details Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Image Section */}
+            <div className="space-y-6">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">ANALYZED MEDIA</h2>
+
+              <div className="relative">
+                {previewUrl && (
+                  <Image
+                    src={previewUrl || "/placeholder.svg"}
+                    alt="Analyzed image"
+                    width={600}
+                    height={600}
+                    className="rounded-2xl object-cover w-full border border-white/10"
+                  />
+                )}
+
+                <div className="mt-6 space-y-4">
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <div className="text-white/50 font-medium">PROCESSING TIME</div>
+                        <div className="text-white font-black text-lg">{result.processing_time}s</div>
+                      </div>
+                      <div>
+                        <div className="text-white/50 font-medium">CONFIDENCE</div>
+                        <div className={`font-black text-lg ${getConfidenceColor(result.confidence)}`}>
+                          {(result.confidence * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {result.image_hash && (
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <div className="text-white/50 font-medium text-xs">HASH</div>
+                        <div className="text-white/80 font-mono text-sm break-all">
+                          {result.image_hash.substring(0, 32)}...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Analysis Details */}
+            <div className="space-y-8">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">ANALYSIS REPORT</h2>
+
+              <div className="space-y-6">
+                {/* Assessment */}
+                {reportSections.assessment && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h3 className="text-xl font-black tracking-tight text-white mb-4">ASSESSMENT</h3>
+                    <p className="text-white/90 leading-relaxed font-medium">
+                      {reportSections.assessment.replace("* Assessment: ", "")}
+                    </p>
+                  </div>
+                )}
+
+                {/* Scene Analysis */}
+                {reportSections.scene && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h3 className="text-xl font-black tracking-tight text-white mb-4">SCENE ANALYSIS</h3>
+                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.scene}</p>
+                  </div>
+                )}
+
+                {/* Story Analysis */}
+                {reportSections.story && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h3 className="text-xl font-black tracking-tight text-white mb-4">CONTENT STORY</h3>
+                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.story}</p>
+                  </div>
+                )}
+
+                {/* Digital Footprint */}
+                {reportSections.footprint && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h3 className="text-xl font-black tracking-tight text-white mb-4">DIGITAL FOOTPRINT</h3>
+                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.footprint}</p>
+                  </div>
+                )}
+
+                {/* AI Summary */}
+                {reportSections.summary && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h3 className="text-xl font-black tracking-tight text-white mb-4">AI SUMMARY</h3>
+                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.summary}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {result.digital_seal && (
+            <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-2xl p-8">
+              <div className="text-center space-y-6">
+                <div className="flex items-center justify-center space-x-4">
+                  <Lock className="w-8 h-8 text-green-400" />
+                  <h2 className="text-3xl font-black tracking-tighter text-green-400">DIGITAL SEAL APPLIED</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                  <div>
+                    <div className="text-white/50 font-medium text-sm">SEAL ID</div>
+                    <div className="text-white font-mono text-lg break-all">{result.digital_seal.seal_id}</div>
+                  </div>
+                  <div>
+                    <div className="text-white/50 font-medium text-sm">SEALED AT</div>
+                    <div className="text-white font-medium text-lg">
+                      {new Date(result.digital_seal.sealed_at).toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-white/50 font-medium text-sm">STATUS</div>
+                    <div className="text-green-400 font-black text-lg">IMMUTABLE</div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleDownloadSealed}
+                  className="w-full max-w-md mx-auto bg-green-600 hover:bg-green-700 text-white font-black text-lg py-4 rounded-2xl transition-all duration-300"
+                >
+                  <Download className="w-5 h-5 mr-3" />
+                  DOWNLOAD WITH APEX VERIFY™ SEAL
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="text-center space-y-4 pt-12 border-t border-white/10">
+            <div className="text-2xl font-black tracking-tighter text-white">APEX VERIFY AI</div>
+            <p className="text-white/60 font-medium">ENTERPRISE-GRADE AI VERIFICATION TECHNOLOGY</p>
+            {result.digital_seal && <p className="text-green-400 font-black">🔒 DIGITALLY SEALED & TAMPER-EVIDENT</p>}
+          </div>
+        </div>
       </div>
     </div>
   )
