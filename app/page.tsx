@@ -182,6 +182,17 @@ export default function Home() {
 
   return (
     <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-30">
+        <Image
+          src="/apex-main-logo.png"
+          alt="Apex Verify AI"
+          width={150}
+          height={150}
+          className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 filter drop-shadow-2xl"
+          priority
+        />
+      </div>
+
       {createBackgroundScrollingPosts()}
 
       <nav className="relative z-10 py-6 sm:py-8">
@@ -266,19 +277,6 @@ export default function Home() {
       {/* Main Content - Enhanced Premium Design */}
       <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
         <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
-          <div className="relative mb-8 sm:mb-12">
-            <div className="relative">
-              <Image
-                src="/apex-main-logo.png"
-                alt="Apex Verify AI"
-                width={120}
-                height={120}
-                className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mx-auto filter drop-shadow-2xl"
-                priority
-              />
-            </div>
-          </div>
-
           <div className="relative">
             <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
               APEX VERIFY AI
