@@ -1364,12 +1364,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           </div>
         ) : (
           /* Clean Analysis Section - Mobile Optimized */
-          <div className="space-y-6 sm:space-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* File Preview Card - Mobile Optimized */}
-            <div className="relative rounded-2xl overflow-hidden premium-upload-area p-6 sm:p-8 shadow-xl">
+            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/40 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     {file.type.startsWith("image/") ? (
                       <FileImage className="h-4 w-4 sm:h-5 sm:w-5 text-white/60" />
                     ) : file.type.startsWith("video/") ? (
