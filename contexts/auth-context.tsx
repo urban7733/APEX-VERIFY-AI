@@ -24,16 +24,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
-  // Check for existing session on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem("apex-verify-ai-user")
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (error) {
-        console.error("Error parsing saved user:", error)
-        localStorage.removeItem("apex-verify-ai-user")
+    setIsMounted(true)
+
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("apex-verify-ai-user")
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser))
+        } catch (error) {
+          console.error("Error parsing saved user:", error)
+          localStorage.removeItem("apex-verify-ai-user")
+        }
       }
     }
     setIsLoading(false)
@@ -41,25 +45,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData)
-    localStorage.setItem("apex-verify-ai-user", JSON.stringify(userData))
+    if (typeof window !== "undefined") {
+      localStorage.setItem("apex-verify-ai-user", JSON.stringify(userData))
+    }
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("apex-verify-ai-user")
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("apex-verify-ai-user")
+    }
   }
 
   const deleteAccount = async () => {
     try {
-      // Simulate API call to delete account
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Clear user data
       setUser(null)
-      localStorage.removeItem("apex-verify-ai-user")
-
-      // Could redirect to home page or show confirmation
-      window.location.href = "/"
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("apex-verify-ai-user")
+        window.location.href = "/"
+      }
     } catch (error) {
       console.error("Error deleting account:", error)
       throw error
@@ -73,6 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     deleteAccount,
     isLoading,
+  }
+
+  if (!isMounted) {
+    return null
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
