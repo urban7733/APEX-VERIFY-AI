@@ -1458,133 +1458,184 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
       </div>
 
       {result && tensorFlowResult && (
-        <div className="space-y-12 max-w-4xl mx-auto">
-          {/* Hero Result Display */}
-          <div className="text-center space-y-8">
-            <div className="space-y-4">
-              <div className="text-6xl sm:text-8xl font-black tracking-tighter text-white">
-                {result.isDeepfake ? "FAKE" : "REAL"}
-              </div>
-              <div className="text-xl sm:text-2xl font-light text-white/70 tracking-wide">VERIFICATION COMPLETE</div>
-            </div>
+        <div className="space-y-12 max-w-4xl mx-auto px-4 sm:px-6">
+          {/* Glassmorphic hero result display with backdrop blur and gradients */}
+          <div className="relative">
+            {/* Glassmorphic background with subtle gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-white/2 to-transparent backdrop-blur-xl rounded-3xl border border-white/10"></div>
 
-            {/* Confidence Score */}
-            <div className="space-y-3">
-              <div className="text-sm font-medium text-white/60 uppercase tracking-widest">CONFIDENCE LEVEL</div>
-              <div className="text-4xl sm:text-5xl font-black text-white">
-                {Math.round((result.confidence || 0.85) * 100)}%
+            <div className="relative text-center space-y-8 p-8 sm:p-12">
+              <div className="space-y-4">
+                <div
+                  className={`text-6xl sm:text-8xl font-black tracking-tighter ${
+                    result.isDeepfake
+                      ? "text-red-400 drop-shadow-[0_0_30px_rgba(248,113,113,0.3)]"
+                      : "text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,0.3)]"
+                  } animate-pulse`}
+                >
+                  {result.isDeepfake ? "FAKE" : "REAL"}
+                </div>
+                <div className="text-xl sm:text-2xl font-light text-white/70 tracking-wide">VERIFICATION COMPLETE</div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-white/60 uppercase tracking-widest">CONFIDENCE LEVEL</div>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10"></div>
+                  <div className="relative text-4xl sm:text-5xl font-black text-white py-4">
+                    {Math.round((result.confidence || 0.85) * 100)}%
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Classification Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div
-              className={`p-6 border-2 transition-all duration-300 ${
-                !result.isDeepfake ? "border-white bg-white/5" : "border-white/20 hover:border-white/40"
+              className={`relative group transition-all duration-500 transform hover:scale-105 ${
+                !result.isDeepfake ? "scale-105" : "hover:scale-102"
               }`}
             >
-              <div className="text-center space-y-2">
+              <div
+                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                  !result.isDeepfake
+                    ? "bg-gradient-to-br from-green-500/20 via-green-400/10 to-transparent border-green-400/40 shadow-[0_0_30px_rgba(74,222,128,0.2)]"
+                    : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
+                }`}
+              ></div>
+              <div className="relative p-6 text-center space-y-2">
                 <div className="text-2xl font-black">REAL</div>
                 <div className="text-xs text-white/60 uppercase tracking-wider">Authentic Media</div>
               </div>
             </div>
 
             <div
-              className={`p-6 border-2 transition-all duration-300 cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "manual"
-                  ? "border-white bg-white/5"
-                  : "border-white/20 hover:border-white/40"
-              } ${selectedVisualization === "manual" ? "bg-white/10" : ""}`}
+              className={`relative group transition-all duration-500 transform cursor-pointer ${
+                result.isDeepfake && result.manipulationType === "manual" ? "scale-105" : "hover:scale-102"
+              } ${selectedVisualization === "manual" ? "scale-105" : ""}`}
               onClick={() => {
                 if (result.isDeepfake) {
                   setSelectedVisualization(selectedVisualization === "manual" ? null : "manual")
                 }
               }}
             >
-              <div className="text-center space-y-2">
+              <div
+                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                  result.isDeepfake && result.manipulationType === "manual"
+                    ? "bg-gradient-to-br from-orange-500/20 via-orange-400/10 to-transparent border-orange-400/40 shadow-[0_0_30px_rgba(251,146,60,0.2)]"
+                    : selectedVisualization === "manual"
+                      ? "bg-gradient-to-br from-orange-500/15 via-orange-400/8 to-transparent border-orange-400/30"
+                      : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
+                }`}
+              ></div>
+              <div className="relative p-6 text-center space-y-2">
                 <div className="text-2xl font-black">EDITED</div>
                 <div className="text-xs text-white/60 uppercase tracking-wider">Manual Editing</div>
               </div>
             </div>
 
             <div
-              className={`p-6 border-2 transition-all duration-300 cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "ai"
-                  ? "border-white bg-white/5"
-                  : "border-white/20 hover:border-white/40"
-              } ${selectedVisualization === "ai" ? "bg-white/10" : ""}`}
+              className={`relative group transition-all duration-500 transform cursor-pointer ${
+                result.isDeepfake && result.manipulationType === "ai" ? "scale-105" : "hover:scale-102"
+              } ${selectedVisualization === "ai" ? "scale-105" : ""}`}
               onClick={() => {
                 if (result.isDeepfake) {
                   setSelectedVisualization(selectedVisualization === "ai" ? null : "ai")
                 }
               }}
             >
-              <div className="text-center space-y-2">
+              <div
+                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                  result.isDeepfake && result.manipulationType === "ai"
+                    ? "bg-gradient-to-br from-blue-500/20 via-blue-400/10 to-transparent border-blue-400/40 shadow-[0_0_30px_rgba(96,165,250,0.2)]"
+                    : selectedVisualization === "ai"
+                      ? "bg-gradient-to-br from-blue-500/15 via-blue-400/8 to-transparent border-blue-400/30"
+                      : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
+                }`}
+              ></div>
+              <div className="relative p-6 text-center space-y-2">
                 <div className="text-2xl font-black">AI GEN</div>
                 <div className="text-xs text-white/60 uppercase tracking-wider">AI Generated</div>
               </div>
             </div>
 
             <div
-              className={`p-6 border-2 transition-all duration-300 cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "deepfake"
-                  ? "border-white bg-white/5"
-                  : "border-white/20 hover:border-white/40"
-              } ${selectedVisualization === "deepfake" ? "bg-white/10" : ""}`}
+              className={`relative group transition-all duration-500 transform cursor-pointer ${
+                result.isDeepfake && result.manipulationType === "deepfake" ? "scale-105" : "hover:scale-102"
+              } ${selectedVisualization === "deepfake" ? "scale-105" : ""}`}
               onClick={() => {
                 if (result.isDeepfake) {
                   setSelectedVisualization(selectedVisualization === "deepfake" ? null : "deepfake")
                 }
               }}
             >
-              <div className="text-center space-y-2">
+              <div
+                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                  result.isDeepfake && result.manipulationType === "deepfake"
+                    ? "bg-gradient-to-br from-red-500/20 via-red-400/10 to-transparent border-red-400/40 shadow-[0_0_30px_rgba(248,113,113,0.2)]"
+                    : selectedVisualization === "deepfake"
+                      ? "bg-gradient-to-br from-red-500/15 via-red-400/8 to-transparent border-red-400/30"
+                      : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
+                }`}
+              ></div>
+              <div className="relative p-6 text-center space-y-2">
                 <div className="text-2xl font-black">DEEPFAKE</div>
                 <div className="text-xs text-white/60 uppercase tracking-wider">Face Swap</div>
               </div>
             </div>
           </div>
 
-          {/* Spatial Analysis Visualization */}
           {result.isDeepfake && selectedVisualization && (
             <div className="space-y-6">
               <div className="text-center space-y-2">
-                <div className="text-2xl font-black text-white">SPATIAL ANALYSIS</div>
+                <div className="text-2xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                  SPATIAL ANALYSIS
+                </div>
                 <div className="text-sm text-white/60 uppercase tracking-widest">MANIPULATION DETECTION ACTIVE</div>
               </div>
 
-              <div className="relative border-2 border-white/20 p-8">
-                <div className="aspect-video bg-black/40 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center space-y-4">
-                      <div className="w-24 h-24 mx-auto border-4 border-white animate-pulse"></div>
-                      <div className="text-lg font-bold text-white">
-                        ANALYZING {selectedVisualization.toUpperCase()} REGIONS
-                      </div>
-                      <div className="flex justify-center space-x-2">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-3 h-3 border border-white"
-                            style={{
-                              animationDelay: `${i * 0.1}s`,
-                              animation: "pulse 1s infinite",
-                            }}
-                          ></div>
-                        ))}
+              <div className="relative">
+                {/* Glassmorphic container */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl rounded-3xl border border-white/20"></div>
+
+                <div className="relative p-8">
+                  <div className="aspect-video bg-black/40 relative overflow-hidden rounded-2xl border border-white/10">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center space-y-4">
+                        <div className="relative w-24 h-24 mx-auto">
+                          <div className="absolute inset-0 border-4 border-white/20 rounded-lg"></div>
+                          <div className="absolute inset-0 border-4 border-white animate-pulse rounded-lg"></div>
+                          <div className="absolute inset-2 bg-white/5 backdrop-blur-sm rounded-sm"></div>
+                        </div>
+                        <div className="text-lg font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                          ANALYZING {selectedVisualization.toUpperCase()} REGIONS
+                        </div>
+                        <div className="flex justify-center space-x-2">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="w-3 h-3 bg-white/20 backdrop-blur-sm border border-white/40 rounded-sm"
+                              style={{
+                                animationDelay: `${i * 0.1}s`,
+                                animation: "pulse 1s infinite",
+                              }}
+                            ></div>
+                          ))}
+                        </div>
                       </div>
                     </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Button
               onClick={() => downloadWithWatermark(file, previewUrl, result?.watermarkedImageBase64)}
-              className="bg-white text-black hover:bg-white/90 font-black text-lg py-6 tracking-wider"
+              className="relative group bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-xl border border-white/30 text-white hover:from-white/30 hover:to-white/20 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105"
             >
               <Download className="h-5 w-5 mr-3" />
               DOWNLOAD SEALED
@@ -1592,8 +1643,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
             <Button
               onClick={downloadReport}
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-black font-black text-lg py-6 tracking-wider bg-transparent"
+              className="relative group bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl border-2 border-white/40 text-white hover:border-white/60 hover:bg-white/20 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl hover:scale-105"
             >
               <FileText className="h-5 w-5 mr-3" />
               GET REPORT
@@ -1601,8 +1651,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
             <Button
               onClick={resetAnalysis}
-              variant="outline"
-              className="border-2 border-white/40 text-white/70 hover:border-white hover:text-white font-black text-lg py-6 tracking-wider bg-transparent"
+              className="relative group bg-gradient-to-r from-white/5 to-transparent backdrop-blur-xl border-2 border-white/20 text-white/70 hover:border-white/40 hover:text-white hover:bg-white/10 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl hover:scale-105"
             >
               NEW ANALYSIS
             </Button>
