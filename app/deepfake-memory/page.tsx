@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Search, Upload, LinkIcon, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,6 +23,7 @@ export default function DeepfakeMemoryPage() {
   const [inputValue, setInputValue] = useState("")
   const [isChecking, setIsChecking] = useState(false)
   const [result, setResult] = useState<VerificationResult | null>(null)
+  const searchParams = useSearchParams()
 
   const handleCheck = async () => {
     if (!inputValue.trim()) return
@@ -45,6 +47,18 @@ export default function DeepfakeMemoryPage() {
     setResult(mockResult)
     setIsChecking(false)
   }
+
+  // Auto-check when arriving with a query param
+  useEffect(() => {
+    const q = searchParams?.get("q") || ""
+    if (q && !inputValue) {
+      setInputValue(q)
+      ;(async () => {
+        await handleCheck()
+      })()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
