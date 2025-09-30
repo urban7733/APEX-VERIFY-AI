@@ -1,237 +1,171 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { ArrowLeft, Search, Upload, LinkIcon, CheckCircle, XCircle } from "lucide-react"
-import Image from "next/image"
+import React, { useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, Search, Upload, Link as LinkIcon, CheckCircle, XCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Orb from "@/components/Orb"
+import { Button } from "@/components/ui/button"
 
-interface VerificationResult {
+interface MemoryResult {
   found: boolean
   score?: number
-  verifiedDate?: Date
+  verifiedDate?: string
   originalUrl?: string
 }
 
 export default function DeepfakeMemoryPage() {
   const [inputValue, setInputValue] = useState("")
   const [isChecking, setIsChecking] = useState(false)
-  const [result, setResult] = useState<VerificationResult | null>(null)
-  const searchParams = useSearchParams()
+  const [result, setResult] = useState<MemoryResult | null>(null)
+
+  const handleFileSelect = (file: File) => {
+    setInputValue(file.name)
+    setResult(null)
+  }
 
   const handleCheck = async () => {
     if (!inputValue.trim()) return
-
     setIsChecking(true)
 
-    // Simulate API call to check if content was previously verified
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    // TODO: replace with real API call
+    await new Promise((r) => setTimeout(r, 1200))
 
-    // Mock result - in real implementation, this would check your database
-    const mockResult: VerificationResult =
-      Math.random() > 0.5
-        ? {
-            found: true,
-            score: Math.floor(Math.random() * 100) + 1,
-            verifiedDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-            originalUrl: inputValue.startsWith("http") ? inputValue : undefined,
-          }
-        : { found: false }
+    const mock: MemoryResult = Math.random() > 0.5
+      ? {
+          found: true,
+          score: Math.floor(Math.random() * 100),
+          verifiedDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 14).toLocaleDateString(),
+          originalUrl: inputValue.startsWith("http") ? inputValue : undefined,
+        }
+      : { found: false }
 
-    setResult(mockResult)
+    setResult(mock)
     setIsChecking(false)
   }
 
-  // Auto-check when arriving with a query param
-  useEffect(() => {
-    const q = searchParams?.get("q") || ""
-    if (q && !inputValue) {
-      setInputValue(q)
-      ;(async () => {
-        await handleCheck()
-      })()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setInputValue(file.name)
-      setResult(null)
-    }
-  }
-
   return (
-    <div className="min-h-screen text-white antialiased relative">
-      {/* Orb Background Animation */}
-      <div className="absolute inset-0 z-0">
-        <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} />
-      </div>
-
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 z-0 bg-black/20" />
-
-      {/* Navigation */}
-      <nav className="relative z-10 py-3 border-b border-white/5 backdrop-blur-sm">
+    <div className="min-h-screen text-white antialiased relative bg-black">
+      <nav className="relative z-10 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-3 transition-all duration-300">
               <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
-              <Image
-                src="/apex-verify-logo.png"
-                alt="Apex Verify AI"
-                width={28}
-                height={28}
-                className="opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-              <span className="text-lg font-medium text-white/90 group-hover:text-white transition-colors">
-                Deepfake Memory
+              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base font-black tracking-tighter premium-heading">
+                BACK TO HOME
               </span>
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
-        {/* Header */}
-        <div className="text-center space-y-6 mb-16">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-lg">
-              Deepfake Memory
-            </span>
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="text-center space-y-6 sm:space-y-8 mb-6 sm:mb-10">
+          <h1 className="text-3xl xs:text-4xl sm:text-6xl font-black text-white leading-none tracking-tighter premium-heading">
+            DEEPFAKE MEMORY
           </h1>
-          <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            Check if content has been previously verified by our system
+          <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter">
+            Check if a link or file was already verified in our system
           </p>
         </div>
 
-        {/* Input Card */}
-        <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl mb-8">
-          <CardHeader>
-            <CardTitle className="text-white font-light text-xl text-center">Enter URL or Upload File</CardTitle>
+        <Card>
+          <CardHeader className="p-6">
+            <CardTitle className="text-white/80">Enter a URL or upload a file</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* URL Input */}
+          <CardContent className="p-6 pt-0 space-y-5">
             <div className="relative">
-              <LinkIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
+              <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               <input
                 type="text"
-                placeholder="Paste URL or file name here..."
+                placeholder="Paste URL here..."
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value)
                   setResult(null)
                 }}
-                className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
+                className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30"
               />
             </div>
 
-            {/* File Upload */}
             <div className="relative">
               <input
+                id="memory-file"
                 type="file"
-                id="file-upload"
-                onChange={handleFileUpload}
                 className="hidden"
                 accept="image/*,video/*,audio/*"
+                onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               />
               <label
-                htmlFor="file-upload"
-                className="flex items-center justify-center w-full py-4 bg-white/5 border border-white/10 border-dashed rounded-xl text-white/60 hover:text-white/80 hover:bg-white/10 transition-all cursor-pointer"
+                htmlFor="memory-file"
+                className="flex items-center justify-center w-full py-3 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Or upload a file
+                <Upload className="w-4 h-4 mr-2" /> Or upload a file
               </label>
             </div>
 
-            {/* Check Button */}
             <Button
               onClick={handleCheck}
               disabled={!inputValue.trim() || isChecking}
-              className="w-full py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition-all disabled:opacity-50"
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-3 font-black tracking-tighter premium-heading transition-all duration-300"
             >
               {isChecking ? (
                 <>
                   <Search className="h-4 w-4 mr-2 animate-spin" />
-                  Checking...
+                  Checking Memory
                 </>
               ) : (
                 <>
                   <Search className="h-4 w-4 mr-2" />
-                  Check Verification Status
+                  Check Memory
                 </>
               )}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Results */}
         {result && (
-          <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl">
-            <CardContent className="p-8">
-              {result.found ? (
-                <div className="text-center space-y-6">
-                  <div className="flex items-center justify-center">
-                    <CheckCircle className="h-12 w-12 text-green-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-light text-white mb-2">Content Found</h3>
-                    <p className="text-white/60">This content was previously verified by our system</p>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60">Verification Score:</span>
-                      <Badge className="text-lg px-4 py-2 bg-green-400/10 text-green-400 border-green-400/20">
-                        {result.score}/100
-                      </Badge>
+          <div className="mt-8 sm:mt-10">
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                {result.found ? (
+                  <div className="text-center space-y-3">
+                    <div className="flex items-center justify-center">
+                      <CheckCircle className="h-10 w-10 text-green-400" />
                     </div>
-
-                    {result.verifiedDate && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Verified Date:</span>
-                        <span className="text-white/80">{result.verifiedDate.toLocaleDateString()}</span>
+                    <h3 className="text-xl font-light text-white">Content Found</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                        <div className="text-soft">Verification Score</div>
+                        <div className="text-white text-2xl font-black">{result.score}/100</div>
                       </div>
-                    )}
-
-                    {result.originalUrl && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Original URL:</span>
-                        <span className="text-white/80 truncate max-w-xs">{result.originalUrl}</span>
+                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                        <div className="text-soft">Verified Date</div>
+                        <div className="text-white text-lg font-medium">{result.verifiedDate}</div>
                       </div>
-                    )}
+                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                        <div className="text-soft">Original URL</div>
+                        <div className="text-white/90 text-xs break-all">{result.originalUrl || "—"}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center space-y-6">
-                  <div className="flex items-center justify-center">
-                    <XCircle className="h-12 w-12 text-red-400" />
+                ) : (
+                  <div className="text-center space-y-4">
+                    <div className="flex items-center justify-center">
+                      <XCircle className="h-10 w-10 text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-light text-white">Not Found</h3>
+                    <p className="text-softer">This content hasn't been verified yet.</p>
+                    <Link
+                      href="/verify"
+                      className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition"
+                    >
+                      Go to Verification
+                    </Link>
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-light text-white mb-2">Content Not Found</h3>
-                    <p className="text-white/60">This content has not been verified by our system yet</p>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                    <p className="text-white/50 text-sm">
-                      Would you like to verify this content now?{" "}
-                      <Link href="/verify" className="text-white/80 hover:text-white underline">
-                        Go to Verification
-                      </Link>
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>
