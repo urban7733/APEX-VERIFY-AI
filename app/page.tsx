@@ -97,7 +97,7 @@ export default function Home() {
   }
 
   const createBackgroundScrollingPosts = () => (
-    <div className="absolute inset-0 w-full h-full overflow-hidden opacity-35 pointer-events-none">
+    <div className="hidden sm:block absolute inset-0 w-full h-full overflow-hidden opacity-35 pointer-events-none">
       <div className="flex space-x-2 animate-scroll-horizontal h-full items-center">
         {[...backgroundPosts, ...backgroundPosts, ...backgroundPosts, ...backgroundPosts].map((post, index) => (
           <div key={`${post.id}-${index}`} className="flex-shrink-0 w-32">
@@ -182,16 +182,6 @@ export default function Home() {
 
   return (
     <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-30">
-        <Image
-          src="/apex-main-logo.png"
-          alt="Apex Verify AI"
-          width={150}
-          height={150}
-          className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 filter drop-shadow-2xl"
-          priority
-        />
-      </div>
 
       {createBackgroundScrollingPosts()}
 
@@ -286,11 +276,11 @@ export default function Home() {
       {/* Main Content - Enhanced Premium Design */}
       <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
         <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
-          <div className="relative">
-            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
+          <div className="relative px-2">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter text-center">
               APEX VERIFY AI
             </h1>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="mx-auto mt-2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
           </div>
 
           <div className="w-full max-w-3xl mx-auto px-2">
@@ -299,14 +289,14 @@ export default function Home() {
               className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
             >
               <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500">
-                <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
+                <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6">
                   <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
                     <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
-                    <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
+                    <span className="text-white/70 text-sm sm:text-lg font-light tracking-wide truncate">
                       UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4">
+                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-3 sm:ml-4">
                     <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </button>
                 </div>
