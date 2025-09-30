@@ -137,46 +137,69 @@ export default function DeepfakeMemoryPage() {
 
         {result && (
           <div className="mt-8 sm:mt-10">
-            <Card className="mx-auto max-w-xl">
-              <CardContent className="p-6 space-y-6">
-                {result.found ? (
-                  <div className="text-center space-y-3">
-                    <div className="flex items-center justify-center">
-                      <CheckCircle className="h-10 w-10 text-green-400" />
-                    </div>
-                    <h3 className="text-xl font-light text-white">Content Found</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
-                        <div className="text-soft">Verification Score</div>
-                        <div className="text-white text-2xl font-black">{result.score}/100</div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Overview card */}
+              <Card className="mx-auto w-full max-w-xl">
+                <CardContent className="p-6 space-y-6">
+                  {result.found ? (
+                    <div className="text-center space-y-3">
+                      <div className="flex items-center justify-center">
+                        <CheckCircle className="h-10 w-10 text-green-400" />
                       </div>
-                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
-                        <div className="text-soft">Verified Date</div>
-                        <div className="text-white text-lg font-medium">{result.verifiedDate}</div>
-                      </div>
-                      <div className="glass-minimal rounded-lg p-4 border border-white/10">
-                        <div className="text-soft">Original URL</div>
-                        <div className="text-white/90 text-xs break-all">{result.originalUrl || "—"}</div>
+                      <h3 className="text-xl font-light text-white">Content Found</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                        <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                          <div className="text-soft">Verification Score</div>
+                          <div className="text-white text-2xl font-black">{result.score}/100</div>
+                        </div>
+                        <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                          <div className="text-soft">Verified Date</div>
+                          <div className="text-white text-lg font-medium">{result.verifiedDate}</div>
+                        </div>
+                        <div className="glass-minimal rounded-lg p-4 border border-white/10">
+                          <div className="text-soft">Original URL</div>
+                          <div className="text-white/90 text-xs break-all">{result.originalUrl || "—"}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center space-y-4">
-                    <div className="flex items-center justify-center">
-                      <XCircle className="h-10 w-10 text-red-400" />
+                  ) : (
+                    <div className="text-center space-y-4">
+                      <div className="flex items-center justify-center">
+                        <XCircle className="h-10 w-10 text-red-400" />
+                      </div>
+                      <h3 className="text-xl font-light text-white">Not Found</h3>
+                      <p className="text-softer">This content hasn't been verified yet.</p>
+                      <Link
+                        href="/verify"
+                        className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition"
+                      >
+                        Go to Verification
+                      </Link>
                     </div>
-                    <h3 className="text-xl font-light text-white">Not Found</h3>
-                    <p className="text-softer">This content hasn't been verified yet.</p>
-                    <Link
-                      href="/verify"
-                      className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition"
-                    >
-                      Go to Verification
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Right: Spatial preview placeholder (shows when URL is image-like) */}
+              {result.found && result.originalUrl && result.originalUrl.match(/\.(jpg|jpeg|png|webp)$/i) && (
+                <Card className="mx-auto w-full max-w-xl">
+                  <CardContent className="p-6">
+                    <div className="text-white/70 text-sm mb-3">Spatial Preview</div>
+                    <div className="relative aspect-video bg-black/40 border border-white/10 rounded-xl overflow-hidden">
+                      {/* Placeholder glass layers for minimal look */}
+                      <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1 p-2">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                          <div key={i} className="bg-white/5 border border-white/10 rounded-md" />
+                        ))}
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-white/50 text-xs">Zoomed region will appear here</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         )}
       </div>

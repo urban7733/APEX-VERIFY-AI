@@ -262,6 +262,18 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
+                  router.push("/deepfake-memory")
+                  setMobileMenuOpen(false)
+                }}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z" clipRule="evenodd" />
+                </svg>
+                <span>MEMORY</span>
+              </button>
+              <button
+                onClick={() => {
                   router.push("/verify")
                   setMobileMenuOpen(false)
                 }}
@@ -290,7 +302,7 @@ export default function Home() {
             <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
               APEX VERIFY AI
             </h1>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="absolute -bottom-3 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
           </div>
 
           <div className="w-full max-w-3xl mx-auto px-2">
