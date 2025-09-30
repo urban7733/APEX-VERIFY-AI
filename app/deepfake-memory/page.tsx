@@ -68,11 +68,11 @@ export default function DeepfakeMemoryPage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader className="p-6">
-            <CardTitle className="text-white/80">Enter a URL or upload a file</CardTitle>
+        <Card className="mx-auto max-w-xl">
+          <CardHeader className="p-6 pb-4">
+            <CardTitle className="text-white/80 text-base">Enter a URL or upload a file</CardTitle>
           </CardHeader>
-          <CardContent className="p-6 pt-0 space-y-5">
+          <CardContent className="p-6 pt-0 space-y-4">
             <div className="relative">
               <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               <input
@@ -83,9 +83,12 @@ export default function DeepfakeMemoryPage() {
                   setInputValue(e.target.value)
                   setResult(null)
                 }}
-                className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30"
+                className="w-full h-12 pl-10 pr-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/30 text-sm sm:text-base"
+                aria-label="URL"
               />
             </div>
+
+            <div className="glass-divider" />
 
             <div className="relative">
               <input
@@ -97,35 +100,44 @@ export default function DeepfakeMemoryPage() {
               />
               <label
                 htmlFor="memory-file"
-                className="flex items-center justify-center w-full py-3 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                className="flex items-center justify-center w-full h-12 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer text-sm"
               >
                 <Upload className="w-4 h-4 mr-2" /> Or upload a file
               </label>
             </div>
 
-            <Button
-              onClick={handleCheck}
-              disabled={!inputValue.trim() || isChecking}
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-3 font-black tracking-tighter premium-heading transition-all duration-300"
-            >
-              {isChecking ? (
-                <>
-                  <Search className="h-4 w-4 mr-2 animate-spin" />
-                  Checking Memory
-                </>
-              ) : (
-                <>
-                  <Search className="h-4 w-4 mr-2" />
-                  Check Memory
-                </>
-              )}
-            </Button>
+            <div className="pt-1">
+              <Button
+                onClick={handleCheck}
+                disabled={!inputValue.trim() || isChecking}
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl h-12 font-black tracking-tighter premium-heading transition-all duration-300"
+                aria-live="polite"
+              >
+                {isChecking ? (
+                  <>
+                    <Search className="h-4 w-4 mr-2 animate-spin" />
+                    Checking Memory
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Check Memory
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {isChecking && (
+              <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full w-1/3 animate-shimmer" />
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {result && (
           <div className="mt-8 sm:mt-10">
-            <Card>
+            <Card className="mx-auto max-w-xl">
               <CardContent className="p-6 space-y-6">
                 {result.found ? (
                   <div className="text-center space-y-3">
