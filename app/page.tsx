@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Upload, ArrowRight, Menu, X, Heart, MessageCircle, Share, Search, Link as LinkIcon } from "lucide-react"
+import { Upload, ArrowRight, Menu, X, Heart, MessageCircle, Share } from "lucide-react"
 import Image from "next/image"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 
@@ -85,14 +85,6 @@ export default function Home() {
 
   const handleFileUpload = () => {
     router.push("/verify")
-  }
-
-  const goToMemory = (preset?: string) => {
-    if (preset && preset.trim()) {
-      router.push(`/deepfake-memory?q=${encodeURIComponent(preset.trim())}`)
-    } else {
-      router.push("/deepfake-memory")
-    }
   }
 
   const handleLogin = () => {
@@ -333,41 +325,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Deepfake Memory Quick Check */}
-          <div className="w-full max-w-3xl mx-auto px-2">
-            <div className="relative rounded-2xl overflow-hidden">
-              <div className="glass-minimal rounded-2xl p-4 sm:p-6 border border-white/10">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Search className="w-5 h-5 text-white/70" />
-                    </div>
-                    <div className="text-left min-w-0">
-                      <div className="text-white/80 text-base sm:text-lg font-light tracking-wide truncate">
-                        Deepfake Memory
-                      </div>
-                      <div className="text-white/50 text-sm truncate">Check if a link or file was already verified</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => goToMemory()}
-                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition"
-                    >
-                      Open
-                    </button>
-                    <button
-                      onClick={() => goToMemory("https://example.com/content")}
-                      className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition hidden sm:inline-flex items-center gap-2"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      Try with a link
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
 
