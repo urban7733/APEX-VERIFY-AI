@@ -220,7 +220,7 @@ ${result.report}`
 
   return (
     <div className="min-h-screen bg-black text-white antialiased relative overflow-hidden">
-      <div className="absolute inset-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+      <div className="hidden sm:block absolute inset-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
         <div className="flex space-x-8 animate-scroll-horizontal h-full items-center">
           {Array.from({ length: 30 }).map((_, index) => (
             <div
@@ -328,25 +328,25 @@ ${result.report}`
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 relative z-10">
         <div className="space-y-12">
-          <div className="text-center space-y-8">
-            <div className="space-y-6">
-              <div className="text-8xl sm:text-9xl md:text-[12rem] font-black tracking-tighter text-white leading-none animate-in zoom-in-50 duration-1000">
+          <div className="text-center space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="text-6xl sm:text-8xl md:text-[12rem] font-black tracking-tighter text-white leading-none animate-in zoom-in-50 duration-1000">
                 {result.authenticity_score}%
               </div>
-              <div className="text-white/60 text-xl sm:text-2xl font-black tracking-wide animate-in slide-in-from-bottom-4 duration-700 delay-300">
+              <div className="text-white/60 text-lg sm:text-2xl font-black tracking-wide animate-in slide-in-from-bottom-4 duration-700 delay-300">
                 AUTHENTICITY SCORE
               </div>
             </div>
 
-            <div className="flex items-center justify-center space-x-6 animate-in slide-in-from-bottom-4 duration-700 delay-500">
+            <div className="flex items-center justify-center space-x-4 sm:space-x-6 animate-in slide-in-from-bottom-4 duration-700 delay-500">
               {getVerdictIcon(result.classification)}
-              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none">
+              <h1 className="text-3xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none">
                 <span className={getVerdictColor(result.classification)}>{result.classification}</span>
               </h1>
             </div>
 
-            <div className="flex items-center justify-center space-x-4 animate-in slide-in-from-bottom-4 duration-700 delay-700">
-              <div className="w-32 h-3 bg-white/10 rounded-full overflow-hidden relative">
+            <div className="flex items-center justify-center space-x-3 sm:space-x-4 animate-in slide-in-from-bottom-4 duration-700 delay-700">
+              <div className="w-28 sm:w-32 h-2 sm:h-3 bg-white/10 rounded-full overflow-hidden relative">
                 <div
                   className={`h-full transition-all duration-1000 ${getConfidenceColor(result.confidence).replace("text-", "bg-")} shadow-lg`}
                   style={{
@@ -355,7 +355,7 @@ ${result.report}`
                   }}
                 />
               </div>
-              <span className={`text-lg font-black ${getConfidenceColor(result.confidence)}`}>
+              <span className={`text-sm sm:text-lg font-black ${getConfidenceColor(result.confidence)}`}>
                 {(result.confidence * 100).toFixed(1)}% CONFIDENCE
               </span>
             </div>

@@ -215,9 +215,9 @@ const EnhancedAnalysisDisplay: React.FC<EnhancedAnalysisDisplayProps> = ({
   return (
     <div className="space-y-8">
       {/* Overall Verdict Card */}
-      <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 shadow-xl">
-        <CardHeader className="p-0 mb-6">
-          <CardTitle className="text-2xl font-light text-white flex items-center gap-3">
+      <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <CardHeader className="p-0 mb-4 sm:mb-6">
+          <CardTitle className="text-xl sm:text-2xl font-light text-white flex items-center gap-3">
             {result.isDeepfake ? (
               <AlertTriangle className="h-7 w-7 text-red-400" />
             ) : (
@@ -225,12 +225,12 @@ const EnhancedAnalysisDisplay: React.FC<EnhancedAnalysisDisplayProps> = ({
             )}
             Overall Verdict
           </CardTitle>
-          <CardDescription className="text-white/50 font-light mt-2">
+          <CardDescription className="text-white/50 font-light mt-2 text-sm">
             Comprehensive analysis results from Apex Verify AI.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0 space-y-6">
-          <div className="flex items-center justify-between">
+        <CardContent className="p-0 space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-white/70 font-light">Authenticity Status:</span>
             <Badge
               className={cn(
@@ -241,9 +241,9 @@ const EnhancedAnalysisDisplay: React.FC<EnhancedAnalysisDisplayProps> = ({
               {result.isDeepfake ? "Potential Deepfake" : "Authentic"}
             </Badge>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-white/70 font-light">Confidence Level:</span>
-            <span className={cn("font-medium", getConfidenceColor(result.confidence))}>
+            <span className={cn("font-medium text-sm sm:text-base", getConfidenceColor(result.confidence))}>
               {(result.confidence * 100).toFixed(1)}%
             </span>
           </div>
@@ -259,18 +259,18 @@ const EnhancedAnalysisDisplay: React.FC<EnhancedAnalysisDisplayProps> = ({
       </Card>
 
       {/* Key Analysis Details */}
-      <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-8 shadow-xl">
-        <CardHeader className="p-0 mb-6">
-          <CardTitle className="text-2xl font-light text-white flex items-center gap-3">
+      <Card className="bg-black/60 backdrop-blur-md border border-white/30 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <CardHeader className="p-0 mb-4 sm:mb-6">
+          <CardTitle className="text-xl sm:text-2xl font-light text-white flex items-center gap-3">
             <BarChart2 className="h-7 w-7 text-blue-400" />
             Analysis Breakdown
           </CardTitle>
-          <CardDescription className="text-white/50 font-light mt-2">
+          <CardDescription className="text-white/50 font-light mt-2 text-sm">
             Detailed insights from various detection modules.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="p-0 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {Object.entries(result.analysisDetails).map(([key, value]) => {
               if (value === undefined) return null
               const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
@@ -294,10 +294,10 @@ const EnhancedAnalysisDisplay: React.FC<EnhancedAnalysisDisplayProps> = ({
 
               return (
                 <div key={key} className="flex items-center space-x-3 bg-white/5 rounded-lg p-3">
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10">{icon}</div>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-white/10">{icon}</div>
                   <div>
-                    <div className="text-sm text-white/70 font-light">{label}</div>
-                    <div className="text-base font-medium text-white">{displayValue}</div>
+                    <div className="text-xs sm:text-sm text-white/70 font-light">{label}</div>
+                    <div className="text-sm sm:text-base font-medium text-white">{displayValue}</div>
                   </div>
                 </div>
               )
