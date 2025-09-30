@@ -10,6 +10,32 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* Minimal glass utilities */
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-minimal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-divider {
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.08), transparent);
+    height: 1px;
+  }
+  .text-soft {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .text-softer {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .heading-tight {
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer base {
