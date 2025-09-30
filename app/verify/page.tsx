@@ -8,6 +8,7 @@ import { Upload, ArrowLeft, X, Download, FileText } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { analysisEngine, type AnalysisProgress, type ComprehensiveAnalysisResult } from "@/lib/analysis-engine"
 import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
@@ -924,6 +925,8 @@ export default function VerifyPage() {
   const [visualizationMode, setVisualizationMode] = useState<"heatmap" | "boxes">("heatmap")
 
   const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null)
+  const [selectedRegionIndex, setSelectedRegionIndex] = useState<number | null>(null)
+  const [zoomScale] = useState(3)
 
   const { isMobile } = useViewport()
 
@@ -1284,6 +1287,54 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     }
   }, [previewUrl])
 
+  // Auto-highlight visualization category based on detected manipulation type
+  useEffect(() => {
+    if (!result) return
+    if (result.isDeepfake) {
+      // Prefer explicit manipulationType if present
+      if ((result as any).manipulationType) {
+        setSelectedVisualization((result as any).manipulationType)
+      } else {
+        setSelectedVisualization("deepfake")
+      }
+    } else {
+      setSelectedVisualization(null)
+    }
+  }, [result])
+
+  // Derive manipulation regions (pixels) and normalize to percentages for overlay
+  const regions = (() => {
+    if (!result) return [] as Array<{ x: number; y: number; width: number; height: number; confidence?: number; type?: string }>
+    const dims = (result as any)?.fileInfo?.dimensions || { width: 1920, height: 1080 }
+    const w = dims?.width || 1920
+    const h = dims?.height || 1080
+    const raw: Array<{ x: number; y: number; width: number; height: number; confidence?: number; type?: string }> =
+      (result as any)?.manipulationRegions && (result as any)?.manipulationRegions.length > 0
+        ? (result as any).manipulationRegions
+        : (result as any)?.spatialAnalysis?.deepfakeEvidence?.[0]?.visualEvidence || []
+
+    return raw.map((r) => {
+      // If already looks like percentages (0-100), clamp; else convert from pixels
+      const looksLikePct = r.x <= 100 && r.y <= 100 && r.width <= 100 && r.height <= 100
+      const pxToPct = (val: number, base: number) => Math.max(0, Math.min(100, (val / base) * 100))
+      return looksLikePct
+        ? { ...r }
+        : {
+            ...r,
+            x: pxToPct(r.x, w),
+            y: pxToPct(r.y, h),
+            width: pxToPct(r.width, w),
+            height: pxToPct(r.height, h),
+          }
+    })
+  })()
+
+  useEffect(() => {
+    if (regions.length > 0 && selectedRegionIndex === null) {
+      setSelectedRegionIndex(0)
+    }
+  }, [regions, selectedRegionIndex])
+
   return (
     <div
       className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"} bg-black`}
@@ -1446,13 +1497,13 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
             </div>
 
             {/* Analysis Animation */}
-            {file && (
-              <AnalysisAnimation
-                file={file}
-                previewUrl={previewUrl}
-                fileType={file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "audio"}
-              />
-            )}
+      {isAnalyzing && (
+        <AnalysisAnimation
+          isActive={isAnalyzing}
+          onComplete={() => {}}
+          fileType={file?.type.startsWith("image/") ? "image" : file?.type.startsWith("video/") ? "video" : "audio"}
+        />
+      )}
           </div>
         )}
       </div>
@@ -1594,40 +1645,110 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 <div className="text-sm text-white/60 uppercase tracking-widest">MANIPULATION DETECTION ACTIVE</div>
               </div>
 
-              <div className="relative">
-                {/* Glassmorphic container */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl rounded-3xl border border-white/20"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left: Image with overlay regions */}
+                <Card>
+                  <CardHeader className="p-6">
+                    <CardTitle>Analyzed Image</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0">
+                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10">
+                      {previewUrl && file?.type.startsWith("image/") && (
+                        <>
+                          <img src={previewUrl} alt="Analyzed" className="w-full h-auto block select-none" />
+                          {/* Overlay regions */}
+                          <div className="absolute inset-0 pointer-events-none">
+                            {regions.map((r, idx) => (
+                              <div
+                                key={idx}
+                                className={
+                                  "absolute rounded-md border transition shadow-2xl " +
+                                  (idx === selectedRegionIndex
+                                    ? "border-red-400/90 bg-red-500/20 animate-pulse"
+                                    : "border-white/30 bg-white/10")
+                                }
+                                style={{
+                                  left: `${r.x}%`,
+                                  top: `${r.y}%`,
+                                  width: `${r.width}%`,
+                                  height: `${r.height}%`,
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {/* Click targets */}
+                          <div className="absolute inset-0">
+                            {regions.map((r, idx) => (
+                              <button
+                                key={idx}
+                                className="absolute border-none bg-transparent p-0 m-0 cursor-pointer"
+                                style={{
+                                  left: `${r.x}%`,
+                                  top: `${r.y}%`,
+                                  width: `${r.width}%`,
+                                  height: `${r.height}%`,
+                                }}
+                                onClick={() => setSelectedRegionIndex(idx)}
+                                aria-label={`Focus region ${idx + 1}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      {!previewUrl && (
+                        <div className="aspect-video bg-black/40" />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <div className="relative p-8">
-                  <div className="aspect-video bg-black/40 relative overflow-hidden rounded-2xl border border-white/10">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center space-y-4">
-                        <div className="relative w-24 h-24 mx-auto">
-                          <div className="absolute inset-0 border-4 border-white/20 rounded-lg"></div>
-                          <div className="absolute inset-0 border-4 border-white animate-pulse rounded-lg"></div>
-                          <div className="absolute inset-2 bg-white/5 backdrop-blur-sm rounded-sm"></div>
-                        </div>
-                        <div className="text-lg font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                          ANALYZING {selectedVisualization.toUpperCase()} REGIONS
-                        </div>
-                        <div className="flex justify-center space-x-2">
-                          {[...Array(5)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="w-3 h-3 bg-white/20 backdrop-blur-sm border border-white/40 rounded-sm"
-                              style={{
-                                animationDelay: `${i * 0.1}s`,
-                                animation: "pulse 1s infinite",
-                              }}
-                            ></div>
-                          ))}
-                        </div>
-                      </div>
+                {/* Right: Zoom + details */}
+                <Card>
+                  <CardHeader className="p-6">
+                    <CardTitle>Zoom & Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0 space-y-6">
+                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/40">
+                      {previewUrl && regions.length > 0 && selectedRegionIndex !== null ? (
+                        (() => {
+                          const r = regions[selectedRegionIndex]
+                          const cx = r.x + r.width / 2
+                          const cy = r.y + r.height / 2
+                          return (
+                            <img
+                              src={previewUrl}
+                              alt="Zoom view"
+                              className="w-full h-auto block select-none"
+                              style={{ transform: `scale(${zoomScale})`, transformOrigin: `${cx}% ${cy}%` }}
+                            />
+                          )
+                        })()
+                      ) : (
+                        <div className="aspect-video" />
+                      )}
                     </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
-                  </div>
-                </div>
+                    {regions.length > 0 && selectedRegionIndex !== null && (
+                      <div className="space-y-2 text-sm text-soft">
+                        <div className="glass-divider" />
+                        <div className="flex items-center justify-between">
+                          <span>Region</span>
+                          <span className="text-white">{selectedRegionIndex + 1} / {regions.length}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Category</span>
+                          <span className="text-white">{(regions[selectedRegionIndex] as any)?.type || selectedVisualization?.toUpperCase()}</span>
+                        </div>
+                        {typeof (regions[selectedRegionIndex] as any)?.confidence === "number" && (
+                          <div className="flex items-center justify-between">
+                            <span>Confidence</span>
+                            <span className="text-white">{Math.round(((regions[selectedRegionIndex] as any).confidence || 0) * 100)}%</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
           )}

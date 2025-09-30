@@ -1,6 +1,7 @@
 "use client"
 import { CheckCircle, AlertTriangle, Clock, Lock, Download, ArrowLeft, Share, Copy, Eye, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -364,60 +365,59 @@ ${result.report}`
             <div className="space-y-6">
               <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-white">ANALYZED MEDIA</h2>
 
-              <div className="relative group">
-                {previewUrl && (
-                  <div className="relative overflow-hidden rounded-2xl">
-                    <Image
-                      src={previewUrl || "/placeholder.svg"}
-                      alt="Analyzed image"
-                      width={600}
-                      height={600}
-                      className="w-full object-cover border border-white/20 transition-all duration-500 group-hover:scale-105"
-                    />
+              <Card>
+                <CardHeader className="p-6">
+                  <CardTitle>Image & Regions</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  {previewUrl && (
+                    <div className="relative overflow-hidden rounded-xl border border-white/10">
+                      <Image
+                        src={previewUrl || "/placeholder.svg"}
+                        alt="Analyzed image"
+                        width={600}
+                        height={600}
+                        className="w-full object-cover"
+                      />
 
-                    {showManipulationBoxes && manipulationRegions.length > 0 && (
-                      <div className="absolute inset-0 pointer-events-none">
-                        {manipulationRegions.map((region, index) => (
-                          <div
-                            key={index}
-                            className="absolute border-2 border-red-500 bg-red-500/20 animate-pulse"
-                            style={{
-                              left: `${region.x}%`,
-                              top: `${region.y}%`,
-                              width: `${region.width}%`,
-                              height: `${region.height}%`,
-                              boxShadow: "0 0 20px rgba(239, 68, 68, 0.6)",
-                            }}
-                          >
-                            <div className="absolute -top-8 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded font-black">
-                              {region.type.replace("_", " ").toUpperCase()} ({(region.confidence * 100).toFixed(0)}%)
+                      {showManipulationBoxes && manipulationRegions.length > 0 && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          {manipulationRegions.map((region, index) => (
+                            <div
+                              key={index}
+                              className="absolute border border-red-400/90 bg-red-500/20 animate-pulse rounded-md shadow-2xl"
+                              style={{
+                                left: `${region.x}%`,
+                                top: `${region.y}%`,
+                                width: `${region.width}%`,
+                                height: `${region.height}%`,
+                                boxShadow: "0 0 20px rgba(239, 68, 68, 0.6)",
+                              }}
+                            >
+                              <div className="absolute -top-7 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded font-black">
+                                {region.type.replace("_", " ").toUpperCase()} ({(region.confidence * 100).toFixed(0)}%)
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <button className="flex items-center space-x-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full text-white font-black hover:scale-110 transition-all duration-300">
-                        <Eye className="w-5 h-5" />
-                        <span>VIEW FULL</span>
-                      </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  )}
+                </CardContent>
+              </Card>
 
-                <div className="mt-6 bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105">
+              <Card>
+                <CardHeader className="p-6">
+                  <CardTitle>Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="text-center group">
-                      <div className="text-3xl font-black text-white group-hover:scale-110 transition-all duration-300">
-                        {result.processing_time}s
-                      </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-black text-white">{result.processing_time}s</div>
                       <div className="text-white/50 font-medium text-sm tracking-wide">PROCESSING TIME</div>
                     </div>
-                    <div className="text-center group">
-                      <div
-                        className={`text-3xl font-black ${getConfidenceColor(result.confidence)} group-hover:scale-110 transition-all duration-300`}
-                      >
+                    <div className="text-center">
+                      <div className={`text-3xl font-black ${getConfidenceColor(result.confidence)}`}>
                         {(result.confidence * 100).toFixed(1)}%
                       </div>
                       <div className="text-white/50 font-medium text-sm tracking-wide">CONFIDENCE</div>
@@ -425,7 +425,7 @@ ${result.report}`
                   </div>
 
                   {manipulationRegions.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-white/20">
+                    <div className="mt-6 pt-6 border-t border-white/10">
                       <div className="text-white/50 font-medium text-sm tracking-wide mb-2">MANIPULATION DETECTED</div>
                       <div className="text-red-400 font-black text-lg">
                         {manipulationRegions.length} SUSPICIOUS REGION{manipulationRegions.length > 1 ? "S" : ""} FOUND
@@ -434,15 +434,15 @@ ${result.report}`
                   )}
 
                   {result.image_hash && (
-                    <div className="mt-6 pt-6 border-t border-white/20">
+                    <div className="mt-6 pt-6 border-t border-white/10">
                       <div className="text-white/50 font-medium text-sm tracking-wide mb-2">DIGITAL FINGERPRINT</div>
-                      <div className="text-white/80 font-mono text-sm break-all bg-black/30 p-3 rounded-lg hover:bg-black/50 transition-all duration-300">
+                      <div className="text-white/80 font-mono text-sm break-all bg-black/30 p-3 rounded-lg">
                         {result.image_hash}
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="space-y-8">
@@ -450,55 +450,60 @@ ${result.report}`
 
               <div className="space-y-6">
                 {reportSections.assessment && (
-                  <div className="bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
-                    <h3 className="text-xl font-black tracking-tight text-white mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-white mr-3 rounded-full group-hover:bg-blue-400 transition-all duration-300"></div>
-                      ASSESSMENT
-                    </h3>
-                    <p className="text-white/90 leading-relaxed font-medium">
-                      {reportSections.assessment.replace("* Assessment: ", "")}
-                    </p>
-                  </div>
+                  <Card>
+                    <CardHeader className="p-6">
+                      <CardTitle>ASSESSMENT</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <p className="text-white/90 leading-relaxed font-medium">
+                        {reportSections.assessment.replace("* Assessment: ", "")}
+                      </p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {reportSections.scene && (
-                  <div className="bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
-                    <h3 className="text-xl font-black tracking-tight text-white mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-white mr-3 rounded-full group-hover:bg-green-400 transition-all duration-300"></div>
-                      SCENE ANALYSIS
-                    </h3>
-                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.scene}</p>
-                  </div>
+                  <Card>
+                    <CardHeader className="p-6">
+                      <CardTitle>SCENE ANALYSIS</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <p className="text-white/90 leading-relaxed font-medium">{reportSections.scene}</p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {reportSections.story && (
-                  <div className="bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
-                    <h3 className="text-xl font-black tracking-tight text-white mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-white mr-3 rounded-full group-hover:bg-purple-400 transition-all duration-300"></div>
-                      CONTENT STORY
-                    </h3>
-                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.story}</p>
-                  </div>
+                  <Card>
+                    <CardHeader className="p-6">
+                      <CardTitle>CONTENT STORY</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <p className="text-white/90 leading-relaxed font-medium">{reportSections.story}</p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {reportSections.footprint && (
-                  <div className="bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
-                    <h3 className="text-xl font-black tracking-tight text-white mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-white mr-3 rounded-full group-hover:bg-yellow-400 transition-all duration-300"></div>
-                      DIGITAL FOOTPRINT
-                    </h3>
-                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.footprint}</p>
-                  </div>
+                  <Card>
+                    <CardHeader className="p-6">
+                      <CardTitle>DIGITAL FOOTPRINT</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <p className="text-white/90 leading-relaxed font-medium">{reportSections.footprint}</p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {reportSections.summary && (
-                  <div className="bg-white/5 border border-white/20 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
-                    <h3 className="text-xl font-black tracking-tight text-white mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-white mr-3 rounded-full group-hover:bg-red-400 transition-all duration-300"></div>
-                      AI SUMMARY
-                    </h3>
-                    <p className="text-white/90 leading-relaxed font-medium">{reportSections.summary}</p>
-                  </div>
+                  <Card>
+                    <CardHeader className="p-6">
+                      <CardTitle>AI SUMMARY</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <p className="text-white/90 leading-relaxed font-medium">{reportSections.summary}</p>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </div>
