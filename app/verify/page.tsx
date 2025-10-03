@@ -1337,14 +1337,14 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
   return (
     <div
-      className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"} bg-black`}
+      className={`min-h-screen text-white antialiased relative ${isMobile ? "overflow-x-hidden" : "overflow-hidden"} bg-black grid-nano`}
     >
-      <nav className="relative z-10 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="relative z-10 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex items-center">
-            <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 transition-all duration-300">
-              <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white/80 transition-colors" />
-              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base font-black tracking-tighter premium-heading">
+            <Link href="/" className="group flex items-center space-x-3 sm:space-x-4 transition-all duration-300 hover-lift">
+              <ArrowLeft className="h-5 w-5 text-white/40 group-hover:text-white/80 transition-colors" />
+              <span className="text-white/60 group-hover:text-white/90 transition-colors text-sm sm:text-base font-light tracking-wide">
                 BACK TO HOME
               </span>
             </Link>

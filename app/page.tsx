@@ -195,20 +195,20 @@ export default function Home() {
 
       {createBackgroundScrollingPosts()}
 
-      <nav className="relative z-10 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="relative z-10 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-light text-white heading-ultra tracking-wider">
                 APEX VERIFY AI
               </span>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-8">
               <button
                 onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="flex items-center space-x-3 px-6 py-3 glass-minimal text-white/80 text-sm font-light hover:text-white transition-all duration-300 hover-lift"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -217,7 +217,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/deepfake-memory")}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="flex items-center space-x-3 px-6 py-3 glass-minimal text-white/80 text-sm font-light hover:text-white transition-all duration-300 hover-lift"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z" clipRule="evenodd" />
@@ -226,13 +226,13 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/verify")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="px-6 py-3 glass-minimal text-white/80 text-sm font-light hover:text-white transition-all duration-300 hover-lift"
               >
                 VERIFY
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="px-6 py-3 glass-minimal text-white/80 text-sm font-light hover:text-white transition-all duration-300 hover-lift"
               >
                 MISSION
               </button>
@@ -240,9 +240,9 @@ export default function Home() {
 
             <button
               onClick={toggleMobileMenu}
-              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-3 glass-minimal text-white/80 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-white hover-lift"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
@@ -295,43 +295,43 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Main Content - Enhanced Premium Design */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
-        <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
+      {/* Main Content - Ultra-Modern Design */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-140px)] px-6 sm:px-8">
+        <div className="text-center max-w-7xl mx-auto w-full space-y-8 sm:space-y-12">
           <div className="relative">
-            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
+            <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-light text-white leading-none heading-ultra tracking-wider">
               APEX VERIFY AI
             </h1>
-            <div className="absolute -bottom-3 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="absolute -bottom-4 sm:-bottom-3 left-1/2 transform -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           </div>
 
-          <div className="w-full max-w-3xl mx-auto px-2">
+          <div className="w-full max-w-4xl mx-auto px-4">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
+              className="group relative w-full cursor-pointer transform transition-all duration-500 hover-lift"
             >
-              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500">
-                <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
-                  <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
-                    <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
-                    <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
+              <div className="relative w-full glass-ultra border border-white/5 hover:border-white/15 transition-all duration-500 hover-glow">
+                <div className="flex items-center justify-between h-20 sm:h-24 px-8 sm:px-10">
+                  <div className="flex items-center space-x-6 sm:space-x-8 flex-1 min-w-0">
+                    <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white/60 flex-shrink-0" />
+                    <span className="text-white/60 text-lg sm:text-xl font-light tracking-wider truncate">
                       UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4">
-                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <button className="w-12 h-12 sm:w-14 sm:h-14 glass-minimal border border-white/10 rounded-xl flex items-center justify-center hover:border-white/20 transition-all duration-300 flex-shrink-0 ml-6 hover-lift">
+                    <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 text-white/80" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 max-w-4xl mx-auto px-4">
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter">
+          <div className="space-y-4 max-w-5xl mx-auto px-6">
+            <div className="relative glass-minimal border border-white/3 rounded-xl p-8 sm:p-10">
+              <p className="text-white/60 text-xl sm:text-2xl font-light leading-relaxed tracking-wide">
                 EMPOWERING THE CREATOR ECONOMY WITH AUTHENTIC CONTENT VERIFICATION.
               </p>
-              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter mt-3">
+              <p className="text-white/40 text-lg sm:text-xl font-light leading-relaxed tracking-wide mt-4">
                 RESTORING TRUST. PRESERVING AUTHENTICITY. PROTECTING GENUINE CREATIVITY.
               </p>
             </div>

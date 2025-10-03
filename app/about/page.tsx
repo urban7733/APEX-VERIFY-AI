@@ -17,15 +17,15 @@ const AboutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white antialiased relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white antialiased relative overflow-hidden grid-nano">
       {/* Navigation */}
-      <nav className="relative z-10 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="relative z-10 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <button
                 onClick={() => router.push("/")}
-                className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight premium-logo"
+                className="text-2xl sm:text-3xl md:text-4xl font-light text-white heading-ultra tracking-wider"
               >
                 APEX VERIFY AI
               </button>

@@ -90,10 +90,10 @@ export function AuthDialog({ open, onOpenChange, defaultMode = "login" }: AuthDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-black border-white/20 text-white rounded-xl mx-4 sm:mx-auto">
+      <DialogContent className="sm:max-w-md glass-ultra border border-white/5 text-white rounded-xl mx-4 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl font-bold text-white text-center px-2">
-            {mode === "login" ? "Welcome back" : "Join Apex Verify AI"}
+          <DialogTitle className="text-xl sm:text-2xl font-light text-white text-center px-2 heading-ultra tracking-wider">
+            {mode === "login" ? "ACCESS" : "JOIN APEX"}
           </DialogTitle>
         </DialogHeader>
 
