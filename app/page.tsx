@@ -182,7 +182,7 @@ export default function Home() {
 
   return (
     <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-30">
+      <div className="absolute top-4 sm:top-8 left-1/2 transform -translate-x-1/2 z-30">
         <Image
           src="/apex-main-logo.png"
           alt="Apex Verify AI"
@@ -220,7 +220,11 @@ export default function Home() {
                 className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>MEMORY</span>
               </button>
@@ -268,7 +272,11 @@ export default function Home() {
                 className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M8 4a4 4 0 018 0 4 4 0 01-3 3.87V10a3 3 0 11-6 0V7.87A4 4 0 018 4zm4 10a5 5 0 100-10 5 5 0 000 10z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>MEMORY</span>
               </button>
@@ -336,8 +344,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-
-          
         </div>
       </div>
 
