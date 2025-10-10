@@ -182,20 +182,25 @@ export default function Home() {
 
   return (
     <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
+
       <div className="absolute top-4 sm:top-8 left-1/2 transform -translate-x-1/2 z-30">
-        <Image
-          src="/apex-main-logo.png"
-          alt="Apex Verify AI"
-          width={150}
-          height={150}
-          className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 filter drop-shadow-2xl"
-          priority
-        />
+        <div className="relative">
+          <div className="absolute inset-0 blur-2xl bg-white/5 rounded-full" />
+          <Image
+            src="/apex-main-logo.png"
+            alt="Apex Verify AI"
+            width={150}
+            height={150}
+            className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 filter drop-shadow-2xl transition-transform duration-700 hover:scale-105"
+            priority
+          />
+        </div>
       </div>
 
       {createBackgroundScrollingPosts()}
 
-      <nav className="relative z-10 py-6 sm:py-8">
+      <nav className="relative z-10 py-6 sm:py-8 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -205,10 +210,10 @@ export default function Home() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-2">
               <button
                 onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px] hover:bg-white/5 border border-white/10 hover:border-white/20"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -217,7 +222,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/deepfake-memory")}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px] hover:bg-white/5 border border-white/10 hover:border-white/20"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -230,13 +235,13 @@ export default function Home() {
               </button>
               <button
                 onClick={() => router.push("/verify")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px] hover:bg-white/5 border border-white/10 hover:border-white/20"
               >
                 VERIFY
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px]"
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 min-h-[44px] hover:bg-white/5 border border-white/10 hover:border-white/20"
               >
                 MISSION
               </button>
@@ -244,20 +249,20 @@ export default function Home() {
 
             <button
               onClick={toggleMobileMenu}
-              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-3 text-white rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-white/5"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4">
+            <div className="md:hidden mt-6 rounded-2xl p-6 space-y-3 bg-white/5 backdrop-blur-xl border border-white/10">
               <button
                 onClick={() => {
                   handleLogin()
                   setMobileMenuOpen(false)
                 }}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px] hover:bg-white/10 border border-white/10"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -269,7 +274,7 @@ export default function Home() {
                   router.push("/deepfake-memory")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px] hover:bg-white/10 border border-white/10"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -285,7 +290,7 @@ export default function Home() {
                   router.push("/verify")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px] hover:bg-white/10 border border-white/10"
               >
                 VERIFY
               </button>
@@ -294,7 +299,7 @@ export default function Home() {
                   router.push("/about")
                   setMobileMenuOpen(false)
                 }}
-                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px]"
+                className="w-full px-4 py-4 rounded-xl text-white text-base font-medium transition-all duration-300 min-h-[48px] hover:bg-white/10 border border-white/10"
               >
                 MISSION
               </button>
@@ -305,43 +310,55 @@ export default function Home() {
 
       {/* Main Content - Enhanced Premium Design */}
       <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
-        <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
-          <div className="relative">
-            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter">
+        <div className="text-center max-w-6xl mx-auto w-full space-y-8 sm:space-y-12">
+          <div className="relative space-y-6">
+            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter transition-all duration-700">
               APEX VERIFY AI
             </h1>
-            <div className="absolute -bottom-3 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="flex items-center justify-center space-x-3">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/30 to-white/30" />
+              <div className="h-1 w-1 rounded-full bg-white/40" />
+              <div className="h-px w-16 bg-gradient-to-l from-transparent via-white/30 to-white/30" />
+            </div>
           </div>
 
           <div className="w-full max-w-3xl mx-auto px-2">
             <div
               onClick={handleFileUpload}
-              className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
+              className="group relative w-full cursor-pointer transform transition-all duration-500 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500">
-                <div className="flex items-center justify-between h-16 sm:h-18 px-6 sm:px-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-full rounded-2xl overflow-hidden transition-all duration-500 bg-white/5 backdrop-blur-sm border border-white/10 group-hover:border-white/20 group-hover:bg-white/10">
+                <div className="flex items-center justify-between h-16 sm:h-20 px-6 sm:px-8">
                   <div className="flex items-center space-x-4 sm:space-x-6 flex-1 min-w-0">
-                    <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 flex-shrink-0" />
-                    <span className="text-white/70 text-base sm:text-lg font-light tracking-wide truncate">
+                    <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 group-hover:text-white transition-colors duration-300 flex-shrink-0" />
+                    <span className="text-white/70 group-hover:text-white text-base sm:text-lg font-light tracking-widest truncate transition-colors duration-300">
                       UPLOAD • ANALYZE • VERIFY
                     </span>
                   </div>
-                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4">
-                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 flex-shrink-0 ml-4 border border-white/10 group-hover:border-white/20">
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 max-w-4xl mx-auto px-4">
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter">
+          <div className="space-y-4 max-w-4xl mx-auto px-4">
+            <div className="relative rounded-2xl overflow-hidden p-8 sm:p-10 bg-white/5 backdrop-blur-sm border border-white/10">
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <p className="text-white/90 text-lg sm:text-xl font-black leading-tight tracking-tighter">
                 EMPOWERING THE CREATOR ECONOMY WITH AUTHENTIC CONTENT VERIFICATION.
               </p>
-              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter mt-3">
+              <div className="my-6 flex items-center justify-center space-x-2">
+                <div className="h-px w-8 bg-white/20" />
+                <div className="h-1 w-1 rounded-full bg-white/30" />
+                <div className="h-px w-8 bg-white/20" />
+              </div>
+              <p className="text-white/70 text-base sm:text-lg font-black leading-tight tracking-tighter">
                 RESTORING TRUST. PRESERVING AUTHENTICITY. PROTECTING GENUINE CREATIVITY.
               </p>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             </div>
           </div>
         </div>
