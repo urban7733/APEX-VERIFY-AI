@@ -102,91 +102,107 @@ const AboutPage = () => {
       </nav>
 
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black leading-none tracking-tighter premium-heading mb-6 sm:mb-8">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent block">
-              APEX VERIFY AI
-            </span>
-            <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent block text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mt-2 sm:mt-4 tracking-wide">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 sm:mb-24">
+            <h2 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tighter premium-heading mb-4 sm:mb-6">
+              <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent block">
+                APEX VERIFY AI
+              </span>
+            </h2>
+            <p className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white/90 max-w-4xl mx-auto">
               THE TRUTH STANDARD FOR THE CREATOR ECONOMY
-            </span>
-          </h2>
+            </p>
+          </div>
 
-          <div className="space-y-8">
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter mb-4 sm:mb-6">
-                IN A DIGITAL WORLD FLOODED WITH AI EDITS, DEEPFAKES, AND PHOTOSHOP TRICKS, APEX VERIFY AI EXISTS FOR ONE
-                MISSION: TO PROTECT CREATORS AND RESTORE AUTHENTICITY.
-              </p>
-
-              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter">
-                WHETHER YOU'RE AN INFLUENCER, ATHLETE, ARTIST, OR ENTREPRENEUR — YOUR CONTENT DESERVES TO BE TRUSTED.
-                OUR PLATFORM DELIVERS A SINGLE, UNSHAKABLE VERDICT ON ANY PHOTO OR VIDEO: REAL OR MANIPULATED.
-              </p>
+          <div className="space-y-12 sm:space-y-16">
+            {/* Mission Statement - Full Width */}
+            <div className="border border-white/10 rounded-2xl p-8 sm:p-12 bg-white/[0.02]">
+              <div className="max-w-4xl mx-auto space-y-6">
+                <p className="text-white text-xl sm:text-2xl font-black leading-tight tracking-tight">
+                  IN A DIGITAL WORLD FLOODED WITH AI EDITS, DEEPFAKES, AND PHOTOSHOP TRICKS, APEX VERIFY AI EXISTS FOR
+                  ONE MISSION: TO PROTECT CREATORS AND RESTORE AUTHENTICITY.
+                </p>
+                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <p className="text-white/70 text-lg sm:text-xl font-medium leading-relaxed">
+                  WHETHER YOU'RE AN INFLUENCER, ATHLETE, ARTIST, OR ENTREPRENEUR — YOUR CONTENT DESERVES TO BE TRUSTED.
+                  OUR PLATFORM DELIVERS A SINGLE, UNSHAKABLE VERDICT ON ANY PHOTO OR VIDEO: REAL OR MANIPULATED.
+                </p>
+              </div>
             </div>
 
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white mb-4 sm:mb-6 tracking-tighter">
-                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                  WHY IT MATTERS
-                </span>
-              </h3>
-
-              <p className="text-white/80 text-base sm:text-lg font-black leading-tight tracking-tighter">
-                THE CREATOR ECONOMY THRIVES ON CREDIBILITY. BRANDS, COMMUNITIES, AND FANS FOLLOW THOSE WHO ARE GENUINE.
-                APEX VERIFY AI MAKES SURE THAT YOUR WORK — YOUR IMAGE, YOUR REPUTATION — CAN'T BE HIJACKED BY FAKE
-                MEDIA.
-              </p>
-            </div>
-
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white mb-6 sm:mb-8 tracking-tighter">
-                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                  WHAT WE DO
-                </span>
-              </h3>
-
-              <ul className="space-y-8 sm:space-y-6 list-none">
-                <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
-                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter">
-                    INSTANT AUTHENTICITY CHECKS ON UPLOADS.
-                  </span>
-                </li>
-                <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
-                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter">
-                    CLASSIFICATION OF MANIPULATION — DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP.
-                  </span>
-                </li>
-                <li className="flex items-start gap-4 sm:gap-3">
-                  <span className="text-white/60 flex-shrink-0 mt-2 sm:mt-1 text-2xl sm:text-xl font-black">•</span>
-                  <span className="flex-1 text-xl sm:text-xl font-black leading-relaxed text-white tracking-wide sm:tracking-tighter">
-                    A VERDICT BUILT FOR CLARITY: REAL. OR MANIPULATED.
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white mb-4 sm:mb-6 tracking-tighter">
-                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                  THE VISION
-                </span>
-              </h3>
-
-              <div className="relative my-8 sm:my-12 p-6 sm:p-8 rounded-2xl">
-                <p className="relative text-lg sm:text-xl md:text-2xl font-black text-center leading-tight tracking-tighter">
-                  <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent">
-                    "THE LAST 10 YEARS, WE PAID TO REMOVE WATERMARKS. THE NEXT 10 YEARS, WE'LL PAY TO HAVE THEM ON —
-                    PROTECTING CREATORS, ENFORCING AUTHENTICITY, AND RECLAIMING DIGITAL TRUST."
-                  </span>
+            {/* Two Column Layout for Why & What */}
+            <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
+              {/* Why It Matters */}
+              <div className="border border-white/10 rounded-2xl p-8 sm:p-10 bg-white/[0.02] flex flex-col">
+                <div className="mb-6">
+                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">WHY IT MATTERS</h3>
+                  <div className="h-1 w-16 bg-white/80 mt-3 rounded-full" />
+                </div>
+                <p className="text-white/80 text-base sm:text-lg font-medium leading-relaxed flex-1">
+                  THE CREATOR ECONOMY THRIVES ON CREDIBILITY. BRANDS, COMMUNITIES, AND FANS FOLLOW THOSE WHO ARE
+                  GENUINE. APEX VERIFY AI MAKES SURE THAT YOUR WORK — YOUR IMAGE, YOUR REPUTATION — CAN'T BE HIJACKED BY
+                  FAKE MEDIA.
                 </p>
               </div>
 
-              <p className="text-white/80 text-base sm:text-lg font-black leading-tight tracking-tighter">
-                APEX VERIFY AI IS THAT WATERMARK FOR TRUTH — PROOF OF OWNERSHIP, AUTHENTICITY, AND VALUE.
-              </p>
+              {/* What We Do */}
+              <div className="border border-white/10 rounded-2xl p-8 sm:p-10 bg-white/[0.02] flex flex-col">
+                <div className="mb-6">
+                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">WHAT WE DO</h3>
+                  <div className="h-1 w-16 bg-white/80 mt-3 rounded-full" />
+                </div>
+                <ul className="space-y-4 flex-1">
+                  <li className="flex items-start gap-3">
+                    <span className="text-white/40 flex-shrink-0 mt-1 text-lg font-black">→</span>
+                    <span className="text-white/90 text-base sm:text-lg font-medium leading-relaxed">
+                      INSTANT AUTHENTICITY CHECKS ON UPLOADS
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-white/40 flex-shrink-0 mt-1 text-lg font-black">→</span>
+                    <span className="text-white/90 text-base sm:text-lg font-medium leading-relaxed">
+                      CLASSIFICATION OF MANIPULATION TYPES
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-white/40 flex-shrink-0 mt-1 text-lg font-black">→</span>
+                    <span className="text-white/90 text-base sm:text-lg font-medium leading-relaxed">
+                      CLEAR VERDICT: REAL OR MANIPULATED
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Vision - Full Width Featured */}
+            <div className="border-2 border-white/20 rounded-2xl p-10 sm:p-16 bg-gradient-to-br from-white/[0.03] to-white/[0.01]">
+              <div className="max-w-4xl mx-auto space-y-8">
+                <div className="text-center">
+                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-3">THE VISION</h3>
+                  <div className="h-1 w-24 bg-white/80 mx-auto rounded-full" />
+                </div>
+
+                <blockquote className="relative py-8 sm:py-12">
+                  <div className="absolute top-0 left-0 text-6xl sm:text-8xl text-white/10 font-black leading-none">
+                    "
+                  </div>
+                  <p className="relative text-xl sm:text-2xl md:text-3xl font-black text-center leading-tight tracking-tight px-8 sm:px-12">
+                    <span className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent">
+                      THE LAST 10 YEARS, WE PAID TO REMOVE WATERMARKS. THE NEXT 10 YEARS, WE'LL PAY TO HAVE THEM ON —
+                      PROTECTING CREATORS, ENFORCING AUTHENTICITY, AND RECLAIMING DIGITAL TRUST.
+                    </span>
+                  </p>
+                  <div className="absolute bottom-0 right-0 text-6xl sm:text-8xl text-white/10 font-black leading-none">
+                    "
+                  </div>
+                </blockquote>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                <p className="text-white/80 text-lg sm:text-xl font-medium text-center leading-relaxed">
+                  APEX VERIFY AI IS THAT WATERMARK FOR TRUTH — PROOF OF OWNERSHIP, AUTHENTICITY, AND VALUE.
+                </p>
+              </div>
             </div>
           </div>
         </div>
