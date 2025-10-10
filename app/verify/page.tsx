@@ -14,7 +14,7 @@ import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import { AnalysisAnimation } from "@/components/analysis_animation"
+import LaserFlow from "@/components/LaserFlow"
 
 // Lazy load heavy components
 const EnhancedAnalysisDisplay = dynamic(
@@ -1358,17 +1358,17 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           /* Minimalist Upload Section - Mobile Optimized */
           <div className="text-center space-y-8 sm:space-y-12">
             <div className="relative">
-              <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter premium-heading">
+              <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-none tracking-tighter premium-heading">
                 APEX VERIFY AI
               </h1>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 sm:w-24 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
             </div>
 
-            <div className="space-y-3 max-w-4xl mx-auto px-4">
-              <p className="text-white/80 text-lg sm:text-xl font-black leading-tight tracking-tighter premium-heading">
+            <div className="space-y-2 sm:space-y-3 max-w-4xl mx-auto px-4">
+              <p className="text-white/80 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading">
                 ADVANCED AI-POWERED DEEPFAKE DETECTION TECHNOLOGY.
               </p>
-              <p className="text-white/60 text-base sm:text-lg font-black leading-tight tracking-tighter premium-heading">
+              <p className="text-white/60 text-sm sm:text-base font-black leading-tight tracking-tighter premium-heading">
                 UPLOAD IMAGES, VIDEOS, OR AUDIO FILES TO DETECT DEEPFAKES AND MANIPULATED CONTENT.
               </p>
             </div>
@@ -1415,10 +1415,10 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           </div>
         ) : (
           /* Clean Analysis Section - Mobile Optimized */
-          <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-6">
             {/* File Preview Card - Mobile Optimized */}
-            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+            <div className="relative rounded-xl sm:rounded-2xl overflow-hidden p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-3 sm:space-x-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     {file.type.startsWith("image/") ? (
@@ -1458,7 +1458,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               </div>
 
               {previewUrl && (
-                <div className="mb-6 sm:mb-8">
+                <div className="mb-4 sm:mb-6">
                   {file.type.startsWith("image/") ? (
                     <div className="relative max-w-lg mx-auto">
                       <MemoizedImage
@@ -1496,14 +1496,20 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               )}
             </div>
 
-            {/* Analysis Animation */}
-      {isAnalyzing && (
-        <AnalysisAnimation
-          isActive={isAnalyzing}
-          onComplete={() => {}}
-          fileType={file?.type.startsWith("image/") ? "image" : file?.type.startsWith("video/") ? "video" : "audio"}
-        />
-      )}
+            {/* Laser Flow Animation */}
+            {isAnalyzing && (
+              <div className="fixed bottom-0 left-0 right-0 h-20 z-50">
+                <LaserFlow 
+                  className="w-full h-full"
+                  color="#FF79C6"
+                  flowSpeed={0.8}
+                  wispIntensity={3.0}
+                  fogIntensity={0.3}
+                  horizontalBeamOffset={0.0}
+                  verticalBeamOffset={0.0}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

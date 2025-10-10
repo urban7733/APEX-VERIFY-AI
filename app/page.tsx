@@ -184,7 +184,7 @@ export default function Home() {
     <div className="h-screen text-white antialiased relative overflow-hidden bg-black">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
 
-      <div className="absolute top-4 sm:top-8 left-1/2 transform -translate-x-1/2 z-30">
+      <div className="absolute top-6 sm:top-8 left-1/2 transform -translate-x-1/2 z-30">
         <div className="relative">
           <div className="absolute inset-0 blur-2xl bg-white/5 rounded-full" />
           <Image
@@ -192,7 +192,7 @@ export default function Home() {
             alt="Apex Verify AI"
             width={150}
             height={150}
-            className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 filter drop-shadow-2xl transition-transform duration-700 hover:scale-105"
+            className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 filter drop-shadow-2xl transition-transform duration-700 hover:scale-105"
             priority
           />
         </div>
@@ -309,16 +309,16 @@ export default function Home() {
       </nav>
 
       {/* Main Content - Enhanced Premium Design */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-120px)] px-4 sm:px-6">
-        <div className="text-center max-w-6xl mx-auto w-full space-y-8 sm:space-y-12">
-          <div className="relative space-y-6">
-            <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-black text-white leading-none tracking-tighter transition-all duration-700">
+      <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100vh-140px)] px-4 sm:px-6">
+        <div className="text-center max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
+          <div className="relative space-y-4 sm:space-y-6">
+            <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-none tracking-tighter transition-all duration-700">
               APEX VERIFY AI
             </h1>
-            <div className="flex items-center justify-center space-x-3">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/30 to-white/30" />
+            <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+              <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent via-white/30 to-white/30" />
               <div className="h-1 w-1 rounded-full bg-white/40" />
-              <div className="h-px w-16 bg-gradient-to-l from-transparent via-white/30 to-white/30" />
+              <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent via-white/30 to-white/30" />
             </div>
           </div>
 
@@ -344,18 +344,18 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 max-w-4xl mx-auto px-4">
-            <div className="relative rounded-2xl overflow-hidden p-8 sm:p-10 bg-white/5 backdrop-blur-sm border border-white/10">
+          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto px-4">
+            <div className="relative rounded-xl sm:rounded-2xl overflow-hidden p-6 sm:p-8 bg-white/5 backdrop-blur-sm border border-white/10">
               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <p className="text-white/90 text-lg sm:text-xl font-black leading-tight tracking-tighter">
+              <p className="text-white/90 text-base sm:text-lg font-black leading-tight tracking-tighter">
                 EMPOWERING THE CREATOR ECONOMY WITH AUTHENTIC CONTENT VERIFICATION.
               </p>
-              <div className="my-6 flex items-center justify-center space-x-2">
-                <div className="h-px w-8 bg-white/20" />
+              <div className="my-4 sm:my-6 flex items-center justify-center space-x-2">
+                <div className="h-px w-6 sm:w-8 bg-white/20" />
                 <div className="h-1 w-1 rounded-full bg-white/30" />
-                <div className="h-px w-8 bg-white/20" />
+                <div className="h-px w-6 sm:w-8 bg-white/20" />
               </div>
-              <p className="text-white/70 text-base sm:text-lg font-black leading-tight tracking-tighter">
+              <p className="text-white/70 text-sm sm:text-base font-black leading-tight tracking-tighter">
                 RESTORING TRUST. PRESERVING AUTHENTICITY. PROTECTING GENUINE CREATIVITY.
               </p>
               <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />

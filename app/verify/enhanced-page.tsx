@@ -6,7 +6,7 @@ import { Upload, ArrowLeft, X, Download, FileText, CheckCircle, AlertTriangle } 
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/contexts/auth-context"
+import LaserFlow from "@/components/LaserFlow"
 
 interface EnhancedVerificationResult {
   success: boolean
@@ -454,6 +454,21 @@ Advanced DINOv3-based Deepfake Detection System
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Laser Flow Animation */}
+              {isAnalyzing && (
+                <div className="fixed bottom-0 left-0 right-0 h-20 z-50">
+                  <LaserFlow 
+                    className="w-full h-full"
+                    color="#FF79C6"
+                    flowSpeed={0.8}
+                    wispIntensity={3.0}
+                    fogIntensity={0.3}
+                    horizontalBeamOffset={0.0}
+                    verticalBeamOffset={0.0}
+                  />
                 </div>
               )}
 
