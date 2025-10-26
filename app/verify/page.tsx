@@ -1515,31 +1515,31 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
       </div>
 
       {result && tensorFlowResult && (
-        <div className="space-y-12 max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="space-y-8 sm:space-y-12 max-w-6xl mx-auto px-4 sm:px-6">
           {/* Glassmorphic hero result display with backdrop blur and gradients */}
           <div className="relative">
             {/* Glassmorphic background with subtle gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-white/2 to-transparent backdrop-blur-xl rounded-3xl border border-white/10"></div>
 
-            <div className="relative text-center space-y-8 p-8 sm:p-12">
-              <div className="space-y-4">
+            <div className="relative text-center space-y-6 sm:space-y-8 p-6 sm:p-10">
+              <div className="space-y-3 sm:space-y-4">
                 <div
-                  className={`text-6xl sm:text-8xl font-black tracking-tighter ${
+                  className={`text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter ${
                     result.isDeepfake
                       ? "text-red-400 drop-shadow-[0_0_30px_rgba(248,113,113,0.3)]"
                       : "text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,0.3)]"
                   } animate-pulse`}
                 >
-                  {result.isDeepfake ? "FAKE" : "REAL"}
+                  {result.isDeepfake ? "MANIPULATED" : "AUTHENTIC"}
                 </div>
-                <div className="text-xl sm:text-2xl font-light text-white/70 tracking-wide">VERIFICATION COMPLETE</div>
+                <div className="text-lg sm:text-xl font-light text-white/70 tracking-wide">VERIFICATION COMPLETE</div>
               </div>
 
-              <div className="space-y-3">
-                <div className="text-sm font-medium text-white/60 uppercase tracking-widest">CONFIDENCE LEVEL</div>
+              <div className="space-y-2 sm:space-y-3">
+                <div className="text-xs sm:text-sm font-medium text-white/60 uppercase tracking-widest">CONFIDENCE LEVEL</div>
                 <div className="relative">
                   <div className="absolute inset-0 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10"></div>
-                  <div className="relative text-4xl sm:text-5xl font-black text-white py-4">
+                  <div className="relative text-3xl sm:text-4xl font-black text-white py-3 sm:py-4">
                     {Math.round((result.confidence || 0.85) * 100)}%
                   </div>
                 </div>
@@ -1547,22 +1547,22 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div
               className={`relative group transition-all duration-500 transform hover:scale-105 ${
                 !result.isDeepfake ? "scale-105" : "hover:scale-102"
               }`}
             >
               <div
-                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
                   !result.isDeepfake
                     ? "bg-gradient-to-br from-green-500/20 via-green-400/10 to-transparent border-green-400/40 shadow-[0_0_30px_rgba(74,222,128,0.2)]"
                     : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
               ></div>
-              <div className="relative p-6 text-center space-y-2">
-                <div className="text-2xl font-black">REAL</div>
-                <div className="text-xs text-white/60 uppercase tracking-wider">Authentic Media</div>
+              <div className="relative p-4 sm:p-6 text-center space-y-1 sm:space-y-2">
+                <div className="text-lg sm:text-2xl font-black">REAL</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider">Authentic</div>
               </div>
             </div>
 
@@ -1577,7 +1577,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               }}
             >
               <div
-                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
                   result.isDeepfake && result.manipulationType === "manual"
                     ? "bg-gradient-to-br from-orange-500/20 via-orange-400/10 to-transparent border-orange-400/40 shadow-[0_0_30px_rgba(251,146,60,0.2)]"
                     : selectedVisualization === "manual"
@@ -1585,9 +1585,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                       : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
               ></div>
-              <div className="relative p-6 text-center space-y-2">
-                <div className="text-2xl font-black">EDITED</div>
-                <div className="text-xs text-white/60 uppercase tracking-wider">Manual Editing</div>
+              <div className="relative p-4 sm:p-6 text-center space-y-1 sm:space-y-2">
+                <div className="text-lg sm:text-2xl font-black">EDITED</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider">Manual</div>
               </div>
             </div>
 
@@ -1602,7 +1602,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               }}
             >
               <div
-                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
                   result.isDeepfake && result.manipulationType === "ai"
                     ? "bg-gradient-to-br from-blue-500/20 via-blue-400/10 to-transparent border-blue-400/40 shadow-[0_0_30px_rgba(96,165,250,0.2)]"
                     : selectedVisualization === "ai"
@@ -1610,9 +1610,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                       : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
               ></div>
-              <div className="relative p-6 text-center space-y-2">
-                <div className="text-2xl font-black">AI GEN</div>
-                <div className="text-xs text-white/60 uppercase tracking-wider">AI Generated</div>
+              <div className="relative p-4 sm:p-6 text-center space-y-1 sm:space-y-2">
+                <div className="text-lg sm:text-2xl font-black">AI GEN</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider">Generated</div>
               </div>
             </div>
 
@@ -1627,7 +1627,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               }}
             >
               <div
-                className={`absolute inset-0 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${
+                className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
                   result.isDeepfake && result.manipulationType === "deepfake"
                     ? "bg-gradient-to-br from-red-500/20 via-red-400/10 to-transparent border-red-400/40 shadow-[0_0_30px_rgba(248,113,113,0.2)]"
                     : selectedVisualization === "deepfake"
@@ -1635,9 +1635,9 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                       : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
               ></div>
-              <div className="relative p-6 text-center space-y-2">
-                <div className="text-2xl font-black">DEEPFAKE</div>
-                <div className="text-xs text-white/60 uppercase tracking-wider">Face Swap</div>
+              <div className="relative p-4 sm:p-6 text-center space-y-1 sm:space-y-2">
+                <div className="text-lg sm:text-2xl font-black">DEEPFAKE</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider">Face Swap</div>
               </div>
             </div>
           </div>
@@ -1651,17 +1651,17 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 <div className="text-sm text-white/60 uppercase tracking-widest">MANIPULATION DETECTION ACTIVE</div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Left: Image with overlay regions */}
-                <Card>
-                  <CardHeader className="p-6">
-                    <CardTitle>Analyzed Image</CardTitle>
+                <Card className="flex flex-col">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Analyzed Image</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10">
+                  <CardContent className="p-4 sm:p-6 pt-0 flex-1 flex flex-col">
+                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 flex-1">
                       {previewUrl && file?.type.startsWith("image/") && (
                         <>
-                          <img src={previewUrl} alt="Analyzed" className="w-full h-auto block select-none" />
+                          <img src={previewUrl} alt="Analyzed" className="w-full h-full object-contain block select-none" />
                           {/* Overlay regions */}
                           <div className="absolute inset-0 pointer-events-none">
                             {regions.map((r, idx) => (
@@ -1709,12 +1709,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                 </Card>
 
                 {/* Right: Zoom + details */}
-                <Card>
-                  <CardHeader className="p-6">
-                    <CardTitle>Zoom & Details</CardTitle>
+                <Card className="flex flex-col">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Zoom & Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6 pt-0 space-y-6">
-                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/40">
+                  <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6 flex-1 flex flex-col">
+                    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/40 flex-1">
                       {previewUrl && regions.length > 0 && selectedRegionIndex !== null ? (
                         (() => {
                           const r = regions[selectedRegionIndex]
@@ -1724,7 +1724,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                             <img
                               src={previewUrl}
                               alt="Zoom view"
-                              className="w-full h-auto block select-none"
+                              className="w-full h-full object-contain block select-none"
                               style={{ transform: `scale(${zoomScale})`, transformOrigin: `${cx}% ${cy}%` }}
                             />
                           )
@@ -1735,8 +1735,8 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                     </div>
 
                     {regions.length > 0 && selectedRegionIndex !== null && (
-                      <div className="space-y-2 text-sm text-soft">
-                        <div className="glass-divider" />
+                      <div className="space-y-2 text-xs sm:text-sm text-white/60">
+                        <div className="border-t border-white/10 pt-2" />
                         <div className="flex items-center justify-between">
                           <span>Region</span>
                           <span className="text-white">{selectedRegionIndex + 1} / {regions.length}</span>
@@ -1759,28 +1759,31 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Button
               onClick={() => downloadWithWatermark(file, previewUrl, result?.watermarkedImageBase64)}
-              className="relative group bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-xl border border-white/30 text-white hover:from-white/30 hover:to-white/20 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105"
+              className="relative group bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-xl border border-white/30 text-white hover:from-white/30 hover:to-white/20 font-black text-sm sm:text-base py-4 sm:py-5 tracking-wider transition-all duration-300 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105"
             >
-              <Download className="h-5 w-5 mr-3" />
-              DOWNLOAD SEALED
+              <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              <span className="hidden sm:inline">DOWNLOAD SEALED</span>
+              <span className="sm:hidden">DOWNLOAD</span>
             </Button>
 
             <Button
               onClick={downloadReport}
-              className="relative group bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl border-2 border-white/40 text-white hover:border-white/60 hover:bg-white/20 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl hover:scale-105"
+              className="relative group bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl border-2 border-white/40 text-white hover:border-white/60 hover:bg-white/20 font-black text-sm sm:text-base py-4 sm:py-5 tracking-wider transition-all duration-300 rounded-xl sm:rounded-2xl hover:scale-105"
             >
-              <FileText className="h-5 w-5 mr-3" />
-              GET REPORT
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              <span className="hidden sm:inline">GET REPORT</span>
+              <span className="sm:hidden">REPORT</span>
             </Button>
 
             <Button
               onClick={resetAnalysis}
-              className="relative group bg-gradient-to-r from-white/5 to-transparent backdrop-blur-xl border-2 border-white/20 text-white/70 hover:border-white/40 hover:text-white hover:bg-white/10 font-black text-lg py-6 tracking-wider transition-all duration-300 rounded-2xl hover:scale-105"
+              className="relative group bg-gradient-to-r from-white/5 to-transparent backdrop-blur-xl border-2 border-white/20 text-white/70 hover:border-white/40 hover:text-white hover:bg-white/10 font-black text-sm sm:text-base py-4 sm:py-5 tracking-wider transition-all duration-300 rounded-xl sm:rounded-2xl hover:scale-105"
             >
-              NEW ANALYSIS
+              <span className="hidden sm:inline">NEW ANALYSIS</span>
+              <span className="sm:hidden">NEW</span>
             </Button>
           </div>
         </div>
