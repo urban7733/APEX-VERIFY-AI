@@ -675,6 +675,22 @@ textarea:focus-visible {
   animation-delay: -4s;
 }
 
+/* Adding smooth floating animation for the hero logo */
+@keyframes floatSmooth {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.02);
+  }
+}
+
+.animate-float {
+  animation: floatSmooth 6s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Enhanced glassmorphic effects for better depth */
 .glass-overlay {
   background: linear-gradient(
@@ -686,4 +702,27 @@ textarea:focus-visible {
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Adding chrome/glass text effect to match logo aesthetic */
+.chrome-text {
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.4),
+    0 1px 0 #ccc,
+    0 2px 0 #c9c9c9,
+    0 3px 0 #bbb,
+    0 4px 0 #b9b9b9,
+    0 5px 0 #aaa,
+    0 6px 1px rgba(0, 0, 0, 0.1),
+    0 0 5px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 3px 5px rgba(0, 0, 0, 0.2),
+    0 5px 10px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.2),
+    0 20px 20px rgba(0, 0, 0, 0.15);
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+  filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.3));
 }
