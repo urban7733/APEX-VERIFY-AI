@@ -122,7 +122,7 @@ export default function Home() {
           }}
         >
           <Image
-            src="/apex-new-logo.png"
+            src="/images/design-mode/ChatGPT%20Image%20Oct%2026%2C%202025%20at%2003_34_35%20AM.png"
             alt="Apex Verify AI"
             width={600}
             height={600}
