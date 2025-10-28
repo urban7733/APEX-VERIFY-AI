@@ -151,66 +151,90 @@ export default function Home() {
       </div>
 
       {/* Mission Section */}
-      <div
-        className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48"
-        style={{
-          opacity: Math.min(1, Math.max(0, (scrollY - 200) / 400)),
-          transform: `translateY(${Math.max(0, 100 - (scrollY - 200) / 5)}px)`,
-        }}
-      >
+      <div className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48">
         <div className="max-w-5xl mx-auto space-y-16">
           {/* Title */}
-          <div className="text-center">
+          <div 
+            className="text-center"
+            style={{
+              opacity: Math.min(1, Math.max(0, (scrollY - 150) / 300)),
+              transform: `translateY(${Math.max(0, 60 - (scrollY - 150) / 8)}px)`,
+            }}
+          >
             <h2
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-[-0.04em] leading-[0.9]"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-[-0.05em] leading-[0.85] uppercase"
               style={{
                 textShadow: `
-                  0 0 20px rgba(255, 255, 255, 0.3),
-                  0 0 40px rgba(255, 255, 255, 0.2),
-                  0 0 60px rgba(255, 255, 255, 0.1)
+                  0 0 30px rgba(255, 255, 255, 0.4),
+                  0 0 60px rgba(255, 255, 255, 0.2),
+                  0 0 90px rgba(255, 255, 255, 0.1)
                 `,
               }}
             >
               Our Mission
             </h2>
-            <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8" />
+            <div className="h-[2px] w-32 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto mt-10" />
           </div>
 
-          {/* Mission Text */}
-          <div className="space-y-8 text-center">
-            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
+          {/* Mission Text - Staggered Animation */}
+          <div className="space-y-10 text-center">
+            <p 
+              className="text-lg sm:text-xl md:text-2xl text-white/85 font-light leading-relaxed tracking-wide"
+              style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 250) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 250) / 10)}px)`,
+              }}
+            >
               In a time when artificial intelligence can generate endless content, the line between what's real and
               what's synthetic is fading fast.
             </p>
 
             <p
-              className="text-xl sm:text-2xl md:text-3xl text-white font-black leading-relaxed tracking-[-0.02em]"
+              className="text-2xl sm:text-3xl md:text-4xl text-white font-semibold leading-tight tracking-[-0.03em]"
               style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 350) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 350) / 10)}px)`,
                 textShadow: `
-                  0 0 15px rgba(255, 255, 255, 0.3),
-                  0 0 30px rgba(255, 255, 255, 0.2)
+                  0 0 20px rgba(255, 255, 255, 0.35),
+                  0 0 40px rgba(255, 255, 255, 0.2)
                 `,
               }}
             >
               We're building the new standard for authenticity in the digital world.
             </p>
 
-            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
+            <p 
+              className="text-lg sm:text-xl md:text-2xl text-white/85 font-light leading-relaxed tracking-wide"
+              style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 450) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 450) / 10)}px)`,
+              }}
+            >
               Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work
               is truly theirs — created by human imagination, not algorithms.
             </p>
 
-            <p className="text-base sm:text-lg md:text-xl text-white/70 font-black leading-relaxed tracking-tight">
+            <p 
+              className="text-base sm:text-lg md:text-xl text-white/75 font-light leading-relaxed tracking-wide"
+              style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 550) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 550) / 10)}px)`,
+              }}
+            >
               Our technology integrates across the entire digital economy — from social media and branding to design,
               fashion, film, and advertising — anywhere visual content defines value.
             </p>
 
+            <div className="pt-8" />
+
             <p
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em] pt-8"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-[1.1] tracking-[-0.03em]"
               style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 650) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 650) / 10)}px)`,
                 textShadow: `
-                  0 0 15px rgba(255, 255, 255, 0.4),
-                  0 0 30px rgba(255, 255, 255, 0.2)
+                  0 0 25px rgba(255, 255, 255, 0.4),
+                  0 0 50px rgba(255, 255, 255, 0.25)
                 `,
               }}
             >
@@ -218,19 +242,27 @@ export default function Home() {
             </p>
 
             <p
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-[1.1] tracking-[-0.03em]"
               style={{
+                opacity: Math.min(1, Math.max(0, (scrollY - 750) / 300)),
+                transform: `translateY(${Math.max(0, 50 - (scrollY - 750) / 10)}px)`,
                 textShadow: `
-                  0 0 15px rgba(255, 255, 255, 0.4),
-                  0 0 30px rgba(255, 255, 255, 0.2)
+                  0 0 25px rgba(255, 255, 255, 0.4),
+                  0 0 50px rgba(255, 255, 255, 0.25)
                 `,
               }}
             >
               but to those who can prove they create for real.
             </p>
 
-            <div className="pt-8">
-              <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-black leading-relaxed tracking-tight">
+            <div className="pt-10">
+              <p 
+                className="text-lg sm:text-xl md:text-2xl text-white/85 font-medium leading-relaxed tracking-wide"
+                style={{
+                  opacity: Math.min(1, Math.max(0, (scrollY - 850) / 300)),
+                  transform: `translateY(${Math.max(0, 50 - (scrollY - 850) / 10)}px)`,
+                }}
+              >
                 With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
                 world increasingly shaped by artificial intelligence.
               </p>
