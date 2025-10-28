@@ -384,10 +384,10 @@ export default function Home() {
             </div>
 
             <div className="space-y-10">
-              <div className="relative aspect-square">
+              <div className="relative aspect-square overflow-hidden">
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05]" />
 
-                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center">
+                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center overflow-y-auto">
                   {!result && !isAnalyzing && (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center space-y-8">
