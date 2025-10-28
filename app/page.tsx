@@ -115,7 +115,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#000000] text-white antialiased relative">
       <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
         <div
-          className="relative z-10 transition-all duration-300 ease-out"
+          className="relative z-10 transition-all duration-300 ease-out flex flex-col items-center gap-8"
           style={{
             opacity: logoOpacity,
             transform: `scale(${logoScale}) translateY(${scrollY * 0.5}px)`,
@@ -129,6 +129,18 @@ export default function Home() {
             className="w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] relative z-10 animate-float"
             priority
           />
+          
+          {/* Chrome Text Logo */}
+          <div className="relative w-full max-w-[800px] px-8">
+            <Image
+              src="/apexverifyailetter.jpeg"
+              alt="Apex Verify AI Text"
+              width={1200}
+              height={300}
+              className="w-full h-auto opacity-90 hover:opacity-100 transition-opacity duration-500"
+              priority
+            />
+          </div>
         </div>
 
         <div
