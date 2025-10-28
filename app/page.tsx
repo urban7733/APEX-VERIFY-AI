@@ -142,16 +142,6 @@ export default function Home() {
             />
           </div>
         </div>
-
-        <div
-          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20 transition-opacity duration-300"
-          style={{ opacity: logoOpacity }}
-        >
-          <div className="flex flex-col items-center space-y-3">
-            <div className="text-white/20 text-[10px] uppercase tracking-[0.4em] font-light">Scroll</div>
-            <div className="w-[1px] h-16 bg-gradient-to-b from-white/20 to-transparent animate-pulse" />
-          </div>
-        </div>
       </div>
 
       {/* Mission Section */}
