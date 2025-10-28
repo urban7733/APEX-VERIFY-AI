@@ -1,12 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Space_Grotesk } from "next/font/google"
+import { Montserrat } from "next/font/google"
 import "@/app/globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 
-const spaceGrotesk = Space_Grotesk({ 
+const montserrat = Montserrat({ 
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 })
 
@@ -25,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.className} antialiased bg-black text-white overflow-x-hidden`}>
+      <body className={`${montserrat.className} antialiased bg-black text-white overflow-x-hidden`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
