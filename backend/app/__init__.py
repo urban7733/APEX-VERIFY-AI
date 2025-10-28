@@ -1,2 +1,2 @@
-# APEX VERIFY AI Backend Package
-__version__ = "1.0.0"
+# Apex Verify AI Backend
+__version__ = "2.0.0"

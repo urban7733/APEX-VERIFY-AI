@@ -1,4 +1,13 @@
-# Models Package
-from .dinov3_model import DINOv3Analyzer
+from .response_models import (
+    DetectedObject,
+    ManipulationArea,
+    SpatialAnalysis,
+    AnalysisResponse
+)
 
-__all__ = ['DINOv3Analyzer']
+__all__ = [
+    'DetectedObject',
+    'ManipulationArea',
+    'SpatialAnalysis',
+    'AnalysisResponse'
+]
