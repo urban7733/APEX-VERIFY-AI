@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import { Upload, X } from "lucide-react"
+import { Upload, X, Download } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
@@ -107,6 +107,69 @@ export default function Home() {
     }
   }
 
+  const downloadWithWatermark = useCallback(async () => {
+    if (!previewUrl || !file) return
+
+    try {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
+
+      // Load the original image
+      const img = new window.Image()
+      img.crossOrigin = "anonymous"
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+        img.src = previewUrl
+      })
+
+      // Set canvas size to match image
+      canvas.width = img.width
+      canvas.height = img.height
+
+      // Draw original image
+      ctx.drawImage(img, 0, 0)
+
+      // Load watermark
+      const watermark = new window.Image()
+      watermark.crossOrigin = "anonymous"
+
+      await new Promise((resolve, reject) => {
+        watermark.onload = resolve
+        watermark.onerror = reject
+        watermark.src = "/watermark-logo.png"
+      })
+
+      // Calculate watermark size (10% of image width)
+      const watermarkWidth = img.width * 0.1
+      const watermarkHeight = (watermark.height / watermark.width) * watermarkWidth
+
+      // Position in top-left corner with padding
+      const padding = img.width * 0.02
+
+      // Draw watermark
+      ctx.drawImage(watermark, padding, padding, watermarkWidth, watermarkHeight)
+
+      // Convert to blob and download
+      canvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `verified-${file.name}`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, "image/png")
+    } catch (error) {
+      console.error("Failed to add watermark:", error)
+      alert("Failed to download with watermark. Please try again.")
+    }
+  }, [previewUrl, file])
+
   const logoOpacity = Math.max(0, 1 - scrollY / 400)
   const logoScale = Math.max(0.5, 1 - scrollY / 800)
   const contentOpacity = Math.min(1, scrollY / 300)
@@ -151,90 +214,66 @@ export default function Home() {
       </div>
 
       {/* Mission Section */}
-      <div className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48">
+      <div
+        className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48"
+        style={{
+          opacity: Math.min(1, Math.max(0, (scrollY - 200) / 400)),
+          transform: `translateY(${Math.max(0, 100 - (scrollY - 200) / 5)}px)`,
+        }}
+      >
         <div className="max-w-5xl mx-auto space-y-16">
           {/* Title */}
-          <div 
-            className="text-center"
-            style={{
-              opacity: Math.min(1, Math.max(0, (scrollY - 150) / 300)),
-              transform: `translateY(${Math.max(0, 60 - (scrollY - 150) / 8)}px)`,
-            }}
-          >
+          <div className="text-center">
             <h2
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-[-0.05em] leading-[0.85] uppercase"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-[-0.04em] leading-[0.9]"
               style={{
                 textShadow: `
-                  0 0 30px rgba(255, 255, 255, 0.4),
-                  0 0 60px rgba(255, 255, 255, 0.2),
-                  0 0 90px rgba(255, 255, 255, 0.1)
+                  0 0 20px rgba(255, 255, 255, 0.3),
+                  0 0 40px rgba(255, 255, 255, 0.2),
+                  0 0 60px rgba(255, 255, 255, 0.1)
                 `,
               }}
             >
               Our Mission
             </h2>
-            <div className="h-[2px] w-32 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto mt-10" />
+            <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8" />
           </div>
 
-          {/* Mission Text - Staggered Animation */}
-          <div className="space-y-10 text-center">
-            <p 
-              className="text-lg sm:text-xl md:text-2xl text-white/85 font-light leading-relaxed tracking-wide"
-              style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 250) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 250) / 10)}px)`,
-              }}
-            >
+          {/* Mission Text */}
+          <div className="space-y-8 text-center">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
               In a time when artificial intelligence can generate endless content, the line between what's real and
               what's synthetic is fading fast.
             </p>
 
             <p
-              className="text-2xl sm:text-3xl md:text-4xl text-white font-semibold leading-tight tracking-[-0.03em]"
+              className="text-xl sm:text-2xl md:text-3xl text-white font-black leading-relaxed tracking-[-0.02em]"
               style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 350) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 350) / 10)}px)`,
                 textShadow: `
-                  0 0 20px rgba(255, 255, 255, 0.35),
-                  0 0 40px rgba(255, 255, 255, 0.2)
+                  0 0 15px rgba(255, 255, 255, 0.3),
+                  0 0 30px rgba(255, 255, 255, 0.2)
                 `,
               }}
             >
               We're building the new standard for authenticity in the digital world.
             </p>
 
-            <p 
-              className="text-lg sm:text-xl md:text-2xl text-white/85 font-light leading-relaxed tracking-wide"
-              style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 450) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 450) / 10)}px)`,
-              }}
-            >
+            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
               Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work
               is truly theirs — created by human imagination, not algorithms.
             </p>
 
-            <p 
-              className="text-base sm:text-lg md:text-xl text-white/75 font-light leading-relaxed tracking-wide"
-              style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 550) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 550) / 10)}px)`,
-              }}
-            >
+            <p className="text-base sm:text-lg md:text-xl text-white/70 font-black leading-relaxed tracking-tight">
               Our technology integrates across the entire digital economy — from social media and branding to design,
               fashion, film, and advertising — anywhere visual content defines value.
             </p>
 
-            <div className="pt-8" />
-
             <p
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-[1.1] tracking-[-0.03em]"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em] pt-8"
               style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 650) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 650) / 10)}px)`,
                 textShadow: `
-                  0 0 25px rgba(255, 255, 255, 0.4),
-                  0 0 50px rgba(255, 255, 255, 0.25)
+                  0 0 15px rgba(255, 255, 255, 0.4),
+                  0 0 30px rgba(255, 255, 255, 0.2)
                 `,
               }}
             >
@@ -242,27 +281,19 @@ export default function Home() {
             </p>
 
             <p
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-[1.1] tracking-[-0.03em]"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em]"
               style={{
-                opacity: Math.min(1, Math.max(0, (scrollY - 750) / 300)),
-                transform: `translateY(${Math.max(0, 50 - (scrollY - 750) / 10)}px)`,
                 textShadow: `
-                  0 0 25px rgba(255, 255, 255, 0.4),
-                  0 0 50px rgba(255, 255, 255, 0.25)
+                  0 0 15px rgba(255, 255, 255, 0.4),
+                  0 0 30px rgba(255, 255, 255, 0.2)
                 `,
               }}
             >
               but to those who can prove they create for real.
             </p>
 
-            <div className="pt-10">
-              <p 
-                className="text-lg sm:text-xl md:text-2xl text-white/85 font-medium leading-relaxed tracking-wide"
-                style={{
-                  opacity: Math.min(1, Math.max(0, (scrollY - 850) / 300)),
-                  transform: `translateY(${Math.max(0, 50 - (scrollY - 850) / 10)}px)`,
-                }}
-              >
+            <div className="pt-8">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-black leading-relaxed tracking-tight">
                 With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
                 world increasingly shaped by artificial intelligence.
               </p>
@@ -416,6 +447,16 @@ export default function Home() {
                             {Math.round(result.confidence * 100)}% Confidence
                           </div>
                         </div>
+
+                        {!result.isDeepfake && file?.type.startsWith("image/") && (
+                          <Button
+                            onClick={downloadWithWatermark}
+                            className="mt-8 bg-white/[0.02] hover:bg-white/[0.05] text-white border border-white/[0.05] hover:border-white/[0.1] rounded-2xl px-8 py-6 transition-all duration-500 backdrop-blur-xl"
+                          >
+                            <Download className="w-5 h-5 mr-2" />
+                            <span className="text-sm font-black tracking-[-0.02em]">Download Verified</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   )}
