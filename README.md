@@ -1,159 +1,94 @@
 # APEX VERIFY AI
 
-APEX VERIFY AI is a cutting-edge image authenticity verification platform built for the creator economy. Our mission is to restore trust in digital content by providing enterprise-grade AI verification using Meta's DINOv3 and Google's Gemini Pro Vision.
+APEX VERIFY AI is a cutting-edge image authenticity verification platform built for the creator economy. Our mission is to restore trust in digital content by empowering creators to prove their work is authentic.
 
 ## 🎯 Mission
 
-In a world where AI-generated content is becoming indistinguishable from reality, APEX VERIFY AI provides the infrastructure for truth. We serve content creators, journalists, and social media managers who need to verify image authenticity with confidence.
+In a time when artificial intelligence can generate endless content, the line between what's real and what's synthetic is fading fast. We're building the new standard for authenticity in the digital world.
 
-## 🏗️ Architecture
-
-\`\`\`
-Next.js + Tailwind (Frontend) 
-    ↓
-REST API 
-    ↓
-FastAPI (Backend) 
-    ↓
-AI Pipeline Orchestrator
-    ├── DINOv3 Feature Extraction
-    ├── Anomaly Detection
-    ├── Gemini Pro Vision Analysis
-    └── Authenticity Scoring
-    ↓
-PostgreSQL + pgvector (Metadata & Embeddings)
-Redis + Celery (Background Tasks)
-MinIO/S3 (File Storage)
-\`\`\`
+APEX VERIFY AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs — created by human imagination, not algorithms.
 
 ## 🚀 Technology Stack
 
 ### Frontend
 - **Next.js 14** - React framework with App Router
 - **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
+- **shadcn/ui** - Beautiful and accessible component library
 - **TypeScript** - Type-safe development
-
-### Backend
-- **FastAPI** - High-performance Python web framework
-- **DINOv3** - Meta's 25GB vision transformer for feature extraction
-- **Gemini Pro Vision** - Google's multimodal AI for contextual analysis
-- **PostgreSQL + pgvector** - Vector database for embeddings
-- **Redis + Celery** - Task queue and caching
-- **MinIO/S3** - Object storage for media files
 
 ## 🎨 Features
 
 - **Drag & Drop Interface** - Intuitive image upload
-- **Real-time Analysis** - GPU-accelerated processing
-- **Comprehensive Reports** - Human-readable verification results
-- **Enterprise Security** - SOC 2 compliant infrastructure
-- **Scalable Architecture** - Built for high-volume verification
+- **Beautiful UI** - Modern, minimalist design with glassmorphism
+- **Responsive Design** - Works perfectly on all devices
+- **Smooth Animations** - Scroll-based parallax effects
+- **Mission-Driven** - Clear communication of our purpose
 
 ## 🔐 Security & Configuration
 
 ### Environment Variables
 This project uses environment variables for sensitive configuration. **Never commit API keys or secrets to version control.**
 
-**Required Environment Files:**
-- `backend/.env` - Backend configuration (API keys, database URLs)
-- `app/.env.local` - Frontend configuration (backend URL)
+**Required Environment File:**
+- `.env.local` - Frontend configuration
 
-**Example Backend Environment:**
-\`\`\`bash
-# Copy backend/env.example to backend/.env and fill in your values
-GEMINI_API_KEY=your_gemini_api_key_here
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-\`\`\`
+**Example Environment:**
+```bash
+# Copy env.local.example to .env.local and fill in your values
+NEXT_PUBLIC_APP_NAME=APEX VERIFY AI
+NEXT_PUBLIC_APP_VERSION=1.0.0
 
-**Example Frontend Environment:**
-\`\`\`bash
-# Copy env.local.example to app/.env.local and fill in your values
-BACKEND_URL=http://localhost:8000
-\`\`\`
+# Authentication (for future use)
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-here
 
-### API Keys Required
-1. **Gemini Pro Vision API Key** - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. **Database Connection** - PostgreSQL connection string (for production)
-3. **Storage Credentials** - S3/MinIO credentials (for production)
+# Email Configuration (for contact form)
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=your-app-password
+```
 
 ## 🛠️ Development
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.11+
-- Docker & Docker Compose
-- GPU access (for DINOv3 inference)
+- pnpm (recommended) or npm
 
 ### Local Setup
 
 1. **Clone the repository**
-   \`\`\`bash
-   git clone https://github.com/urban7733/apexv0dev.git
-   cd apexv0dev
-   \`\`\`
+   ```bash
+   git clone https://github.com/urban7733/APEX-VERIFY-AI.git
+   cd APEX-VERIFY-AI-3
+   ```
 
 2. **Set up environment variables**
-   \`\`\`bash
-   # Backend
-   cp backend/env.example backend/.env
-   # Edit backend/.env with your API keys
-   
-   # Frontend
-   cp env.local.example app/.env.local
-   # Edit app/.env.local with your backend URL
-   \`\`\`
+   ```bash
+   cp env.local.example .env.local
+   # Edit .env.local with your configuration
+   ```
 
 3. **Install dependencies**
-   \`\`\`bash
-   npm run setup
-   \`\`\`
+   ```bash
+   pnpm install
+   ```
 
-4. **Start development services**
-   \`\`\`bash
-   # Start both frontend and backend
-   npm run full:dev
-   
-   # Or start them separately:
-   npm run dev          # Frontend
-   npm run backend:dev  # Backend
-   \`\`\`
+4. **Start development server**
+   ```bash
+   pnpm dev
+   ```
 
 5. **Access the application**
    - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
 
 ### Production Deployment
 
-\`\`\`bash
+```bash
 # Build frontend
-npm run build
+pnpm build
 
-# Deploy backend to cloud (Google Cloud recommended)
-gcloud app deploy backend/
-
-# Set environment variables
-export GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"
-export GEMINI_API_KEY="your-production-gemini-key"
-export DATABASE_URL="postgresql://user:pass@host:port/db"
-\`\`\`
-
-## 📊 API Endpoints
-
-- `GET /` - Service information
-- `GET /health` - Health check with model status
-- `POST /api/verify` - Image authenticity verification
-
-## 🔒 Security
-
-- CORS enabled for cross-origin requests
-- File type validation (images only)
-- Rate limiting and request validation
-- Secure file handling with temporary storage
-- Environment variable protection
-- API key security best practices
+# Deploy to Vercel (recommended)
+vercel deploy
+```
 
 ## 🤝 Contributing
 
@@ -172,6 +107,8 @@ This project is proprietary software. All rights reserved.
 ## 🌟 About
 
 APEX VERIFY AI is built by a team passionate about restoring trust in digital content. We believe that in the age of AI, verification becomes the foundation of truth.
+
+We believe the future doesn't belong to AI itself, but to those who can prove they create for real.
 
 ---
 
