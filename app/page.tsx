@@ -134,7 +134,7 @@ export default function Home() {
 
         {/* Chrome Text Logo - Fixed below main logo */}
         <div
-          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 mt-4 transition-opacity duration-300"
+          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 -mt-32 sm:-mt-40 md:-mt-48 transition-opacity duration-300"
           style={{
             opacity: logoOpacity,
           }}
