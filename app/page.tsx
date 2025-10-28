@@ -178,21 +178,29 @@ export default function Home() {
 
           {/* Mission Text */}
           <div className="space-y-8 text-center">
-            <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
               In a time when artificial intelligence can generate endless content, the line between what's real and
               what's synthetic is fading fast.
             </p>
 
-            <p className="text-xl sm:text-2xl md:text-3xl text-white/90 font-bold leading-relaxed tracking-tight">
+            <p
+              className="text-xl sm:text-2xl md:text-3xl text-white font-black leading-relaxed tracking-[-0.02em]"
+              style={{
+                textShadow: `
+                  0 0 15px rgba(255, 255, 255, 0.3),
+                  0 0 30px rgba(255, 255, 255, 0.2)
+                `,
+              }}
+            >
               We're building the new standard for authenticity in the digital world.
             </p>
 
-            <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-black leading-relaxed tracking-tight">
               Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work
               is truly theirs — created by human imagination, not algorithms.
             </p>
 
-            <p className="text-base sm:text-lg md:text-xl text-white/60 font-light leading-relaxed tracking-wide">
+            <p className="text-base sm:text-lg md:text-xl text-white/70 font-black leading-relaxed tracking-tight">
               Our technology integrates across the entire digital economy — from social media and branding to design,
               fashion, film, and advertising — anywhere visual content defines value.
             </p>
@@ -222,7 +230,7 @@ export default function Home() {
             </p>
 
             <div className="pt-8">
-              <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium leading-relaxed tracking-wide">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-black leading-relaxed tracking-tight">
                 With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
                 world increasingly shaped by artificial intelligence.
               </p>
@@ -241,15 +249,6 @@ export default function Home() {
         <div className="w-full max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div className="space-y-10">
-              <div className="text-center lg:text-left space-y-4">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[0.85] tracking-[-0.05em]">
-                  APEX
-                  <br />
-                  VERIFY
-                </h1>
-                <div className="h-[1px] w-20 bg-white/20" />
-              </div>
-
               <div
                 className={`relative group cursor-pointer transform transition-all duration-500 aspect-square ${
                   dragActive ? "scale-[1.01]" : ""
@@ -322,11 +321,6 @@ export default function Home() {
             </div>
 
             <div className="space-y-10">
-              <div className="text-center lg:text-left space-y-4">
-                <h2 className="text-3xl sm:text-4xl font-black text-white/90 tracking-[-0.03em]">Results</h2>
-                <div className="h-[1px] w-16 bg-white/20" />
-              </div>
-
               <div className="relative aspect-square">
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05]" />
 
@@ -357,7 +351,7 @@ export default function Home() {
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center space-y-12">
                         <div
-                          className="text-7xl sm:text-8xl md:text-9xl font-black tracking-[-0.05em] transition-all duration-700"
+                          className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[-0.05em] transition-all duration-700"
                           style={{
                             color: "#ffffff",
                             textShadow: `
