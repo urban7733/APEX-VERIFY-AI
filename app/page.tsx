@@ -115,7 +115,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#000000] text-white antialiased relative">
       <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
         <div
-          className="relative z-10 transition-all duration-300 ease-out flex flex-col items-center gap-8"
+          className="relative z-10 transition-all duration-300 ease-out flex flex-col items-center gap-4"
           style={{
             opacity: logoOpacity,
             transform: `scale(${logoScale}) translateY(${scrollY * 0.5}px)`,
@@ -129,11 +129,11 @@ export default function Home() {
             className="w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] relative z-10 animate-float"
             priority
           />
-          
+
           {/* Chrome Text Logo */}
           <div className="relative w-full max-w-[800px] px-8">
             <Image
-              src="/apexverifyailetter.jpeg"
+              src="/images/design-mode/Image%2028.10.25%20at%2002.50.png"
               alt="Apex Verify AI Text"
               width={1200}
               height={300}
@@ -155,7 +155,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto space-y-16">
           {/* Title */}
           <div className="text-center">
-            <h2 
+            <h2
               className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-[-0.04em] leading-[0.9]"
               style={{
                 textShadow: `
@@ -173,7 +173,8 @@ export default function Home() {
           {/* Mission Text */}
           <div className="space-y-8 text-center">
             <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
-              In a time when artificial intelligence can generate endless content, the line between what's real and what's synthetic is fading fast.
+              In a time when artificial intelligence can generate endless content, the line between what's real and
+              what's synthetic is fading fast.
             </p>
 
             <p className="text-xl sm:text-2xl md:text-3xl text-white/90 font-bold leading-relaxed tracking-tight">
@@ -181,14 +182,16 @@ export default function Home() {
             </p>
 
             <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
-              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs — created by human imagination, not algorithms.
+              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work
+              is truly theirs — created by human imagination, not algorithms.
             </p>
 
             <p className="text-base sm:text-lg md:text-xl text-white/60 font-light leading-relaxed tracking-wide">
-              Our technology integrates across the entire digital economy — from social media and branding to design, fashion, film, and advertising — anywhere visual content defines value.
+              Our technology integrates across the entire digital economy — from social media and branding to design,
+              fashion, film, and advertising — anywhere visual content defines value.
             </p>
 
-            <p 
+            <p
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em] pt-8"
               style={{
                 textShadow: `
@@ -200,7 +203,7 @@ export default function Home() {
               We believe the future doesn't belong to AI itself,
             </p>
 
-            <p 
+            <p
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em]"
               style={{
                 textShadow: `
@@ -214,7 +217,8 @@ export default function Home() {
 
             <div className="pt-8">
               <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium leading-relaxed tracking-wide">
-                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a world increasingly shaped by artificial intelligence.
+                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
+                world increasingly shaped by artificial intelligence.
               </p>
             </div>
           </div>
