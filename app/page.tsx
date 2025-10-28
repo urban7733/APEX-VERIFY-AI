@@ -313,7 +313,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div className="space-y-10">
               <div
-                className={`relative group cursor-pointer transform transition-all duration-500 aspect-square ${
+                className={`relative group cursor-pointer transform transition-all duration-500 aspect-square overflow-hidden ${
                   dragActive ? "scale-[1.01]" : ""
                 }`}
                 onDragEnter={handleDrag}
@@ -324,7 +324,7 @@ export default function Home() {
               >
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05] group-hover:border-white/[0.1] transition-all duration-700" />
 
-                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center">
+                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center overflow-y-auto">
                   <div className="flex flex-col items-center justify-center space-y-10">
                     <div className="w-28 h-28 bg-white/[0.02] backdrop-blur-sm rounded-[2rem] flex items-center justify-center group-hover:bg-white/[0.04] transition-all duration-500 border border-white/[0.05]">
                       <Upload className="w-14 h-14 text-white/40 group-hover:text-white/70 transition-colors duration-500" />
