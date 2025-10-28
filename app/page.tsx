@@ -142,6 +142,83 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Mission Section */}
+      <div
+        className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48"
+        style={{
+          opacity: Math.min(1, Math.max(0, (scrollY - 200) / 400)),
+          transform: `translateY(${Math.max(0, 100 - (scrollY - 200) / 5)}px)`,
+        }}
+      >
+        <div className="max-w-5xl mx-auto space-y-16">
+          {/* Title */}
+          <div className="text-center">
+            <h2 
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-[-0.04em] leading-[0.9]"
+              style={{
+                textShadow: `
+                  0 0 20px rgba(255, 255, 255, 0.3),
+                  0 0 40px rgba(255, 255, 255, 0.2),
+                  0 0 60px rgba(255, 255, 255, 0.1)
+                `,
+              }}
+            >
+              Our Mission
+            </h2>
+            <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8" />
+          </div>
+
+          {/* Mission Text */}
+          <div className="space-y-8 text-center">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
+              In a time when artificial intelligence can generate endless content, the line between what's real and what's synthetic is fading fast.
+            </p>
+
+            <p className="text-xl sm:text-2xl md:text-3xl text-white/90 font-bold leading-relaxed tracking-tight">
+              We're building the new standard for authenticity in the digital world.
+            </p>
+
+            <p className="text-lg sm:text-xl md:text-2xl text-white/70 font-light leading-relaxed tracking-wide">
+              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs — created by human imagination, not algorithms.
+            </p>
+
+            <p className="text-base sm:text-lg md:text-xl text-white/60 font-light leading-relaxed tracking-wide">
+              Our technology integrates across the entire digital economy — from social media and branding to design, fashion, film, and advertising — anywhere visual content defines value.
+            </p>
+
+            <p 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em] pt-8"
+              style={{
+                textShadow: `
+                  0 0 15px rgba(255, 255, 255, 0.4),
+                  0 0 30px rgba(255, 255, 255, 0.2)
+                `,
+              }}
+            >
+              We believe the future doesn't belong to AI itself,
+            </p>
+
+            <p 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-black leading-tight tracking-[-0.02em]"
+              style={{
+                textShadow: `
+                  0 0 15px rgba(255, 255, 255, 0.4),
+                  0 0 30px rgba(255, 255, 255, 0.2)
+                `,
+              }}
+            >
+              but to those who can prove they create for real.
+            </p>
+
+            <div className="pt-8">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium leading-relaxed tracking-wide">
+                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a world increasingly shaped by artificial intelligence.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         className="relative z-10 px-6 sm:px-8 py-20"
         style={{
