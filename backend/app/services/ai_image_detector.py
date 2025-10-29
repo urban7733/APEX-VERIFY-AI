@@ -481,4 +481,3 @@ class AIImageDetector:
     def is_loaded(self) -> bool:
         """Check if model is loaded"""
         return self.model_loaded
-

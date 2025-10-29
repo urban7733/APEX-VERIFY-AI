@@ -170,4 +170,3 @@ class HeatmapGenerator:
         except Exception as e:
             logger.error(f"❌ Base64 conversion failed: {str(e)}")
             return ""
-

@@ -96,4 +96,3 @@ class AnalysisResponse(BaseModel):
                 "processing_time": 3.2
             }
         }
-

@@ -242,4 +242,3 @@ class ManipulationDetector:
         except Exception as e:
             logger.error(f"❌ Area detection failed: {str(e)}")
             return []
-

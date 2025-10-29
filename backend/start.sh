@@ -24,4 +24,3 @@ echo "📚 API docs available at http://localhost:8000/docs"
 echo ""
 
 cd app && python main.py
-

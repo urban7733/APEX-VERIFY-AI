@@ -136,4 +136,3 @@ class YOLOService:
             anomalies=anomalies if anomalies else ["No anomalies detected"],
             scene_coherence=coherence
         )
-

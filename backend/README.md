@@ -33,7 +33,7 @@ Production-ready AI-generated image detection backend with Vision Transformer, Y
 
 ### Local Development
 
-```bash
+\`\`\`bash
 # Navigate to backend directory
 cd backend
 
@@ -42,11 +42,11 @@ chmod +x start.sh
 
 # Run the start script (handles everything)
 ./start.sh
-```
+\`\`\`
 
 ### Manual Installation
 
-```bash
+\`\`\`bash
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -56,17 +56,17 @@ pip install -r requirements.txt
 
 # Run the server
 cd app && python main.py
-```
+\`\`\`
 
 ## 🎯 API Endpoints
 
 ### Health Check
-```
+\`\`\`
 GET /health
-```
+\`\`\`
 
 ### Analyze Image
-```
+\`\`\`
 POST /api/analyze
 Content-Type: multipart/form-data
 
@@ -97,7 +97,7 @@ Response:
   "frequency_analysis": {...},
   "processing_time": 3.2
 }
-```
+\`\`\`
 
 ## 📚 API Documentation
 
@@ -111,9 +111,9 @@ Once running, visit:
 
 In `app/services/ai_image_detector.py`, the default model is Google's ViT-base:
 
-```python
+\`\`\`python
 model_name = "google/vit-base-patch16-224"
-```
+\`\`\`
 
 You can replace with other ViT models for different performance/accuracy tradeoffs.
 
@@ -121,47 +121,47 @@ You can replace with other ViT models for different performance/accuracy tradeof
 
 Adjust detection method weights in `ai_image_detector.py`:
 
-```python
+\`\`\`python
 weights = {
     'vit_analysis': 0.40,      # Vision Transformer (most accurate)
     'spectral_analysis': 0.25,  # Frequency domain analysis
     'artifact_analysis': 0.20,  # AI artifact detection
     'consistency_analysis': 0.15 # Consistency checking
 }
-```
+\`\`\`
 
 ### YOLO Model Selection
 
 In `app/services/yolo_service.py`, you can change the YOLO model:
 
-```python
+\`\`\`python
 # Options: yolo11n (fastest), yolo11s, yolo11m, yolo11l, yolo11x (most accurate)
 self.model = YOLO('yolo11n.pt')
-```
+\`\`\`
 
 ### ELA Quality
 
 In `app/services/manipulation_detector.py`:
 
-```python
+\`\`\`python
 self.ela_quality = 90  # JPEG quality for ELA (85-95 recommended)
-```
+\`\`\`
 
 ## 🚀 Deployment
 
 ### Production Server
 
-```bash
+\`\`\`bash
 # Install dependencies
 pip install -r requirements.txt
 
 # Run with Gunicorn
 gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
-```
+\`\`\`
 
 ### Docker Deployment
 
-```dockerfile
+\`\`\`dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -172,16 +172,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+\`\`\`
 
 ### Environment Variables
 
-```bash
+\`\`\`bash
 # Optional configuration
 export WORKERS=4
 export PORT=8000
 export LOG_LEVEL=info
-```
+\`\`\`
 
 ## 📊 Performance
 
@@ -205,12 +205,12 @@ export LOG_LEVEL=info
 
 ## 🧪 Testing
 
-```bash
+\`\`\`bash
 # Test the API
 curl -X POST "http://localhost:8000/api/analyze" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@test_image.jpg"
-```
+\`\`\`
 
 ## 🔒 Security
 
@@ -221,7 +221,7 @@ curl -X POST "http://localhost:8000/api/analyze" \
 
 ## 📝 Project Structure
 
-```
+\`\`\`
 backend/
 ├── app/
 │   ├── main.py                      # FastAPI app
@@ -235,26 +235,26 @@ backend/
 ├── requirements.txt
 ├── start.sh
 └── README.md
-```
+\`\`\`
 
 ## 🐛 Troubleshooting
 
 ### YOLO Model Download Issues
 
-```bash
+\`\`\`bash
 # Manually download YOLO11 weights
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolo11n.pt
-```
+\`\`\`
 
 ### GPU Not Detected
 
-```bash
+\`\`\`bash
 # Check PyTorch CUDA
 python -c "import torch; print(torch.cuda.is_available())"
 
 # Install CUDA-enabled PyTorch
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-```
+\`\`\`
 
 ### Memory Issues
 
@@ -280,4 +280,3 @@ Proprietary - All rights reserved
 ---
 
 **Built with ❤️ for truth and authenticity**
-
