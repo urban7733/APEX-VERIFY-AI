@@ -12,6 +12,10 @@ opencv-contrib-python==4.9.0.80
 torch==2.2.0
 torchvision==0.17.0
 
+# AI Image Detection - Vision Transformer
+transformers==4.36.2
+accelerate==0.25.0
+
 # Image Processing
 Pillow==10.2.0
 numpy==1.26.3

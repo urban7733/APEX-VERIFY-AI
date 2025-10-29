@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       const backendFormData = new FormData()
       backendFormData.append("file", file)
 
-      const response = await fetch(`${backendUrl}/analyze`, {
+      const response = await fetch(`${backendUrl}/api/analyze`, {
         method: "POST",
         body: backendFormData,
         signal: AbortSignal.timeout(30000), // 30 second timeout

@@ -27,6 +27,11 @@ class AnalysisResponse(BaseModel):
     confidence: float
     manipulation_type: Optional[str] = None
     
+    # AI-Generated Detection (Primary)
+    is_ai_generated: bool = False
+    ai_confidence: float = 0.0
+    ai_detection_details: Optional[Dict[str, Any]] = None
+    
     # YOLO11 Detection
     objects_detected: List[DetectedObject]
     object_count: int
@@ -50,8 +55,19 @@ class AnalysisResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "is_manipulated": True,
-                "confidence": 0.87,
+                "confidence": 0.92,
                 "manipulation_type": "ai_generated",
+                "is_ai_generated": True,
+                "ai_confidence": 0.96,
+                "ai_detection_details": {
+                    "methods_used": ["vit_analysis", "spectral_analysis", "artifact_analysis"],
+                    "method_scores": {
+                        "vit_analysis": 0.95,
+                        "spectral_analysis": 0.87,
+                        "artifact_analysis": 0.93
+                    },
+                    "final_score": 0.92
+                },
                 "objects_detected": [
                     {
                         "class_name": "person",
@@ -77,7 +93,7 @@ class AnalysisResponse(BaseModel):
                 ],
                 "ela_score": 0.82,
                 "frequency_analysis": {"high_freq": 0.7, "low_freq": 0.3},
-                "processing_time": 2.5
+                "processing_time": 3.2
             }
         }
 
