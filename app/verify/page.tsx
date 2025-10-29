@@ -9,10 +9,33 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { analysisEngine, type AnalysisProgress, type ComprehensiveAnalysisResult } from "@/lib/analysis-engine"
-import { advancedDeepfakeDetector } from "@/lib/advanced-deepfake-detector"
 import type { SpatialAnalysisResult } from "@/lib/spatial-analysis-engine"
 import { FileVideo, FileImage, FileAudio } from "lucide-react"
+
+// Define types locally since we only use backend now
+interface AnalysisProgress {
+  stage: string
+  progress: number
+  message: string
+  currentStep: string
+}
+
+interface ComprehensiveAnalysisResult {
+  isDeepfake: boolean
+  confidence: number
+  processingTime: number
+  analysisDetails: any
+  riskAssessment: any
+  technicalDetails: any
+  fileInfo: any
+  manipulationRegions?: any[]
+  spatialAnalysis?: any
+  aiProvider?: string
+  manipulationType?: string
+  verificationStatus: any
+  heatmapBase64?: string
+  watermarkedImageBase64?: string
+}
 import { useAuth } from "@/contexts/auth-context"
 import LaserFlow from "@/components/LaserFlow"
 
@@ -276,9 +299,10 @@ const MemoizedImage = React.memo(({ src, alt, width, height, className, ...props
   />
 ))
 
-// Enhanced metadata extraction
+// Minimal metadata - Real data comes from backend
 const extractEnhancedMetadata = async (file: File): Promise<EnhancedMediaMetadata> => {
-  const metadata: EnhancedMediaMetadata = {
+  // Only basic file info - NO fake technical specs
+  return {
     fileName: file.name,
     fileSize: file.size,
     fileType: file.type.split("/")[0],
@@ -286,77 +310,12 @@ const extractEnhancedMetadata = async (file: File): Promise<EnhancedMediaMetadat
     createdDate: new Date(file.lastModified),
     modifiedDate: new Date(file.lastModified),
     hash: await generateFileHash(file),
+    // All technical data should come from backend analysis
+    exifData: undefined,
+    technicalSpecs: undefined,
+    dimensions: undefined,
+    duration: undefined,
   }
-
-  try {
-    if (file.type.startsWith("image/")) {
-      const img = new Image()
-      const url = URL.createObjectURL(file)
-      img.src = url
-
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve()
-        img.onerror = () => reject(new Error("Failed to load image"))
-        setTimeout(() => reject(new Error("Image load timeout")), 10000)
-      })
-
-      metadata.dimensions = {
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      }
-
-      // Real EXIF data would come from backend
-      metadata.exifData = undefined
-
-      metadata.technicalSpecs = {
-        colorSpace: "sRGB",
-        compression: file.type.includes("jpeg") ? "JPEG" : "PNG",
-        bitDepth: 8,
-        pixelFormat: "RGB",
-      }
-
-      URL.revokeObjectURL(url)
-    } else if (file.type.startsWith("video/")) {
-      const video = document.createElement("video")
-      const url = URL.createObjectURL(file)
-      video.src = url
-
-      await new Promise<void>((resolve, reject) => {
-        video.onloadedmetadata = () => resolve()
-        video.onerror = () => reject(new Error("Failed to load video"))
-        setTimeout(() => reject(new Error("Video load timeout")), 10000)
-      })
-
-      metadata.dimensions = {
-        width: video.videoWidth,
-        height: video.videoHeight,
-      }
-      metadata.duration = video.duration
-      metadata.frameRate = 30
-      metadata.bitrate = Math.round((file.size * 8) / video.duration / 1000)
-
-      metadata.technicalSpecs = {
-        codec: "H.264",
-        profile: "High",
-        level: "4.1",
-        pixelFormat: "yuv420p",
-        bitDepth: 8,
-      }
-
-      URL.revokeObjectURL(url)
-    } else if (file.type.startsWith("audio/")) {
-      metadata.technicalSpecs = {
-        codec: "AAC",
-        sampleRate: 44100,
-        channels: 2,
-        bitDepth: 16,
-      }
-    }
-  } catch (error) {
-    console.warn("Failed to extract enhanced metadata:", error)
-  }
-
-  return metadata
 }
 
 // Generate file hash
@@ -429,12 +388,12 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
 
     // Only proceed with image watermarking if it's an image
     if (file.type.startsWith("image/")) {
-      const img = new Image()
+      const img = new window.Image()
       img.crossOrigin = "anonymous" // Essential for loading images from different origins
 
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve()
-        img.onerror = (errorEvent) => {
+        img.onerror = (errorEvent: Event | string) => {
           // Safely handle the error event without destructuring or assuming properties
           console.error("Image load error event:", errorEvent)
           let errorMessage = "Failed to load image for watermark."
@@ -477,7 +436,7 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
       ctx.fill()
       ctx.restore()
 
-      const logoImg = new Image()
+      const logoImg = new window.Image()
       logoImg.src = "/verified-apex-verify-logo-2.png" // Ensure this path is correct and accessible
 
       await new Promise<void>((resolve) => {
@@ -488,7 +447,7 @@ const downloadWithWatermark = async (file: File | null, previewUrl: string | nul
           ctx.restore()
           resolve()
         }
-        logoImg.onerror = (errorEvent) => {
+        logoImg.onerror = (errorEvent: Event | string) => {
           // Safely handle the error event without destructuring or assuming properties
           console.error("Logo image load error event:", errorEvent)
           let errorMessage = "Failed to load logo image for watermark."
@@ -659,19 +618,7 @@ export default function VerifyPage() {
     },
   ]
 
-  useEffect(() => {
-    const initializeEngines = async () => {
-      try {
-        await analysisEngine.initialize()
-        await advancedDeepfakeDetector.initialize()
-        console.log("Analysis engines initialized successfully")
-      } catch (error) {
-        console.error("Failed to initialize analysis engines:", error)
-      }
-    }
-
-    initializeEngines()
-  }, [])
+  // No local analysis engines - Backend only!
 
   useEffect(() => {
     if (files.length > 0 && selectedFile === null) {
