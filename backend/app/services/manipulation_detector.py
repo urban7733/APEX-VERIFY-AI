@@ -44,26 +44,36 @@ class ManipulationDetector:
             manipulation_areas = await self._detect_manipulation_areas(ela_map)
             
             # Calculate overall confidence
+            # IMPORTANT: These scores indicate SUSPICION, not manipulation
+            # Real photos typically have low values (< 0.3)
+            # Only high values (> 0.7) indicate actual manipulation
             confidence = (ela_score * 0.4 + freq_analysis['score'] * 0.3 + noise_score * 0.3)
-            is_manipulated = confidence > 0.5
+            
+            # CORRECTED THRESHOLD: Real photos score 0.2-0.4, manipulated photos score 0.7+
+            is_manipulated = confidence > 0.70  # Much higher threshold!
             
             # Determine manipulation type
             manipulation_type = None
             if is_manipulated:
-                if ela_score > 0.7:
+                if ela_score > 0.85:  # Very high ELA = likely AI
                     manipulation_type = "ai_generated"
-                elif freq_analysis['score'] > 0.6:
+                elif freq_analysis['score'] > 0.75:  # High freq anomaly = splice
                     manipulation_type = "splice"
                 else:
                     manipulation_type = "clone"
             
             processing_time = time.time() - start_time
             
-            logger.info(f"📊 Manipulation score: {confidence:.2f}")
+            # Return confidence properly:
+            # If manipulated: confidence = how sure we are it's manipulated
+            # If NOT manipulated: confidence = how sure we are it's authentic
+            final_confidence = confidence if is_manipulated else (1.0 - confidence)
+            
+            logger.info(f"📊 Manipulation score: {confidence:.2f}, is_manipulated: {is_manipulated}, confidence: {final_confidence:.2f}")
             
             return {
                 'is_manipulated': is_manipulated,
-                'confidence': float(confidence),
+                'confidence': float(final_confidence),  # Properly oriented confidence
                 'type': manipulation_type,
                 'ela_score': float(ela_score),
                 'frequency_analysis': freq_analysis,

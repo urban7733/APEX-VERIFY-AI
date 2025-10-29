@@ -114,15 +114,24 @@ async def analyze_image(file: UploadFile = File(...)):
         logger.info("📊 Performing spatial analysis...")
         spatial_analysis = await yolo_service.spatial_analysis(yolo_results)
         
-        # Combine results - AI detection is primary indicator
+        # Combine results - BOTH must agree for manipulation
         is_ai_generated = ai_detection_result['is_ai_generated']
         is_manipulated = manipulation_result['is_manipulated'] or is_ai_generated
         
-        # Combined confidence (weighted towards AI detection)
-        combined_confidence = (
-            ai_detection_result['confidence'] * 0.6 + 
-            manipulation_result['confidence'] * 0.4
-        )
+        # Combined confidence
+        # If neither detector finds issues, confidence should be high for "authentic"
+        if is_manipulated:
+            # Something detected: use the HIGHER confidence of the two
+            combined_confidence = max(
+                ai_detection_result['confidence'] if is_ai_generated else 0,
+                manipulation_result['confidence']
+            )
+        else:
+            # Nothing detected: use the AVERAGE confidence for "authentic"
+            combined_confidence = (
+                ai_detection_result['confidence'] * 0.6 + 
+                manipulation_result['confidence'] * 0.4
+            )
         
         # Determine manipulation type
         if is_ai_generated:

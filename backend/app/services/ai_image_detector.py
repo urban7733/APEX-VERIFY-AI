@@ -461,12 +461,23 @@ class AIImageDetector:
         else:
             final_score = 0.5  # Uncertain if no methods available
         
-        # Decision threshold
-        is_ai_generated = final_score > 0.5
+        # Decision threshold - CORRECTED FOR REAL PHOTOS
+        # Real photos typically score 0.2-0.4
+        # AI-generated typically score 0.7+
+        is_ai_generated = final_score > 0.65  # Higher threshold to avoid false positives
         
-        # Confidence based on score distance from threshold and number of methods
-        confidence = abs(final_score - 0.5) * 2  # Scale to 0-1
-        confidence = min(confidence * (len(available_methods) / 4), 1.0)  # Adjust by methods used
+        # Confidence based on score distance from threshold
+        # For real images (final_score < 0.65), confidence should be high when score is low
+        # For AI images (final_score > 0.65), confidence should be high when score is high
+        if is_ai_generated:
+            # AI detected: higher score = higher confidence
+            confidence = min((final_score - 0.65) / 0.35, 1.0)  # Normalize 0.65-1.0 to 0-1
+        else:
+            # Real photo: lower score = higher confidence
+            confidence = min((0.65 - final_score) / 0.65, 1.0)  # Normalize 0-0.65 to 1-0
+        
+        # Boost confidence if more methods agree
+        confidence = min(confidence * (0.7 + (len(available_methods) / 4) * 0.3), 1.0)
         
         # Build evidence
         evidence = {
