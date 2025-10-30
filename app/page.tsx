@@ -414,11 +414,13 @@ export default function Home() {
                         {!result.isDeepfake && file?.type.startsWith("image/") && (
                           <Button
                             onClick={downloadWithWatermark}
-                            className="group relative w-full overflow-hidden bg-white/10 hover:bg-white/20 text-white border border-white/30 hover:border-white/50 rounded-xl px-6 py-5 transition-all duration-300 backdrop-blur-xl shadow-lg"
+                            className="group relative w-full overflow-hidden bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 rounded-xl px-6 py-5 transition-all duration-300 backdrop-blur-xl shadow-lg"
                           >
                             <div className="relative flex items-center justify-center gap-3">
-                              <Download className="w-5 h-5" />
-                              <span className="text-base font-bold tracking-tight">DOWNLOAD</span>
+                              <Download className="w-5 h-5 text-white" />
+                              <span className="text-base font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
+                                DOWNLOAD
+                              </span>
                             </div>
                           </Button>
                         )}
