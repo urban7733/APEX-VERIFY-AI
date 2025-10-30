@@ -213,81 +213,58 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mission Section */}
+      {/* Mission Section - YC Startup Style */}
       <div
-        className="relative z-10 px-6 sm:px-8 py-32 sm:py-40 lg:py-48"
+        className="relative z-10 px-6 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40"
         style={{
           opacity: Math.min(1, Math.max(0, (scrollY - 200) / 400)),
           transform: `translateY(${Math.max(0, 100 - (scrollY - 200) / 5)}px)`,
         }}
       >
-        <div className="max-w-5xl mx-auto space-y-16">
+        <div className="max-w-4xl mx-auto space-y-12 sm:space-y-16">
           {/* Title */}
           <div className="text-center">
-            <h2
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-white tracking-[0.2em] leading-[0.9] uppercase"
-              style={{
-                textShadow: `
-                  0 0 20px rgba(255, 255, 255, 0.3),
-                  0 0 40px rgba(255, 255, 255, 0.2),
-                  0 0 60px rgba(255, 255, 255, 0.1)
-                `,
-              }}
-            >
-              Our Mission
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight leading-[1.1]">
+              <span className="inline-block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+                Our Mission
+              </span>
             </h2>
-            <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8" />
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto mt-6" />
           </div>
 
-          {/* Mission Text - Uniform spacing and formatting */}
-          <div className="space-y-10 text-center">
-            <p className="text-base sm:text-lg md:text-xl text-white/90 font-light leading-relaxed tracking-[0.12em] uppercase">
-              In a time when artificial intelligence can generate endless content, the line between what's real and
-              what's synthetic is fading fast.
+          {/* Mission Text - Clean YC Style */}
+          <div className="space-y-8 sm:space-y-10 text-center font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
+            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/80 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
+              In a time when artificial intelligence can generate endless content, the line between what's real and what's synthetic is fading fast.
             </p>
 
-            <div className="py-4">
-              <p
-                className="text-xl sm:text-2xl md:text-3xl text-white font-light leading-relaxed tracking-[0.15em] uppercase"
-                style={{
-                  textShadow: `
-                    0 0 15px rgba(255, 255, 255, 0.3),
-                    0 0 30px rgba(255, 255, 255, 0.2)
-                  `,
-                }}
-              >
-                We're building the new standard for authenticity in the digital world.
+            <div className="py-2 sm:py-4">
+              <p className="text-[18px] sm:text-[22px] md:text-[26px] font-medium leading-[1.4] tracking-[-0.02em] max-w-3xl mx-auto">
+                <span className="inline-block bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-transparent">
+                  We're building the new standard for authenticity in the digital world.
+                </span>
               </p>
             </div>
 
-            <p className="text-base sm:text-lg md:text-xl text-white/90 font-light leading-relaxed tracking-[0.12em] uppercase">
-              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work
-              is truly theirs — created by human imagination, not algorithms.
+            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/80 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
+              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs—created by human imagination, not algorithms.
             </p>
 
-            <p className="text-base sm:text-lg md:text-xl text-white/85 font-light leading-relaxed tracking-[0.12em] uppercase">
-              Our technology integrates across the entire digital economy — from social media and branding to design,
-              fashion, film, and advertising — anywhere visual content defines value.
+            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/75 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
+              Our technology integrates across the entire digital economy—from social media and branding to design, fashion, film, and advertising—anywhere visual content defines value.
             </p>
 
-            <div className="pt-8 space-y-6">
-              <p
-                className="text-xl sm:text-2xl md:text-3xl text-white font-light leading-tight tracking-[0.15em] uppercase"
-                style={{
-                  textShadow: `
-                    0 0 15px rgba(255, 255, 255, 0.4),
-                    0 0 30px rgba(255, 255, 255, 0.2)
-                  `,
-                }}
-              >
-                We believe the future doesn't belong to AI itself,<br />but to those who can prove they create for real.
+            <div className="pt-6 sm:pt-8 space-y-3">
+              <p className="text-[18px] sm:text-[22px] md:text-[26px] font-medium leading-[1.35] tracking-[-0.02em] max-w-2xl mx-auto">
+                <span className="inline-block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+                  We believe the future doesn't belong to AI itself, but to those who can prove they create for real.
+                </span>
               </p>
             </div>
 
-            <div className="pt-6">
-              <p className="text-base sm:text-lg md:text-xl text-white/95 font-light leading-relaxed tracking-[0.12em] uppercase">
-                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
-                world increasingly shaped by artificial intelligence.
+            <div className="pt-4 sm:pt-6">
+              <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/85 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
+                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a world increasingly shaped by artificial intelligence.
               </p>
             </div>
           </div>
