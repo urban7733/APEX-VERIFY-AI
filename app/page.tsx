@@ -293,23 +293,25 @@ export default function Home() {
               >
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05] group-hover:border-white/[0.1] transition-all duration-700" />
 
-                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center overflow-y-auto">
-                  <div className="flex flex-col items-center justify-center space-y-10">
-                    <div className="w-28 h-28 bg-white/[0.02] backdrop-blur-sm rounded-[2rem] flex items-center justify-center group-hover:bg-white/[0.04] transition-all duration-500 border border-white/[0.05]">
-                      <Upload className="w-14 h-14 text-white/40 group-hover:text-white/70 transition-colors duration-500" />
-                    </div>
+                <div className="relative p-8 sm:p-12 lg:p-16 h-full flex flex-col items-center justify-center">
+                  {!file && (
+                    <div className="flex flex-col items-center justify-center space-y-8">
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white/[0.02] backdrop-blur-sm rounded-[2rem] flex items-center justify-center group-hover:bg-white/[0.04] transition-all duration-500 border border-white/[0.05]">
+                        <Upload className="w-12 h-12 sm:w-14 sm:h-14 text-white/40 group-hover:text-white/70 transition-colors duration-500" />
+                      </div>
 
-                    <div className="text-center space-y-4">
-                      <p className="text-2xl font-black text-white/90 tracking-[-0.03em]">Drop File</p>
-                      <p className="text-[10px] text-white/20 font-light tracking-[0.3em] uppercase">
-                        JPG • PNG • MP4 • Max 100MB
-                      </p>
+                      <div className="text-center space-y-3">
+                        <p className="text-xl sm:text-2xl font-black text-white/90 tracking-[-0.03em]">Drop File</p>
+                        <p className="text-[10px] text-white/20 font-light tracking-[0.3em] uppercase">
+                          JPG • PNG • MP4 • Max 100MB
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {file && previewUrl && (
-                    <div className="relative mt-8">
-                      <div className="absolute top-4 right-4 z-10">
+                    <div className="relative w-full h-full flex items-center justify-center">
+                      <div className="absolute top-2 right-2 z-10">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -317,25 +319,26 @@ export default function Home() {
                             e.stopPropagation()
                             resetAnalysis()
                           }}
-                          className="bg-black/80 backdrop-blur-xl hover:bg-black/90 text-white rounded-2xl border border-white/[0.05] transition-all duration-300"
+                          className="bg-black/80 backdrop-blur-xl hover:bg-black/90 text-white rounded-xl border border-white/[0.05] transition-all duration-300 p-2"
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                       {file.type.startsWith("image/") ? (
-                        <Image
-                          src={previewUrl || "/placeholder.svg"}
-                          alt="Preview"
-                          width={600}
-                          height={500}
-                          className="rounded-[2rem] object-cover w-full border border-white/[0.05]"
-                        />
+                        <div className="relative w-full h-full flex items-center justify-center">
+                          <Image
+                            src={previewUrl || "/placeholder.svg"}
+                            alt="Preview"
+                            width={600}
+                            height={600}
+                            className="rounded-2xl object-contain max-w-full max-h-full border border-white/[0.05]"
+                          />
+                        </div>
                       ) : (
                         <video
                           src={previewUrl}
                           controls
-                          className="rounded-[2rem] w-full border border-white/[0.05]"
-                          style={{ maxHeight: "500px" }}
+                          className="rounded-2xl max-w-full max-h-full object-contain border border-white/[0.05]"
                         />
                       )}
                     </div>
@@ -356,7 +359,7 @@ export default function Home() {
               <div className="relative aspect-square overflow-hidden">
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05]" />
 
-                <div className="relative p-12 sm:p-16 lg:p-20 h-full flex flex-col justify-center overflow-y-auto">
+                <div className="relative p-8 sm:p-12 lg:p-16 h-full flex flex-col justify-center items-center">
                   {!result && !isAnalyzing && (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center space-y-8">
