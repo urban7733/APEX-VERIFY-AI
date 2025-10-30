@@ -311,7 +311,7 @@ export default function Home() {
 
                   {file && previewUrl && (
                     <div className="relative w-full h-full flex items-center justify-center">
-                      <div className="absolute top-2 right-2 z-10">
+                      <div className="absolute top-4 right-4 z-10">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -319,9 +319,9 @@ export default function Home() {
                             e.stopPropagation()
                             resetAnalysis()
                           }}
-                          className="bg-black/80 backdrop-blur-xl hover:bg-black/90 text-white rounded-xl border border-white/[0.05] transition-all duration-300 p-2"
+                          className="bg-white/10 backdrop-blur-xl hover:bg-white/20 text-white rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 p-2.5 shadow-lg hover:shadow-xl"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-5 w-5" />
                         </Button>
                       </div>
                       {file.type.startsWith("image/") ? (
@@ -383,50 +383,65 @@ export default function Home() {
                   )}
 
                   {result && !isAnalyzing && (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center space-y-12">
-                        <div
-                          className="text-3xl sm:text-4xl md:text-5xl font-black tracking-[-0.05em] transition-all duration-700"
-                          style={{
-                            color: "#ffffff",
-                            textShadow: `
-                              0 0 10px rgba(255, 255, 255, 0.8),
-                              0 0 20px rgba(255, 255, 255, 0.6),
-                              0 0 30px rgba(255, 255, 255, 0.4),
-                              0 1px 0 #ccc,
-                              0 2px 0 #c9c9c9,
-                              0 3px 0 #bbb,
-                              0 4px 0 #b9b9b9,
-                              0 5px 0 #aaa,
-                              0 6px 1px rgba(0,0,0,.1),
-                              0 0 5px rgba(0,0,0,.1),
-                              0 1px 3px rgba(0,0,0,.3),
-                              0 3px 5px rgba(0,0,0,.2),
-                              0 5px 10px rgba(0,0,0,.25),
-                              0 10px 10px rgba(0,0,0,.2),
-                              0 20px 20px rgba(0,0,0,.15)
-                            `,
-                            WebkitTextStroke: "1px rgba(255, 255, 255, 0.1)",
-                            filter: "drop-shadow(0 0 40px rgba(255, 255, 255, 0.3))",
-                          }}
-                        >
-                          {result.isDeepfake ? "MANIPULATED" : "REAL"}
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="h-[1px] w-32 bg-white/10 mx-auto" />
-                          <div className="text-[10px] text-white/20 uppercase tracking-[0.4em] font-light">
-                            {Math.round(result.confidence * 100)}% Confidence
+                    <div className="flex items-center justify-center h-full w-full">
+                      <div className="text-center space-y-8 max-w-md">
+                        {/* Modern Result Badge */}
+                        <div className="inline-flex items-center justify-center">
+                          <div
+                            className={`
+                              relative px-8 py-4 rounded-2xl border-2 transition-all duration-700
+                              ${
+                                result.isDeepfake
+                                  ? "border-red-500/30 bg-red-500/5"
+                                  : "border-green-500/30 bg-green-500/5"
+                              }
+                            `}
+                          >
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent" />
+                            <div className="relative">
+                              <div
+                                className={`
+                                  text-3xl sm:text-4xl font-bold tracking-tight
+                                  ${result.isDeepfake ? "text-red-400" : "text-green-400"}
+                                `}
+                              >
+                                {result.isDeepfake ? "Manipulated" : "Authentic"}
+                              </div>
+                            </div>
                           </div>
                         </div>
 
+                        {/* Confidence Bar */}
+                        <div className="space-y-3 px-4">
+                          <div className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
+                            Confidence
+                          </div>
+                          <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ${
+                                result.isDeepfake
+                                  ? "bg-gradient-to-r from-red-500 to-red-400"
+                                  : "bg-gradient-to-r from-green-500 to-green-400"
+                              }`}
+                              style={{ width: `${Math.round(result.confidence * 100)}%` }}
+                            />
+                          </div>
+                          <div className="text-2xl font-semibold text-white/90 tracking-tight">
+                            {Math.round(result.confidence * 100)}%
+                          </div>
+                        </div>
+
+                        {/* Modern Download Button */}
                         {!result.isDeepfake && file?.type.startsWith("image/") && (
                           <Button
                             onClick={downloadWithWatermark}
-                            className="mt-8 bg-white/[0.02] hover:bg-white/[0.05] text-white border border-white/[0.05] hover:border-white/[0.1] rounded-2xl px-8 py-6 transition-all duration-500 backdrop-blur-xl"
+                            className="group relative w-full overflow-hidden bg-gradient-to-r from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 text-white border border-white/20 hover:border-white/30 rounded-xl px-6 py-4 transition-all duration-300 backdrop-blur-xl shadow-lg hover:shadow-xl"
                           >
-                            <Download className="w-5 h-5 mr-2" />
-                            <span className="text-sm font-black tracking-[-0.02em]">Download Verified</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            <div className="relative flex items-center justify-center gap-2">
+                              <Download className="w-4 h-4" />
+                              <span className="text-sm font-semibold tracking-tight">Download Verified</span>
+                            </div>
                           </Button>
                         )}
                       </div>
