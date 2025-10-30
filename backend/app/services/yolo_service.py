@@ -21,8 +21,10 @@ class YOLOService:
             self.model_loaded = True
             logger.info("✅ YOLO11 model loaded successfully")
         except Exception as e:
-            logger.error(f"❌ Failed to load YOLO11: {str(e)}")
-            raise
+            logger.warning(f"⚠️ Failed to load YOLO11: {str(e)}")
+            logger.warning("⚠️ YOLO service will be unavailable (non-critical)")
+            self.model_loaded = False
+            # Don't raise - allow backend to start without YOLO
     
     def is_loaded(self) -> bool:
         """Check if model is loaded"""
@@ -39,7 +41,12 @@ class YOLOService:
             Dictionary with detection results
         """
         if not self.model_loaded:
-            await self.load_model()
+            logger.warning("⚠️ YOLO not loaded, returning empty detection result")
+            return {
+                'objects': [],
+                'count': 0,
+                'image_shape': (0, 0)
+            }
         
         try:
             # Run inference
@@ -90,6 +97,15 @@ class YOLOService:
         Returns:
             SpatialAnalysis object
         """
+        if not self.model_loaded:
+            logger.warning("⚠️ YOLO not loaded, returning minimal spatial analysis")
+            return SpatialAnalysis(
+                scene_description="Object detection unavailable",
+                object_relations=["YOLO service not available"],
+                anomalies=["No spatial analysis performed"],
+                scene_coherence=1.0
+            )
+        
         objects = yolo_results['objects']
         
         # Generate scene description

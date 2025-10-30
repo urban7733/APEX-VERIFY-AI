@@ -39,10 +39,21 @@ ai_detector = AIImageDetector()
 async def startup_event():
     """Initialize models on startup"""
     logger.info("🚀 Starting Apex Verify AI Backend...")
+    
+    # Try loading YOLO (non-critical)
     await yolo_service.load_model()
-    logger.info("✅ YOLO11 model loaded")
-    await ai_detector.load_model()
-    logger.info("✅ AI Image Detector (ViT) loaded")
+    if yolo_service.is_loaded():
+        logger.info("✅ YOLO11 model loaded")
+    else:
+        logger.warning("⚠️ YOLO11 unavailable (continuing without it)")
+    
+    # Try loading AI Detector (also graceful failure)
+    try:
+        await ai_detector.load_model()
+        logger.info("✅ AI Image Detector (ViT) loaded")
+    except Exception as e:
+        logger.warning(f"⚠️ AI Detector failed to load: {str(e)}")
+    
     logger.info("✅ Backend ready!")
 
 @app.get("/")
@@ -70,11 +81,12 @@ async def health_check():
         "yolo_loaded": yolo_service.is_loaded(),
         "ai_detector_loaded": ai_detector.is_loaded(),
         "services": {
-            "yolo": "operational",
+            "yolo": "operational" if yolo_service.is_loaded() else "unavailable",
             "ai_image_detection": "operational" if ai_detector.is_loaded() else "fallback_mode",
             "manipulation_detection": "operational",
             "heatmap_generation": "operational"
-        }
+        },
+        "message": "Backend operational (some services may be in fallback mode)"
     }
 
 @app.post("/api/analyze", response_model=AnalysisResponse)
