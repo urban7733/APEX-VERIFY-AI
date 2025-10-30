@@ -9,35 +9,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Try to connect to Python backend first
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_DEEPFAKE_API_URL || "http://localhost:8000"
+    // Connect to Modal ML Pipeline (direct, no backend!)
+    const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL || "https://urban33133--apex-verify-ml-fastapi-app.modal.run"
 
     try {
-      const backendFormData = new FormData()
-      backendFormData.append("file", file)
+      const modalFormData = new FormData()
+      modalFormData.append("file", file)
 
-      const response = await fetch(`${backendUrl}/api/analyze`, {
+      const response = await fetch(`${modalUrl}/analyze`, {
         method: "POST",
-        body: backendFormData,
-        signal: AbortSignal.timeout(30000), // 30 second timeout
+        body: modalFormData,
+        signal: AbortSignal.timeout(60000), // 60 second timeout for ML inference
       })
 
       if (response.ok) {
         const result = await response.json()
         return NextResponse.json(result)
+      } else {
+        throw new Error(`Modal ML failed: ${response.status}`)
       }
-    } catch (error) {
-      console.log("Python backend not available, using fallback analysis")
+    } catch (error: any) {
+      console.error("Modal ML Pipeline error:", error)
+      return NextResponse.json(
+        { 
+          error: "ML Pipeline unavailable", 
+          message: error.message || "Please try again later"
+        }, 
+        { status: 503 }
+      )
     }
-
-    // Fallback: Return error if backend is not available
-    return NextResponse.json(
-      { 
-        error: "Backend service unavailable", 
-        message: "Please ensure the backend service is running" 
-      }, 
-      { status: 503 }
-    )
   } catch (error) {
     console.error("Analysis error:", error)
     return NextResponse.json({ error: "Analysis failed" }, { status: 500 })
