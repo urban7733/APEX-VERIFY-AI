@@ -7,18 +7,17 @@ pydantic-settings==2.1.0
 
 # YOLO11 & Computer Vision
 ultralytics==8.1.0
-opencv-python==4.9.0.80
-opencv-contrib-python==4.9.0.80
-torch==2.2.0
-torchvision==0.17.0
+opencv-python-headless==4.9.0.80
+torch==2.5.0
+torchvision==0.20.0
 
 # AI Image Detection - Vision Transformer
-transformers==4.36.2
+transformers==4.44.0
 accelerate==0.25.0
 
 # Image Processing
-Pillow==10.2.0
-numpy==1.26.3
+Pillow>=10.0.0
+numpy>=1.24.0,<2.4.0
 scikit-image==0.22.0
 scipy==1.11.4
 
