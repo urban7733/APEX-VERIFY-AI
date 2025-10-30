@@ -16,7 +16,7 @@ from app.models.response_models import AnalysisResponse
 # Initialize FastAPI
 app = FastAPI(
     title="Apex Verify AI - Backend",
-    description="AI-powered deepfake detection with YOLO11 and manipulation analysis",
+    description="AI-generated content detection and manipulation analysis",
     version="2.0.0"
 )
 

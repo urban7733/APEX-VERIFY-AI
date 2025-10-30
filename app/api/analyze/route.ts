@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try to connect to Python backend first
-    const backendUrl = process.env.NEXT_PUBLIC_DEEPFAKE_API_URL || "http://localhost:8000"
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_DEEPFAKE_API_URL || "http://localhost:8000"
 
     try {
       const backendFormData = new FormData()

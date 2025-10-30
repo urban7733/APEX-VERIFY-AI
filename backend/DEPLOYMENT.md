@@ -30,14 +30,14 @@ https://calm-rejoicing.up.railway.app
 **WICHTIG:** Füge diese Variable in Vercel hinzu:
 
 ```bash
-NEXT_PUBLIC_DEEPFAKE_API_URL=https://calm-rejoicing.up.railway.app
+NEXT_PUBLIC_BACKEND_URL=https://calm-rejoicing.up.railway.app
 ```
 
 **So machst du das:**
 1. Öffne [vercel.com](https://vercel.com) → Dein Projekt
 2. Settings → Environment Variables
 3. Füge hinzu:
-   - **Name**: `NEXT_PUBLIC_DEEPFAKE_API_URL`
+   - **Name**: `NEXT_PUBLIC_BACKEND_URL`
    - **Value**: `https://calm-rejoicing.up.railway.app`
    - **Environments**: ✅ Production ✅ Preview ✅ Development
 4. Save
@@ -88,7 +88,7 @@ Railway Dashboard → calm-rejoicing → Deployments → View Logs
 ## Troubleshooting
 
 ❌ **"Load failed"** in Vercel App
-→ Check: Ist `NEXT_PUBLIC_DEEPFAKE_API_URL` in Vercel gesetzt?
+→ Check: Ist `NEXT_PUBLIC_BACKEND_URL` in Vercel gesetzt?
 → Check: Backend Health Endpoint erreichbar?
 → Lösung: Vercel Redeploy nach Variable setzen!
 

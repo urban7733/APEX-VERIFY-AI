@@ -21,7 +21,7 @@ interface AnalysisProgress {
 }
 
 interface ComprehensiveAnalysisResult {
-  isDeepfake: boolean
+  isManipulated: boolean
   confidence: number
   processingTime: number
   analysisDetails: any
@@ -135,7 +135,7 @@ interface UploadedFile {
   timestamp: Date
   metadata?: EnhancedMediaMetadata
   reverseSearchResults?: ReverseSearchResult[]
-  deepfakeAnalysis?: DeepfakeAnalysisResult
+  aiAnalysis?: AiAnalysisResult
 }
 
 interface EnhancedMediaMetadata {
@@ -186,8 +186,8 @@ interface ReverseSearchResult {
   context: string
 }
 
-interface DeepfakeAnalysisResult {
-  isDeepfake: boolean
+interface AiAnalysisResult {
+  isManipulated: boolean
   confidence: number
   framework: string
   modelVersion: string
@@ -212,7 +212,7 @@ interface DeepfakeAnalysisResult {
     confidence: number
     type: string
   }>
-  manipulationType?: "manual" | "ai" | "deepfake" | null
+  manipulationType?: "manual" | "ai"  | null
 }
 
 // Minimalistic Starfield component
@@ -765,7 +765,7 @@ export default function VerifyPage() {
 
       // Convert backend result to frontend format
       const analysisResult: ComprehensiveAnalysisResult = {
-        isDeepfake: backendResult.is_manipulated || backendResult.is_ai_generated,
+        isManipulated: backendResult.is_manipulated || backendResult.is_ai_generated,
         confidence: backendResult.confidence,
         processingTime: backendResult.processing_time * 1000,
         analysisDetails: {
@@ -811,7 +811,7 @@ export default function VerifyPage() {
         spatialAnalysis: backendResult.spatial_analysis ? {
           objects: backendResult.objects_detected || [],
           faces: [],
-          deepfakeEvidence: [{
+          aiEvidence: [{
             type: backendResult.is_ai_generated ? "supporting" : "contradicting",
             description: backendResult.is_ai_generated 
               ? "AI-generated patterns detected by Vision Transformer"
@@ -862,7 +862,7 @@ export default function VerifyPage() {
 
       // Create TensorFlow result from backend data
       const tfResult = {
-        isDeepfake: backendResult.is_manipulated,
+        isManipulated: backendResult.is_manipulated,
         confidence: backendResult.confidence * 100,
         issues: backendResult.is_manipulated
           ? ["Manipulation detected by ML pipeline", `Type: ${backendResult.manipulation_type}`]
@@ -903,7 +903,7 @@ export default function VerifyPage() {
     const reportData = {
       fileName: file?.name,
       analysisDate: new Date().toISOString(),
-      isDeepfake: result.isDeepfake,
+      isManipulated: result.isManipulated,
       confidence: `${(result.confidence * 100).toFixed(1)}%`,
       tensorFlowConfidence: `${tensorFlowResult.confidence.toFixed(1)}%`,
       issues: tensorFlowResult.issues,
@@ -927,11 +927,11 @@ export default function VerifyPage() {
 
     const shareText = `Apex Verify AI Analysis Results:
 File: ${file?.name}
-Status: ${result.isDeepfake ? "Potential Deepfake Detected" : "Authentic Media"}
+Status: ${result.isManipulated ? "AI-Generated/Manipulated Content Detected" : "Authentic Media"}
 Confidence: ${(result.confidence * 100).toFixed(1)}%
 TensorFlow Confidence: ${tensorFlowResult?.confidence.toFixed(1)}%
 
-Verified by Apex Verify AI - Advanced Deepfake Detection`
+Verified by Apex Verify AI - AI-Generated Content Detection`
 
     if (navigator.share) {
       try {
@@ -960,12 +960,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
   // Auto-highlight visualization category based on detected manipulation type
   useEffect(() => {
     if (!result) return
-    if (result.isDeepfake) {
+    if (result.isManipulated) {
       // Prefer explicit manipulationType if present
       if ((result as any).manipulationType) {
         setSelectedVisualization((result as any).manipulationType)
       } else {
-        setSelectedVisualization("deepfake")
+        setSelectedVisualization("ai")
       }
     } else {
       setSelectedVisualization(null)
@@ -981,7 +981,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
     const raw: Array<{ x: number; y: number; width: number; height: number; confidence?: number; type?: string }> =
       (result as any)?.manipulationRegions && (result as any)?.manipulationRegions.length > 0
         ? (result as any).manipulationRegions
-        : (result as any)?.spatialAnalysis?.deepfakeEvidence?.[0]?.visualEvidence || []
+        : (result as any)?.spatialAnalysis?.aiEvidence?.[0]?.visualEvidence || []
 
     return raw.map((r) => {
       // If already looks like percentages (0-100), clamp; else convert from pixels
@@ -1105,7 +1105,7 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 justify-end">
-                  {result && !result.isDeepfake && result.confidence * 100 >= 95 && (
+                  {result && !result.isManipulated && result.confidence * 100 >= 95 && (
                     <div className="relative">
                       <Image
                         src="/verification-seal.png"
@@ -1195,12 +1195,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
               <div className="space-y-3 sm:space-y-4">
                 <div
                   className={`text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter ${
-                    result.isDeepfake
+                    result.isManipulated
                       ? "text-red-400 drop-shadow-[0_0_30px_rgba(248,113,113,0.3)]"
                       : "text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,0.3)]"
                   } animate-pulse`}
                 >
-                  {result.isDeepfake ? "MANIPULATED" : "AUTHENTIC"}
+                  {result.isManipulated ? "MANIPULATED" : "AUTHENTIC"}
                 </div>
                 <div className="text-lg sm:text-xl font-light text-white/70 tracking-wide">VERIFICATION COMPLETE</div>
               </div>
@@ -1220,12 +1220,12 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div
               className={`relative group transition-all duration-500 transform hover:scale-105 ${
-                !result.isDeepfake ? "scale-105" : "hover:scale-102"
+                !result.isManipulated ? "scale-105" : "hover:scale-102"
               }`}
             >
               <div
                 className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
-                  !result.isDeepfake
+                  !result.isManipulated
                     ? "bg-gradient-to-br from-green-500/20 via-green-400/10 to-transparent border-green-400/40 shadow-[0_0_30px_rgba(74,222,128,0.2)]"
                     : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
@@ -1238,17 +1238,17 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
             <div
               className={`relative group transition-all duration-500 transform cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "manual" ? "scale-105" : "hover:scale-102"
+                result.isManipulated && result.manipulationType === "manual" ? "scale-105" : "hover:scale-102"
               } ${selectedVisualization === "manual" ? "scale-105" : ""}`}
               onClick={() => {
-                if (result.isDeepfake) {
+                if (result.isManipulated) {
                   setSelectedVisualization(selectedVisualization === "manual" ? null : "manual")
                 }
               }}
             >
               <div
                 className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
-                  result.isDeepfake && result.manipulationType === "manual"
+                  result.isManipulated && result.manipulationType === "manual"
                     ? "bg-gradient-to-br from-orange-500/20 via-orange-400/10 to-transparent border-orange-400/40 shadow-[0_0_30px_rgba(251,146,60,0.2)]"
                     : selectedVisualization === "manual"
                       ? "bg-gradient-to-br from-orange-500/15 via-orange-400/8 to-transparent border-orange-400/30"
@@ -1263,17 +1263,17 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
             <div
               className={`relative group transition-all duration-500 transform cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "ai" ? "scale-105" : "hover:scale-102"
+                result.isManipulated && result.manipulationType === "ai" ? "scale-105" : "hover:scale-102"
               } ${selectedVisualization === "ai" ? "scale-105" : ""}`}
               onClick={() => {
-                if (result.isDeepfake) {
+                if (result.isManipulated) {
                   setSelectedVisualization(selectedVisualization === "ai" ? null : "ai")
                 }
               }}
             >
               <div
                 className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
-                  result.isDeepfake && result.manipulationType === "ai"
+                  result.isManipulated && result.manipulationType === "ai"
                     ? "bg-gradient-to-br from-blue-500/20 via-blue-400/10 to-transparent border-blue-400/40 shadow-[0_0_30px_rgba(96,165,250,0.2)]"
                     : selectedVisualization === "ai"
                       ? "bg-gradient-to-br from-blue-500/15 via-blue-400/8 to-transparent border-blue-400/30"
@@ -1288,31 +1288,31 @@ Verified by Apex Verify AI - Advanced Deepfake Detection`
 
             <div
               className={`relative group transition-all duration-500 transform cursor-pointer ${
-                result.isDeepfake && result.manipulationType === "deepfake" ? "scale-105" : "hover:scale-102"
-              } ${selectedVisualization === "deepfake" ? "scale-105" : ""}`}
+                result.isManipulated && result.manipulationType === "ai" ? "scale-105" : "hover:scale-102"
+              } ${selectedVisualization === "ai" ? "scale-105" : ""}`}
               onClick={() => {
-                if (result.isDeepfake) {
-                  setSelectedVisualization(selectedVisualization === "deepfake" ? null : "deepfake")
+                if (result.isManipulated) {
+                  setSelectedVisualization(selectedVisualization === "ai" ? null : "ai")
                 }
               }}
             >
               <div
                 className={`absolute inset-0 backdrop-blur-xl rounded-xl sm:rounded-2xl border transition-all duration-300 ${
-                  result.isDeepfake && result.manipulationType === "deepfake"
+                  result.isManipulated && result.manipulationType === "ai"
                     ? "bg-gradient-to-br from-red-500/20 via-red-400/10 to-transparent border-red-400/40 shadow-[0_0_30px_rgba(248,113,113,0.2)]"
-                    : selectedVisualization === "deepfake"
+                    : selectedVisualization === "ai"
                       ? "bg-gradient-to-br from-red-500/15 via-red-400/8 to-transparent border-red-400/30"
                       : "bg-white/5 border-white/20 group-hover:border-white/40 group-hover:bg-white/10"
                 }`}
               ></div>
               <div className="relative p-4 sm:p-6 text-center space-y-1 sm:space-y-2">
-                <div className="text-lg sm:text-2xl font-black">DEEPFAKE</div>
+                <div className="text-lg sm:text-2xl font-black">AI-GENERATED</div>
                 <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider">Face Swap</div>
               </div>
             </div>
           </div>
 
-          {result.isDeepfake && selectedVisualization && (
+          {result.isManipulated && selectedVisualization && (
             <div className="space-y-6">
               <div className="text-center space-y-2">
                 <div className="text-2xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">

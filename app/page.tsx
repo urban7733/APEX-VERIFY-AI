@@ -8,10 +8,10 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
 interface AnalysisResult {
-  isDeepfake: boolean
+  isManipulated: boolean
   confidence: number
   processingTime: number
-  manipulationType?: "manual" | "ai" | "deepfake" | null
+  manipulationType?: "manual" | "ai" | null
 }
 
 export default function Home() {
@@ -75,7 +75,7 @@ export default function Home() {
 
       // Convert backend result to frontend format
       const analysisResult: AnalysisResult = {
-        isDeepfake: backendResult.is_manipulated || backendResult.is_ai_generated,
+        isManipulated: backendResult.is_manipulated || backendResult.is_ai_generated,
         confidence: backendResult.confidence,
         processingTime: backendResult.processing_time * 1000,
         manipulationType: backendResult.manipulation_type,
@@ -407,7 +407,7 @@ export default function Home() {
                         <div className="inline-flex items-center justify-center">
                           <div className="relative px-8 py-4 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
                             <div className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-                              {result.isDeepfake ? "Manipulated" : "Verified"}
+                              {result.isManipulated ? "Manipulated" : "Verified"}
                             </div>
                           </div>
                         </div>
@@ -429,7 +429,7 @@ export default function Home() {
                         </div>
 
                         {/* Clean Download Button */}
-                        {!result.isDeepfake && file?.type.startsWith("image/") && (
+                        {!result.isManipulated && file?.type.startsWith("image/") && (
                           <Button
                             onClick={downloadWithWatermark}
                             className="group relative w-full overflow-hidden bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 rounded-xl px-6 py-5 transition-all duration-300 backdrop-blur-xl shadow-lg"
