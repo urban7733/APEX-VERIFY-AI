@@ -59,20 +59,32 @@ export default function Home() {
       const formData = new FormData()
       formData.append("file", fileToAnalyze)
 
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Call REAL BACKEND ML PIPELINE
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+        method: "POST",
+        body: formData,
+        signal: AbortSignal.timeout(60000), // 60s timeout
+      })
 
-      const mockResult: AnalysisResult = {
-        isDeepfake: Math.random() > 0.5,
-        confidence: 0.85 + Math.random() * 0.15,
-        processingTime: 2000,
-        manipulationType:
-          Math.random() > 0.5 ? (["manual", "ai", "deepfake"][Math.floor(Math.random() * 3)] as any) : null,
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`)
       }
 
-      setResult(mockResult)
+      const backendResult = await response.json()
+
+      // Convert backend result to frontend format
+      const analysisResult: AnalysisResult = {
+        isDeepfake: backendResult.is_manipulated || backendResult.is_ai_generated,
+        confidence: backendResult.confidence,
+        processingTime: backendResult.processing_time * 1000,
+        manipulationType: backendResult.manipulation_type,
+      }
+
+      setResult(analysisResult)
     } catch (error) {
-      console.error("Analysis failed:", error)
-      alert("Analysis failed. Please try again.")
+      console.error("❌ Backend ML Pipeline Failed:", error)
+      alert(`Analysis failed: ${error instanceof Error ? error.message : "Backend unavailable"}. Please ensure the backend is running.`)
     } finally {
       setIsAnalyzing(false)
     }
