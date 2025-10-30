@@ -132,7 +132,7 @@ export default function Home() {
       // Draw original image
       ctx.drawImage(img, 0, 0)
 
-      // Load watermark
+      // Load watermark - HIGH QUALITY
       const watermark = new window.Image()
       watermark.crossOrigin = "anonymous"
 
@@ -142,17 +142,23 @@ export default function Home() {
         watermark.src = "/watermark-logo.png"
       })
 
-      // Calculate watermark size (10% of image width)
-      const watermarkWidth = img.width * 0.1
+      // Calculate watermark size - BIGGER for better quality (15% instead of 10%)
+      const watermarkWidth = img.width * 0.15
       const watermarkHeight = (watermark.height / watermark.width) * watermarkWidth
 
-      // Position in top-left corner with padding
-      const padding = img.width * 0.02
+      // Position in BOTTOM-LEFT corner with padding
+      const padding = img.width * 0.03
+      const watermarkX = padding
+      const watermarkY = img.height - watermarkHeight - padding
 
-      // Draw watermark
-      ctx.drawImage(watermark, padding, padding, watermarkWidth, watermarkHeight)
+      // Enable smooth rendering for better quality
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
 
-      // Convert to blob and download
+      // Draw watermark at BOTTOM-LEFT
+      ctx.drawImage(watermark, watermarkX, watermarkY, watermarkWidth, watermarkHeight)
+
+      // Convert to blob and download - HIGH QUALITY PNG
       canvas.toBlob((blob) => {
         if (!blob) return
         const url = URL.createObjectURL(blob)
@@ -163,7 +169,7 @@ export default function Home() {
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-      }, "image/png")
+      }, "image/png", 1.0)
     } catch (error) {
       console.error("Failed to add watermark:", error)
       alert("Failed to download with watermark. Please try again.")
