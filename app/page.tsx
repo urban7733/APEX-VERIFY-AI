@@ -385,28 +385,11 @@ export default function Home() {
                   {result && !isAnalyzing && (
                     <div className="flex items-center justify-center h-full w-full">
                       <div className="text-center space-y-8 max-w-md">
-                        {/* Modern Result Badge */}
+                        {/* Clean Result - White Only */}
                         <div className="inline-flex items-center justify-center">
-                          <div
-                            className={`
-                              relative px-8 py-4 rounded-2xl border-2 transition-all duration-700
-                              ${
-                                result.isDeepfake
-                                  ? "border-red-500/30 bg-red-500/5"
-                                  : "border-green-500/30 bg-green-500/5"
-                              }
-                            `}
-                          >
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent" />
-                            <div className="relative">
-                              <div
-                                className={`
-                                  text-3xl sm:text-4xl font-bold tracking-tight
-                                  ${result.isDeepfake ? "text-red-400" : "text-green-400"}
-                                `}
-                              >
-                                {result.isDeepfake ? "Manipulated" : "Authentic"}
-                              </div>
+                          <div className="relative px-8 py-4 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
+                            <div className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+                              {result.isDeepfake ? "Manipulated" : "Verified"}
                             </div>
                           </div>
                         </div>
@@ -418,11 +401,7 @@ export default function Home() {
                           </div>
                           <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
                             <div
-                              className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ${
-                                result.isDeepfake
-                                  ? "bg-gradient-to-r from-red-500 to-red-400"
-                                  : "bg-gradient-to-r from-green-500 to-green-400"
-                              }`}
+                              className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 bg-gradient-to-r from-white/80 to-white/60"
                               style={{ width: `${Math.round(result.confidence * 100)}%` }}
                             />
                           </div>
@@ -431,16 +410,15 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {/* Modern Download Button */}
+                        {/* Clean Download Button */}
                         {!result.isDeepfake && file?.type.startsWith("image/") && (
                           <Button
                             onClick={downloadWithWatermark}
-                            className="group relative w-full overflow-hidden bg-gradient-to-r from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 text-white border border-white/20 hover:border-white/30 rounded-xl px-6 py-4 transition-all duration-300 backdrop-blur-xl shadow-lg hover:shadow-xl"
+                            className="group relative w-full overflow-hidden bg-white/10 hover:bg-white/15 text-white border border-white/20 hover:border-white/30 rounded-xl px-6 py-4 transition-all duration-300 backdrop-blur-xl"
                           >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                             <div className="relative flex items-center justify-center gap-2">
                               <Download className="w-4 h-4" />
-                              <span className="text-sm font-semibold tracking-tight">Download Verified</span>
+                              <span className="text-sm font-semibold tracking-tight">Download</span>
                             </div>
                           </Button>
                         )}
