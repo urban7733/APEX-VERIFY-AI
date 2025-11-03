@@ -8,13 +8,13 @@ Creators, journalists, and digital-rights teams need a single verdict: **Verifie
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 Next.js 14 (Vercel) ──┐
                      ├── /api/analyze → Modal FastAPI app
 Modal ML Pipeline ───┘        ├── SPAI (Spectral AI detector)
                               ├── ELA / Frequency / Noise heuristics
                               └── Heatmap compositor (OpenCV + Pillow)
-```
+\`\`\`
 
 Key notes:
 - No standalone backend service. All ML inference happens inside Modal functions with automatic scaling.
@@ -47,22 +47,22 @@ Key notes:
 
 Create an `.env.local` (see `env.local.example`) and set:
 
-```
+\`\`\`
 NEXT_PUBLIC_MODAL_ML_URL=https://<your-modal-app>.modal.run
 GMAIL_USER=alerts@example.com              # optional: enables contact form
 GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx        # 16-char Gmail app password
 CONTACT_FORWARD_EMAIL=team@example.com     # optional override
-```
+\`\`\`
 
 If email credentials are omitted, the contact endpoint responds with `503` instead of attempting delivery.
 
 ## 🛠️ Local Development
 
-```bash
+\`\`\`bash
 pnpm install
 pnpm dev
 # visit http://localhost:3000
-```
+\`\`\`
 
 Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `modal serve modal_ml_pipeline.py`.
 
@@ -82,7 +82,7 @@ Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `mo
 
 Typical `/api/analyze` response:
 
-```json
+\`\`\`json
 {
   "is_manipulated": false,
   "is_ai_generated": false,
@@ -99,7 +99,7 @@ Typical `/api/analyze` response:
     "noise_score": 0.21
   }
 }
-```
+\`\`\`
 
 ## 🔒 Security Notes
 
@@ -124,4 +124,3 @@ Proprietary – all rights reserved. Contact the maintainers for licensing inqui
 ---
 
 **Apex Verify AI** – Because synthetic media still needs a referee.
-

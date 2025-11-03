@@ -427,4 +427,3 @@ def main(image_path: str = "test.jpg"):
     print(f"ELA Score: {result['ela_score']:.3f}")
     print(f"Processing Time: {result['processing_time']:.2f}s")
     print("="*50)
-

@@ -10,18 +10,18 @@ This document captures the lean workflow for working on the current **Vercel ↔
 
 ## 2. Local Setup
 
-```bash
+\`\`\`bash
 pnpm install
 cp env.local.example .env.local   # edit values as needed
 pnpm dev                          # http://localhost:3000
-```
+\`\`\`
 
 Point `NEXT_PUBLIC_MODAL_ML_URL` at either a deployed Modal app or a locally served instance:
 
-```bash
+\`\`\`bash
 modal serve modal_ml_pipeline.py
 # copy the printed URL into NEXT_PUBLIC_MODAL_ML_URL
-```
+\`\`\`
 
 ## 3. Modal Pipeline Development
 
@@ -75,4 +75,3 @@ The contact route returns `503` if credentials are missing, so deployments stay 
 ---
 
 Ship with confidence. 🚀
-
