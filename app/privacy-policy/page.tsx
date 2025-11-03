@@ -4,18 +4,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ArrowLeft, Menu, X } from "lucide-react"
-import { AuthDialog } from "@/components/auth/auth-dialog"
 
 export default function PrivacyPolicy() {
   const router = useRouter()
-  const [authDialogOpen, setAuthDialogOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const handleLogin = () => {
-    setAuthMode("login")
-    setAuthDialogOpen(true)
-  }
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -40,7 +32,26 @@ export default function PrivacyPolicy() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">{/* Existing desktop navigation code */}</div>
+            <div className="hidden md:flex items-center space-x-6">
+              <button
+                onClick={() => router.push("/mission")}
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+              >
+                Mission
+              </button>
+              <button
+                onClick={() => router.push("/verify")}
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
+              >
+                Verify
+              </button>
+              <button
+                onClick={() => router.push("/")}
+                className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+              >
+                Home
+              </button>
+            </div>
 
             <button
               onClick={toggleMobileMenu}
@@ -52,7 +63,25 @@ export default function PrivacyPolicy() {
 
           {mobileMenuOpen && (
             <div className="md:hidden mt-6 rounded-2xl p-6 space-y-4 premium-mobile-menu">
-              {/* Existing mobile menu code */}
+              <button
+                onClick={() => router.push("/")}
+                className="flex items-center space-x-2 px-6 py-3 rounded-2xl text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-black tracking-tighter">Back to Home</span>
+              </button>
+              <button
+                onClick={() => router.push("/mission")}
+                className="px-6 py-3 rounded-2xl text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
+              >
+                Mission
+              </button>
+              <button
+                onClick={() => router.push("/verify")}
+                className="px-6 py-3 rounded-2xl text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
+              >
+                Verify
+              </button>
             </div>
           )}
         </div>
@@ -105,7 +134,7 @@ export default function PrivacyPolicy() {
               <div className="space-y-4 text-white/80 leading-relaxed">
                 <p>We use the information we collect to:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Provide, maintain, and improve our deepfake detection services</li>
+                  <li>Provide, maintain, and improve our AI-generated content detection services</li>
                   <li>Process and analyze uploaded content for verification purposes</li>
                   <li>Communicate with you about our services, updates, and support</li>
                   <li>Protect against fraud, abuse, and security threats</li>
@@ -291,8 +320,6 @@ export default function PrivacyPolicy() {
           <p className="text-white/60 text-lg font-light">Located in San Francisco, CA</p>
         </div>
       </div>
-
-      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
     </div>
   )
 }

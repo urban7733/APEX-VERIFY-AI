@@ -28,18 +28,20 @@ export async function POST(request: NextRequest) {
       } else {
         throw new Error(`Modal ML failed: ${response.status}`)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Modal ML Pipeline error:", error)
+      const message = error instanceof Error ? error.message : "Please try again later"
       return NextResponse.json(
-        { 
-          error: "ML Pipeline unavailable", 
-          message: error.message || "Please try again later"
-        }, 
+        {
+          error: "ML Pipeline unavailable",
+          message,
+        },
         { status: 503 }
       )
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Analysis error:", error)
-    return NextResponse.json({ error: "Analysis failed" }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Analysis failed"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

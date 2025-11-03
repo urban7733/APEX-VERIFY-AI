@@ -6,7 +6,7 @@
 Vercel Frontend → Modal ML Pipeline (Direct)
 ```
 
-**No Backend Server Needed!** 🚀
+**No standalone backend required.** 🚀
 
 ---
 
@@ -60,19 +60,15 @@ In Vercel → Your Project → Settings → Environment Variables:
 
 ## 📊 What's Included
 
-### Current Features ✅
-- **Manipulation Detection**
+### Current Capabilities ✅
+- **SPAI AI-Detection** (Spectral AI-generated image classifier via PyTorch)
+- **Manipulation Detection Heuristics**
   - Error Level Analysis (ELA)
   - Frequency Domain Analysis
   - Noise Pattern Analysis
-- **Heatmap Generation**
-- **Auto-scaling** (0 to 1000+ requests/sec)
-- **CPU Inference** (2 cores, 2GB RAM)
-
-### Coming Soon 🚧
-- **SPAI AI-Detection** (Spectral AI detector)
-- **GPU Acceleration** (T4)
-- **Enhanced Accuracy** (~97%+)
+- **Heatmap Generation** (OpenCV blending)
+- **Auto-scaling** (Modal serverless runtime)
+- **CPU Inference** (4 vCPUs / 8 GB RAM by default)
 
 ---
 
@@ -95,7 +91,7 @@ In Vercel → Your Project → Settings → Environment Variables:
 
 ```bash
 # Test with an image
-modal run modal_ml_pipeline.py --image-path test.jpg
+modal run modal_ml_pipeline.py::main --image-path test.jpg
 ```
 
 ### Test Modal API

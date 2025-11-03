@@ -7,11 +7,15 @@ interface StatusIndicatorProps {
   className?: string
 }
 
+type PipelineStatus = string | Record<string, unknown>
+
 interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'error'
+  status: 'healthy' | 'degraded' | 'error'
   frontend: string
-  backend: any
+  modal: PipelineStatus
   message?: string
+  error?: string
+  timestamp?: string
 }
 
 export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
@@ -34,7 +38,7 @@ export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
       clearTimeout(timeoutId)
       
       const data = await response.json()
-      setStatus(data)
+      setStatus(data as HealthStatus)
       setLastChecked(new Date())
     } catch (error) {
       console.error('Health check failed:', error)
@@ -44,15 +48,15 @@ export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
         setStatus({
           status: 'error',
           frontend: 'healthy',
-          backend: 'timeout',
-          message: 'Health check timeout'
+          modal: 'timeout',
+          message: 'Modal health check timeout'
         })
       } else {
         setStatus({
           status: 'error',
           frontend: 'healthy',
-          backend: 'unreachable',
-          message: 'Cannot connect to backend'
+          modal: 'unreachable',
+          message: 'Cannot reach Modal ML pipeline'
         })
       }
       setLastChecked(new Date())
@@ -80,7 +84,6 @@ export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
         return <CheckCircle className="w-4 h-4 text-green-400" />
       case 'degraded':
         return <AlertTriangle className="w-4 h-4 text-yellow-400" />
-      case 'unhealthy':
       case 'error':
         return <XCircle className="w-4 h-4 text-red-400" />
       default:
@@ -96,7 +99,6 @@ export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
         return 'All Systems Operational'
       case 'degraded':
         return 'Partial Service'
-      case 'unhealthy':
       case 'error':
         return 'Service Issues'
       default:

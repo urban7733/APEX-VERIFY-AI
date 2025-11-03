@@ -1,178 +1,127 @@
 # APEX VERIFY AI
 
-APEX VERIFY AI is a cutting-edge image authenticity verification platform built for the creator economy. Our mission is to restore trust in digital content by providing enterprise-grade AI verification using Meta's DINOv3 and Google's Gemini Pro Vision.
+**Apex Verify AI** delivers production-grade authenticity checks for AI-generated imagery. A polished Next.js experience connects directly to a GPU-backed Modal pipeline that runs SPAI (Spectral AI-generated Image detection) plus proprietary manipulation analysis.
 
 ## 🎯 Mission
 
-In a world where AI-generated content is becoming indistinguishable from reality, APEX VERIFY AI provides the infrastructure for truth. We serve content creators, journalists, and social media managers who need to verify image authenticity with confidence.
+Creators, journalists, and digital-rights teams need a single verdict: **Verified** or **Manipulated**. Apex Verify AI delivers that answer in seconds and packages the result with transparent confidence scores and heatmaps that expose suspicious regions.
 
 ## 🏗️ Architecture
 
-\`\`\`
-Next.js + Tailwind (Frontend) 
-    ↓
-REST API 
-    ↓
-FastAPI (Backend) 
-    ↓
-AI Pipeline Orchestrator
-    ├── DINOv3 Feature Extraction
-    ├── Anomaly Detection
-    ├── Gemini Pro Vision Analysis
-    └── Authenticity Scoring
-    ↓
-PostgreSQL + pgvector (Metadata & Embeddings)
-Redis + Celery (Background Tasks)
-MinIO/S3 (File Storage)
-\`\`\`
+```
+Next.js 14 (Vercel) ──┐
+                     ├── /api/analyze → Modal FastAPI app
+Modal ML Pipeline ───┘        ├── SPAI (Spectral AI detector)
+                              ├── ELA / Frequency / Noise heuristics
+                              └── Heatmap compositor (OpenCV + Pillow)
+```
+
+Key notes:
+- No standalone backend service. All ML inference happens inside Modal functions with automatic scaling.
+- The frontend sends multipart uploads to the Next.js API route `/api/analyze`, which safely proxies requests to Modal and handles timeouts and error reporting.
+- SPAI runs on PyTorch with CUDA (T4) when available; the pipeline gracefully falls back to CPU if necessary.
 
 ## 🚀 Technology Stack
 
 ### Frontend
-- **Next.js 14** - React framework with App Router
-- **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **TypeScript** - Type-safe development
+- **Next.js 14 + App Router**
+- **React 18** client components for upload, preview, and results
+- **Tailwind CSS** + **shadcn/ui** primitives for consistent styling
+- **Lucide Icons** for accessible iconography
 
-### Backend
-- **FastAPI** - High-performance Python web framework
-- **DINOv3** - Meta's 25GB vision transformer for feature extraction
-- **Gemini Pro Vision** - Google's multimodal AI for contextual analysis
-- **PostgreSQL + pgvector** - Vector database for embeddings
-- **Redis + Celery** - Task queue and caching
-- **MinIO/S3** - Object storage for media files
+### Modal ML Pipeline (`modal_ml_pipeline.py`)
+- **Modal App** with GPU-ready Debian base image
+- **PyTorch + Transformers** to load SPAI (`HaoyiZhu/SPA`)
+- **OpenCV, Pillow, NumPy** for preprocessing, ELA, frequency, and noise analysis
+- **FastAPI** exposed via `@modal.asgi_app()` with `/`, `/health`, and `/analyze`
 
-## 🎨 Features
+## ✨ Core Features
 
-- **Drag & Drop Interface** - Intuitive image upload
-- **Real-time Analysis** - GPU-accelerated processing
-- **Comprehensive Reports** - Human-readable verification results
-- **Enterprise Security** - SOC 2 compliant infrastructure
-- **Scalable Architecture** - Built for high-volume verification
+- Drag-and-drop uploads with instant preview and watermark downloads
+- SPAI-based AI-generated detection with probability distribution
+- Combined ELA/Frequency/Noise heuristics for manipulation confidence
+- Heatmap overlays rendered server-side and streamed as Base64
+- Responsive, mobile-first UI without inline demo data or randomization
 
-## 🔐 Security & Configuration
+## 🔧 Configuration
 
-### Environment Variables
-This project uses environment variables for sensitive configuration. **Never commit API keys or secrets to version control.**
+Create an `.env.local` (see `env.local.example`) and set:
 
-**Required Environment Files:**
-- `backend/.env` - Backend configuration (API keys, database URLs)
-- `app/.env.local` - Frontend configuration (backend URL)
+```
+NEXT_PUBLIC_MODAL_ML_URL=https://<your-modal-app>.modal.run
+GMAIL_USER=alerts@example.com              # optional: enables contact form
+GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx        # 16-char Gmail app password
+CONTACT_FORWARD_EMAIL=team@example.com     # optional override
+```
 
-**Example Backend Environment:**
-\`\`\`bash
-# Copy backend/env.example to backend/.env and fill in your values
-GEMINI_API_KEY=your_gemini_api_key_here
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-\`\`\`
+If email credentials are omitted, the contact endpoint responds with `503` instead of attempting delivery.
 
-**Example Frontend Environment:**
-\`\`\`bash
-# Copy env.local.example to app/.env.local and fill in your values
-BACKEND_URL=http://localhost:8000
-\`\`\`
+## 🛠️ Local Development
 
-### API Keys Required
-1. **Gemini Pro Vision API Key** - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. **Database Connection** - PostgreSQL connection string (for production)
-3. **Storage Credentials** - S3/MinIO credentials (for production)
+```bash
+pnpm install
+pnpm dev
+# visit http://localhost:3000
+```
 
-## 🛠️ Development
+Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `modal serve modal_ml_pipeline.py`.
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- Docker & Docker Compose
-- GPU access (for DINOv3 inference)
+## 🔁 Deployment Workflow
 
-### Local Setup
+1. **Modal** – `modal deploy modal_ml_pipeline.py` to publish the latest container with SPAI and dependencies.
+2. **Next.js (Vercel)** – set environment variables (`NEXT_PUBLIC_MODAL_ML_URL`, contact email creds) and trigger a Vercel deploy.
+3. **Smoke test** – upload both a genuine image and a synthetic sample, confirm SPAI output, and verify `GET /health` returns `{"status":"healthy"}`.
 
-1. **Clone the repository**
-   \`\`\`bash
-   git clone https://github.com/urban7733/apexv0dev.git
-   cd apexv0dev
-   \`\`\`
+## 📡 API Surface
 
-2. **Set up environment variables**
-   \`\`\`bash
-   # Backend
-   cp backend/env.example backend/.env
-   # Edit backend/.env with your API keys
-   
-   # Frontend
-   cp env.local.example app/.env.local
-   # Edit app/.env.local with your backend URL
-   \`\`\`
+| Endpoint | Description |
+| --- | --- |
+| `POST /api/analyze` | Next.js route that forwards multipart uploads to Modal and returns analysis JSON |
+| `POST /api/contact` | Optional contact form handler (requires Gmail app credentials) |
+| `GET https://<modal-app>.modal.run/health` | Modal health probe |
 
-3. **Install dependencies**
-   \`\`\`bash
-   npm run setup
-   \`\`\`
+Typical `/api/analyze` response:
 
-4. **Start development services**
-   \`\`\`bash
-   # Start both frontend and backend
-   npm run full:dev
-   
-   # Or start them separately:
-   npm run dev          # Frontend
-   npm run backend:dev  # Backend
-   \`\`\`
+```json
+{
+  "is_manipulated": false,
+  "is_ai_generated": false,
+  "confidence": 0.18,
+  "heatmap_base64": "...",
+  "ai_detection": {
+    "status": "ok",
+    "label": "authentic",
+    "score": 0.12
+  },
+  "manipulation_detection": {
+    "ela_score": 0.24,
+    "frequency_score": 0.19,
+    "noise_score": 0.21
+  }
+}
+```
 
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
+## 🔒 Security Notes
 
-### Production Deployment
-
-\`\`\`bash
-# Build frontend
-npm run build
-
-# Deploy backend to cloud (Google Cloud recommended)
-gcloud app deploy backend/
-
-# Set environment variables
-export GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"
-export GEMINI_API_KEY="your-production-gemini-key"
-export DATABASE_URL="postgresql://user:pass@host:port/db"
-\`\`\`
-
-## 📊 API Endpoints
-
-- `GET /` - Service information
-- `GET /health` - Health check with model status
-- `POST /api/verify` - Image authenticity verification
-
-## 🔒 Security
-
-- CORS enabled for cross-origin requests
-- File type validation (images only)
-- Rate limiting and request validation
-- Secure file handling with temporary storage
-- Environment variable protection
-- API key security best practices
+- Files stay in memory; nothing persists to disk or cloud storage.
+- Modal validates MIME types and rejects non-image uploads.
+- The frontend enforces a 60‑second timeout and displays actionable errors.
+- Contact email sending is disabled unless credentials are provided.
+- `.env*` files remain git-ignored; secrets never belong in version control.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-**⚠️ Security Note:** Never commit API keys, passwords, or other secrets. Use environment variables and ensure `.env` files are in `.gitignore`.
+2. Create a branch (`git checkout -b feature/<name>`)
+3. Implement changes with linted TypeScript/Python
+4. Run `pnpm lint && pnpm build` (optional) and `modal deploy --dry-run` when touching the pipeline
+5. Open a Pull Request with testing notes
 
 ## 📄 License
 
-This project is proprietary software. All rights reserved.
-
-## 🌟 About
-
-APEX VERIFY AI is built by a team passionate about restoring trust in digital content. We believe that in the age of AI, verification becomes the foundation of truth.
+Proprietary – all rights reserved. Contact the maintainers for licensing inquiries.
 
 ---
 
-**APEX VERIFY AI** - Because Truth Matters.
+**Apex Verify AI** – Because synthetic media still needs a referee.
+

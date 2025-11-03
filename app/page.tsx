@@ -60,8 +60,7 @@ export default function Home() {
       formData.append("file", fileToAnalyze)
 
       // Call REAL BACKEND ML PIPELINE
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+      const response = await fetch("/api/analyze", {
         method: "POST",
         body: formData,
         signal: AbortSignal.timeout(60000), // 60s timeout

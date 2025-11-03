@@ -10,20 +10,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
 
-    // Create transporter (using Gmail SMTP as example)
-    // In production, you'd use environment variables for these credentials
-    const transporter = nodemailer.createTransporter({
+    const gmailUser = process.env.GMAIL_USER
+    const gmailPassword = process.env.GMAIL_APP_PASSWORD
+
+    if (!gmailUser || !gmailPassword) {
+      console.error("Contact form email credentials are not configured")
+      return NextResponse.json({ error: "Email service not configured" }, { status: 503 })
+    }
+
+    const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.GMAIL_USER || "your-email@gmail.com",
-        pass: process.env.GMAIL_APP_PASSWORD || "your-app-password",
+        user: gmailUser,
+        pass: gmailPassword,
       },
     })
 
     // Email content
     const mailOptions = {
-      from: process.env.GMAIL_USER || "your-email@gmail.com",
-      to: "urban33133@gmail.com", // Hidden from frontend
+      from: gmailUser,
+      to: process.env.CONTACT_FORWARD_EMAIL || "urban33133@gmail.com",
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

@@ -1,197 +1,78 @@
-# APEX VERIFY AI - Development Guide
+# Apex Verify AI – Development Guide
 
-## ⚠️ SECURITY WARNING
-**NEVER commit API keys, passwords, or secrets to version control!**
-- Your `.env` files are automatically ignored by git
-- Keep your Gemini API key secure
-- Use environment variables for all sensitive configuration
+This document captures the lean workflow for working on the current **Vercel ↔ Modal** architecture. All legacy backend instructions have been removed.
 
-## 🚀 Quick Start
+## 1. Prerequisites
 
-### 1. **Clone and Setup**
-\`\`\`bash
-git clone https://github.com/urban7733/apexv0dev.git
-cd apexv0dev
-npm run setup
-\`\`\`
+- Node.js ≥ 18.18 with pnpm 10
+- Modal CLI authenticated (`modal token set ...`)
+- Optional: Gmail app password if you want to exercise the contact form
 
-### 2. **Configure Environment Variables**
-\`\`\`bash
-# Backend - Copy and edit with your API keys
-cp backend/env.example backend/.env
-# Edit backend/.env and add your GEMINI_API_KEY
+## 2. Local Setup
 
-# Frontend - Copy and edit with your backend URL
-cp env.local.example app/.env.local
-# Edit app/.env.local and set BACKEND_URL
-\`\`\`
+```bash
+pnpm install
+cp env.local.example .env.local   # edit values as needed
+pnpm dev                          # http://localhost:3000
+```
 
-### 3. **Start Development Environment**
-\`\`\`bash
-# Start both frontend and backend
-npm run full:dev
+Point `NEXT_PUBLIC_MODAL_ML_URL` at either a deployed Modal app or a locally served instance:
 
-# Or start them separately:
-# Terminal 1: Frontend
-npm run dev
+```bash
+modal serve modal_ml_pipeline.py
+# copy the printed URL into NEXT_PUBLIC_MODAL_ML_URL
+```
 
-# Terminal 2: Backend  
-npm run backend:dev
-\`\`\`
+## 3. Modal Pipeline Development
 
-### 4. **Access the Application**
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- `modal_ml_pipeline.py` owns the full ML flow (SPAI + heuristics + heatmap).
+- Use `modal run modal_ml_pipeline.py::main --image-path sample.jpg` to trigger local entry points.
+- After edits, redeploy with `modal deploy modal_ml_pipeline.py`.
+- Watch logs at https://modal.com/apps to verify cold starts and GPU usage.
 
-## 🏗️ Project Structure
+## 4. Frontend Development Notes
 
-\`\`\`
-apexv0dev/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes (proxies to FastAPI)
-│   ├── verify/            # Image verification page
-│   └── page.tsx           # Home page
-├── backend/               # FastAPI backend
-│   ├── services/          # AI services
-│   │   ├── dinov3_service.py      # DINOv3 feature extraction
-│   │   ├── gemini_service.py      # Gemini Pro Vision analysis
-│   │   └── verification_orchestrator.py  # Pipeline coordination
-│   ├── config/            # Configuration
-│   ├── utils/             # Utility functions
-│   └── main.py            # FastAPI app
-├── components/            # React components
-│   ├── ui/                # UI components (Radix UI)
-│   ├── verification-results.tsx   # Results display
-│   └── status-indicator.tsx       # Health status
-└── lib/                   # Shared utilities
-\`\`\`
+- `/api/analyze` is the only code path that hits Modal; keep the proxy thin and resilient.
+- Avoid reintroducing client-side randomness or mock data—always defer to Modal responses.
+- Lint with `pnpm lint`, type-check with `pnpm tsc --noEmit` if desired.
 
-## 🔧 Configuration
+## 5. Environment Variables
 
-### Environment Variables
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_MODAL_ML_URL` | Base URL of the Modal FastAPI app (required) |
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Enable the `/api/contact` route (optional) |
+| `CONTACT_FORWARD_EMAIL` | Override the default recipient for contact emails (optional) |
 
-**Frontend** (`.env.local`):
-\`\`\`bash
-BACKEND_URL=http://localhost:8000
-\`\`\`
+The contact route returns `503` if credentials are missing, so deployments stay safe by default.
 
-**Backend** (`.env`):
-\`\`\`bash
-ENVIRONMENT=development
-GEMINI_API_KEY=your_gemini_api_key_here
-LOG_LEVEL=INFO
-\`\`\`
+## 6. Deployment Checklist
 
-### API Keys Required
+1. `modal deploy modal_ml_pipeline.py`
+2. Push to Git / trigger Vercel build (environment variables must be configured there)
+3. Sanity test: upload a genuine and an AI-generated image on production and review SPAI confidence + heatmap
 
-1. **Gemini Pro Vision API Key** (required for full functionality)
-   - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Set in backend `.env` file
-   - Without it, the service uses placeholder responses
+## 7. Troubleshooting
 
-## 🧪 Testing the System
+| Symptom | Action |
+| --- | --- |
+| `/api/analyze` times out | Check Modal logs for cold-start or import errors; confirm URL + credentials |
+| SPAI result missing | Ensure GPU is available; verify container includes PyTorch + transformers |
+| Contact form fails | Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` (16-char app password) |
 
-### 1. **Health Check**
-Visit `/api/health` to check system status
+## 8. Coding Standards
 
-### 2. **Image Verification**
-1. Go to http://localhost:3000/verify
-2. Upload an image (JPG, PNG, WebP)
-3. Click "Analyze Image"
-4. View results
+- Treat every change as production-bound; no demo code or randomization.
+- Use TypeScript types for API payloads where possible.
+- Prefer pure functions and modular components to keep the surface area maintainable.
 
-### 3. **Backend API Testing**
-\`\`\`bash
-# Health check
-curl http://localhost:8000/health
+## 9. Getting Help
 
-# Service status
-curl http://localhost:8000/api/status
-
-# Test image upload (replace with actual image)
-curl -X POST http://localhost:8000/api/verify \
-  -F "file=@test-image.jpg"
-\`\`\`
-
-## 🔍 Development Workflow
-
-### Frontend Development
-- **Hot Reload**: Changes auto-refresh in browser
-- **TypeScript**: Full type safety
-- **Tailwind CSS**: Utility-first styling
-- **Components**: Modular, reusable components
-
-### Backend Development
-- **Hot Reload**: Backend restarts on file changes
-- **Async/Await**: Modern Python async patterns
-- **Service Architecture**: Modular, testable services
-- **Logging**: Comprehensive logging for debugging
-
-### AI Pipeline Development
-1. **DINOv3 Service**: Feature extraction and anomaly detection
-2. **Gemini Service**: Content analysis and report generation
-3. **Orchestrator**: Coordinates the entire pipeline
-
-## 🐛 Debugging
-
-### Frontend Issues
-- Check browser console for errors
-- Verify API endpoints are correct
-- Check network tab for failed requests
-
-### Backend Issues
-- Check terminal for Python errors
-- Verify environment variables
-- Check FastAPI logs at http://localhost:8000/docs
-
-### AI Service Issues
-- Check service initialization logs
-- Verify API keys are set
-- Check model loading status
-
-## 📦 Production Deployment
-
-### Frontend (Vercel)
-\`\`\`bash
-npm run build
-# Deploy to Vercel
-\`\`\`
-
-### Backend (Google Cloud)
-\`\`\`bash
-# Set production environment
-export ENVIRONMENT=production
-export GEMINI_API_KEY=your_production_key
-
-# Deploy to Google Cloud Run or App Engine
-gcloud app deploy backend/
-\`\`\`
-
-## 🤝 Contributing
-
-1. **Fork the repository**
-2. **Create a feature branch**
-3. **Make your changes**
-4. **Test thoroughly**
-5. **Submit a pull request**
-
-**⚠️ Security Reminder:** Never commit API keys or secrets. Always use environment variables.
-
-## 📚 Resources
-
-- **Next.js**: https://nextjs.org/docs
-- **FastAPI**: https://fastapi.tiangolo.com/
-- **DINOv3**: https://github.com/facebookresearch/dinov2
-- **Gemini Pro Vision**: https://ai.google.dev/
-- **Tailwind CSS**: https://tailwindcss.com/docs
-
-## 🆘 Getting Help
-
-- **Issues**: Create GitHub issues for bugs
-- **Discussions**: Use GitHub discussions for questions
-- **Documentation**: Check README.md and this guide
+- **Modal docs**: https://modal.com/docs
+- **Next.js docs**: https://nextjs.org/docs
+- **SPAI paper / repo**: https://github.com/mever-team/spai
 
 ---
 
-**Happy Coding! 🚀**
+Ship with confidence. 🚀
+

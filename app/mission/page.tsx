@@ -2,18 +2,10 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ArrowLeft, Shield, Eye, Zap, Menu, X } from "lucide-react"
-import { AuthDialog } from "@/components/auth/auth-dialog"
 
 export default function MissionPage() {
   const router = useRouter()
-  const [authDialogOpen, setAuthDialogOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const handleLogin = () => {
-    setAuthMode("login")
-    setAuthDialogOpen(true)
-  }
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -36,15 +28,6 @@ export default function MissionPage() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
-              <button
-                onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                <span>ACCESS</span>
-              </button>
               <button
                 onClick={() => router.push("/verify")}
                 className="px-6 py-3 rounded-full text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
@@ -78,15 +61,6 @@ export default function MissionPage() {
                 <span className="font-black tracking-tighter">BACK TO HOME</span>
               </button>
               <button
-                onClick={handleLogin}
-                className="flex items-center space-x-2 px-6 py-3 rounded-2xl text-white text-sm font-medium transition-all duration-300 premium-button min-h-[44px]"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                <span>ACCESS</span>
-              </button>
-              <button
                 onClick={() => router.push("/verify")}
                 className="px-6 py-3 rounded-2xl text-white text-sm font-medium transition-all duration-300 premium-button-primary min-h-[44px]"
               >
@@ -115,11 +89,11 @@ export default function MissionPage() {
                 </div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter premium-heading">
                   <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                    APEX VERIFY AI – THE TRUTH STANDARD FOR THE CREATOR ECONOMY
+                    APEX VERIFY AI – THE TRUST STANDARD FOR THE CREATOR ECONOMY
                   </span>
                 </h1>
                 <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-tight font-black tracking-tighter premium-heading">
-                  IN A DIGITAL WORLD FLOODED WITH AI EDITS, DEEPFAKES, AND PHOTOSHOP TRICKS, APEX VERIFY AI EXISTS FOR
+                  IN A DIGITAL WORLD FLOODED WITH AI EDITS, SYNTHETIC MEDIA, AND PHOTOSHOP TRICKS, APEX VERIFY AI EXISTS FOR
                   ONE MISSION: TO PROTECT CREATORS AND RESTORE AUTHENTICITY.
                 </p>
               </div>
@@ -166,7 +140,7 @@ export default function MissionPage() {
                       CLASSIFICATION OF MANIPULATION
                     </h3>
                     <p className="text-white/80 text-sm font-black tracking-tighter premium-heading">
-                      DEEPFAKE, AI EDIT, OR MANUAL PHOTOSHOP — WE IDENTIFY THEM ALL.
+                      AI-GENERATED, AI-AUGMENTED, OR MANUAL PHOTOSHOP — WE IDENTIFY THEM ALL.
                     </p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4">
@@ -198,7 +172,6 @@ export default function MissionPage() {
         </div>
       </div>
 
-      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultMode={authMode} />
     </div>
   )
 }

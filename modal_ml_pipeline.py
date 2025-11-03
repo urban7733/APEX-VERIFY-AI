@@ -9,7 +9,8 @@ Architecture:
 """
 
 import modal
-from typing import Dict, Any, List
+from typing import Dict, Any
+from functools import lru_cache
 
 # Create Modal app
 app = modal.App("apex-verify-ml")
@@ -23,24 +24,27 @@ image = (
         "Pillow>=10.0.0",
         "numpy>=1.24.0,<2.0.0",
         "fastapi",
-        # TODO: Add SPAI when available
-        # "spai-detector",  
+        "torch==2.3.1",
+        "torchvision==0.18.1",
+        "transformers==4.42.4",
+        "huggingface-hub==0.23.4",
+        "safetensors==0.4.3",
     )
 )
 
 
 @app.function(
     image=image,
-    cpu=2.0,  # Start with CPU, upgrade to GPU when SPAI is added
-    memory=2048,
-    timeout=60,
+    cpu=4.0,
+    memory=8192,
+    timeout=180,
 )
 def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
     """
     Complete ML Analysis Pipeline
     - Manipulation Detection (ELA + Frequency + Noise)
     - Heatmap Generation
-    - TODO: SPAI AI-Detection (GPU-accelerated)
+    - SPAI AI-Detection (CPU/GPU auto)
     """
     import cv2
     import numpy as np
@@ -54,6 +58,9 @@ def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
     img_pil = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     img_array = np.frombuffer(image_bytes, np.uint8)
     img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    if img_cv is None:
+        # Fallback: build from PIL image to avoid OpenCV decode crashes
+        img_cv = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
     
     print(f"📸 Analyzing image: {img_pil.size}")
     
@@ -65,17 +72,37 @@ def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
     print("🗺️ Generating Heatmap...")
     heatmap_base64 = generate_heatmap(img_cv, img_pil)
     
-    # 3. TODO: SPAI AI-Detection
-    # print("🤖 Running SPAI Detection...")
-    # spai_result = detect_with_spai(img_pil)
+    # 3. SPAI AI-Detection
+    spai_result = {
+        "is_ai_generated": False,
+        "score": 0.0,
+        "label": "unknown",
+        "probabilities": {},
+        "status": "unavailable",
+    }
+    try:
+        print("🤖 Running SPAI Detection...")
+        spai_payload = detect_with_spai(img_pil)
+        spai_result.update(spai_payload)
+        spai_result["status"] = "ok"
+    except Exception as spai_error:
+        print(f"⚠️ SPAI detection failed: {spai_error}")
+        spai_result["error"] = str(spai_error)
     
     processing_time = time.time() - start_time
     
+    combined_is_manipulated = bool(
+        manip_result['is_manipulated'] or spai_result.get('is_ai_generated', False)
+    )
+    combined_confidence = manip_result['confidence']
+    if spai_result.get('status') == 'ok':
+        combined_confidence = max(combined_confidence, spai_result.get('score', 0.0))
+
     # Combine results
     result = {
-        "is_manipulated": manip_result['is_manipulated'],
-        "is_ai_generated": False,  # TODO: SPAI result
-        "confidence": manip_result['confidence'],
+        "is_manipulated": combined_is_manipulated,
+        "is_ai_generated": spai_result.get('is_ai_generated', False),
+        "confidence": combined_confidence,
         "manipulation_type": manip_result['type'],
         "manipulation_areas": manip_result['areas'],
         "ela_score": manip_result['ela_score'],
@@ -83,11 +110,69 @@ def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
         "noise_score": manip_result['noise_score'],
         "heatmap_base64": heatmap_base64,
         "processing_time": processing_time,
-        "method": "manipulation_detection",  # Will add "spai" later
+        "method": "spai+manipulation" if spai_result.get('status') == 'ok' else "manipulation_detection",
+        "ai_detection": spai_result,
+        "manipulation_detection": manip_result,
     }
     
     print(f"✅ Analysis complete in {processing_time:.2f}s")
     return result
+
+
+@lru_cache(maxsize=1)
+def load_spai_artifacts():
+    """Load SPAI model and processor once per container."""
+    from transformers import AutoImageProcessor, AutoModelForImageClassification
+    import torch
+
+    model_name = "HaoyiZhu/SPA"
+    processor = AutoImageProcessor.from_pretrained(model_name)
+    model = AutoModelForImageClassification.from_pretrained(model_name)
+    model.eval()
+
+    # Ensure model uses GPU if available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    return model, processor, device
+
+
+def detect_with_spai(img_pil: Any) -> Dict[str, Any]:
+    """Run SPAI model inference on a PIL image."""
+    import torch
+
+    model, processor, device = load_spai_artifacts()
+
+    inputs = processor(images=img_pil, return_tensors="pt")
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        logits = outputs.logits
+        probabilities = torch.nn.functional.softmax(logits, dim=-1)
+
+    probs = probabilities[0]
+    top_idx = torch.argmax(probs).item()
+    top_score = probs[top_idx].item()
+
+    id2label = model.config.id2label or {}
+    label = id2label.get(top_idx, str(top_idx))
+    label_normalized = label.lower().replace("_", " ")
+
+    ai_indicative_tokens = {"ai-generated", "ai generated", "fake", "manipulated", "synthetic"}
+    is_ai_generated = any(token in label_normalized for token in ai_indicative_tokens)
+
+    probability_map: Dict[str, float] = {}
+    for idx in range(probs.shape[0]):
+        label_name = id2label.get(idx, str(idx))
+        probability_map[label_name] = float(probs[idx].item())
+
+    return {
+        "is_ai_generated": bool(is_ai_generated),
+        "label": label,
+        "score": float(top_score),
+        "probabilities": probability_map,
+    }
 
 
 def detect_manipulation(img_pil: Any, img_cv) -> Dict[str, Any]:
@@ -290,7 +375,7 @@ def root():
         "features": [
             "Manipulation Detection (ELA + Frequency + Noise)",
             "Heatmap Generation",
-            "SPAI Integration (Coming Soon)"
+            "SPAI AI-Generated Image Detection"
         ]
     }
 
