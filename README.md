@@ -8,7 +8,7 @@ Creators, journalists, and digital-rights teams need a single verdict: **Verifie
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 Next.js 14 (Vercel) ──┐
                      ├── /api/analyze  ──► Modal FastAPI app (GPU)
                      └── /api/memory/lookup ─► Modal FastAPI app (Memory)
@@ -21,7 +21,7 @@ Modal ML Pipeline ───┘          ├── SPAI (Spectral AI detector)
                              Neon PostgreSQL
                                 ├── NextAuth session & account tables
                                 └── VerificationRecord history (analytics-grade)
-```
+\`\`\`
 
 Key notes:
 - No standalone backend service. All ML inference happens inside Modal functions with automatic scaling.
@@ -57,7 +57,7 @@ Key notes:
 
 Create an `.env.local` (see `env.local.example`) and set:
 
-```
+\`\`\`
 NEXT_PUBLIC_MODAL_ML_URL=https://<your-modal-app>.modal.run
 GOOGLE_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
@@ -67,17 +67,17 @@ DATABASE_URL=postgresql://user:password@ep-your-neon.neon.tech/neondb?sslmode=re
 GMAIL_USER=alerts@example.com              # optional: enables contact form
 GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx        # 16-char Gmail app password
 CONTACT_FORWARD_EMAIL=team@example.com     # optional override
-```
+\`\`\`
 
 If email credentials are omitted, the contact endpoint responds with `503` instead of attempting delivery.
 
 ## 🛠️ Local Development
 
-```bash
+\`\`\`bash
 pnpm install
 pnpm dev
 # visit http://localhost:3000
-```
+\`\`\`
 
 Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `modal serve modal_ml_pipeline.py`.
 
@@ -100,7 +100,7 @@ Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `mo
 
 Typical `/api/analyze` response:
 
-```json
+\`\`\`json
 {
   "is_manipulated": false,
   "is_ai_generated": false,
@@ -117,7 +117,7 @@ Typical `/api/analyze` response:
     "noise_score": 0.21
   }
 }
-```
+\`\`\`
 
 ## 🔒 Security Notes
 

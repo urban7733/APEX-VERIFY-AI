@@ -70,4 +70,3 @@ model VerificationRecord {
   @@index([userId])
   @@index([createdAt])
 }
-

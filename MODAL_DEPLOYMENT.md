@@ -2,9 +2,9 @@
 
 ## 🎉 Simplified Architecture
 
-```
+\`\`\`
 Vercel Frontend (Next.js + NextAuth) → Modal ML Pipeline (GPU) → Neon PostgreSQL (serverless)
-```
+\`\`\`
 
 **All inference still runs on Modal; Neon stores auth + verification history.** 🚀
 
@@ -13,9 +13,9 @@ Vercel Frontend (Next.js + NextAuth) → Modal ML Pipeline (GPU) → Neon Postgr
 ## 🌐 Deployed URLs
 
 ### Modal ML Pipeline
-```
+\`\`\`
 https://urban33133--apex-verify-ml-fastapi-app.modal.run
-```
+\`\`\`
 
 **Endpoints:**
 - `GET /` - Service info
@@ -29,7 +29,7 @@ https://urban33133--apex-verify-ml-fastapi-app.modal.run
 
 ### 1. Deploy Modal Pipeline
 
-```bash
+\`\`\`bash
 # Install Modal
 pip install modal --user
 
@@ -38,7 +38,7 @@ modal token new
 
 # Deploy
 modal deploy modal_ml_pipeline.py
-```
+\`\`\`
 
 Your pipeline URL will be shown after deployment.
 
@@ -101,21 +101,21 @@ Deploy after setting the variables. Locally mirror them in `.env.local`.
 
 ### Test Modal Pipeline Locally
 
-```bash
+\`\`\`bash
 # Test with an image
 modal run modal_ml_pipeline.py::main --image-path test.jpg
-```
+\`\`\`
 
 ### Test Modal API
 
-```bash
+\`\`\`bash
 # Health check
 curl https://urban33133--apex-verify-ml-fastapi-app.modal.run/health
 
 # Analyze image
 curl -X POST https://urban33133--apex-verify-ml-fastapi-app.modal.run/analyze \
   -F "file=@test.jpg"
-```
+\`\`\`
 
 ---
 
@@ -129,13 +129,13 @@ curl -X POST https://urban33133--apex-verify-ml-fastapi-app.modal.run/analyze \
 
 ### Local Development
 
-```bash
+\`\`\`bash
 # Frontend (Next.js)
 pnpm dev
 
 # Ensure Prisma client is generated after schema changes
 pnpm prisma generate
-```
+\`\`\`
 
 ---
 
@@ -149,13 +149,13 @@ pnpm prisma generate
 3. Did you redeploy Vercel? → After adding env var
 
 **Fix:**
-```bash
+\`\`\`bash
 # Redeploy Modal
 modal deploy modal_ml_pipeline.py
 
 # Redeploy Vercel
 # Go to Vercel Dashboard → Deployments → Redeploy
-```
+\`\`\`
 
 ### Modal Cold Start (~2-5s first request)
 
