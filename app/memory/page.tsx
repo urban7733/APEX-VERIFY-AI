@@ -150,12 +150,27 @@ export default function MemoryPage() {
 
   return (
     <div className="min-h-screen bg-[#000000] text-white antialiased relative">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(100,100,255,0.15),_transparent_55%)]" />
-
-      <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-10 flex flex-col gap-10">
+      <div className="px-6 sm:px-10 lg:px-16 py-10 flex flex-col gap-10">
         <header className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/apex-verify-logo.png" alt="Apex Verify AI" width={180} height={52} priority />
+          <Link href="/" className="flex items-center gap-5">
+            <div className="relative flex items-center gap-4">
+              <Image
+                src="/images/design-mode/ChatGPT%20Image%20Oct%2026%2C%202025%20at%2003_34_35%20AM.png"
+                alt="Apex Verify Orb"
+                width={72}
+                height={72}
+                className="w-14 h-14 sm:w-16 sm:h-16 animate-float"
+                priority
+              />
+              <Image
+                src="/images/design-mode/Image%2028.10.25%20at%2002.50.png"
+                alt="Apex Verify AI"
+                width={220}
+                height={80}
+                className="w-[180px] sm:w-[220px] h-auto opacity-90"
+                priority
+              />
+            </div>
           </Link>
 
           <nav className="flex items-center gap-4">
