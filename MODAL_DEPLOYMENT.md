@@ -3,10 +3,10 @@
 ## 🎉 Simplified Architecture
 
 \`\`\`
-Vercel Frontend (Next.js + NextAuth) → Modal ML Pipeline (GPU) → Neon PostgreSQL (serverless)
+Vercel Frontend (Next.js) → Modal ML Pipeline (GPU) → Neon PostgreSQL (serverless)
 \`\`\`
 
-**All inference still runs on Modal; Neon stores auth + verification history.** 🚀
+**All inference still runs on Modal; Neon stores verification history.** 🚀
 
 ---
 
@@ -53,10 +53,6 @@ In Vercel → Your Project → Settings → Environment Variables **(all scopes)
 | Name | Value |
 | ---- | ----- |
 | `NEXT_PUBLIC_MODAL_ML_URL` | `https://urban33133--apex-verify-ml-fastapi-app.modal.run` |
-| `GOOGLE_CLIENT_ID` | OAuth client from Google Cloud Console |
-| `GOOGLE_CLIENT_SECRET` | OAuth secret |
-| `NEXTAUTH_SECRET` | 32+ char random string (e.g. `openssl rand -base64 32`) |
-| `NEXTAUTH_URL` | `https://<your-vercel-domain>` |
 | `DATABASE_URL` | Neon pooled connection, e.g. `postgresql://user:password@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1` |
 | `GMAIL_USER` | (Optional) contact mailbox |
 | `GMAIL_APP_PASSWORD` | (Optional) Gmail app password |
@@ -78,7 +74,7 @@ Deploy after setting the variables. Locally mirror them in `.env.local`.
 - **Verification Memory Layering**
   - Modal `Dict` for low-latency cache
   - Neon PostgreSQL for durable audit history & analytics
-- **Google OAuth via NextAuth** gating uploads before analysis
+- **Auth roadmap** documented in `docs/auth-roadmap.md` (Auth0 rollout planned once we exceed 1k MAU)
 - **Auto-scaling** (Modal serverless runtime)
 - **GPU inference** (`T4` with 8 GB memory)
 

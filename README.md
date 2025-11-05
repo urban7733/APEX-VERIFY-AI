@@ -19,7 +19,6 @@ Modal ML Pipeline ───┘          ├── SPAI (Spectral AI detector)
                                  │
                                  ▼
                              Neon PostgreSQL
-                                ├── NextAuth session & account tables
                                 └── VerificationRecord history (analytics-grade)
 \`\`\`
 
@@ -34,7 +33,6 @@ Key notes:
 - **Next.js 14 + App Router**
 - **React 18** client components for upload, preview, and results
 - **Tailwind CSS** + **shadcn/ui** primitives for consistent styling
-- **NextAuth.js** (Google OAuth) for secure sessions prior to analysis
 - **Lucide Icons** for accessible iconography
 
 ### Modal ML Pipeline (`modal_ml_pipeline.py`)
@@ -42,16 +40,16 @@ Key notes:
 - **PyTorch + Transformers** to load SPAI (`HaoyiZhu/SPA`)
 - **OpenCV, Pillow, NumPy** for preprocessing, ELA, frequency, and noise analysis
 - **FastAPI** exposed via `@modal.asgi_app()` with `/`, `/health`, `/analyze`, and `/memory/lookup`
-- **Neon PostgreSQL (via Prisma)** for durable verification records + auth data
+- **Neon PostgreSQL (via Prisma)** for durable verification records
 
 ## ✨ Core Features
 
-- Google sign-in gate in a minimalist modal before any uploads, ensuring traceability per user account
 - SPAI-based AI-generated detection with probability distribution
 - Combined ELA/Frequency/Noise heuristics for manipulation confidence
 - Heatmap overlays rendered server-side and streamed as Base64
 - Verification memory cached in Modal plus persisted to Neon PostgreSQL for auditing and analytics
 - Responsive, mobile-first UI without inline demo data or randomization
+- Future-ready authentication plan (see `docs/auth-roadmap.md`) to adopt Auth0 after we surpass 1,000 monthly active users
 
 ## 🔧 Configuration
 
@@ -59,10 +57,6 @@ Create an `.env.local` (see `env.local.example`) and set:
 
 \`\`\`
 NEXT_PUBLIC_MODAL_ML_URL=https://<your-modal-app>.modal.run
-GOOGLE_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
-NEXTAUTH_SECRET=use_a_32+_character_random_value
-NEXTAUTH_URL=http://localhost:3000
 DATABASE_URL=postgresql://user:password@ep-your-neon.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1
 GMAIL_USER=alerts@example.com              # optional: enables contact form
 GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx        # 16-char Gmail app password
@@ -85,8 +79,8 @@ Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `mo
 
 1. **Modal** – `modal deploy modal_ml_pipeline.py` to publish the latest container with SPAI and dependencies.
 2. **Neon PostgreSQL** – create a serverless database, grab the pooled connection string, and set `DATABASE_URL` (ensure `sslmode=require&pgbouncer=true`). Run `pnpm prisma migrate deploy` (or `pnpm prisma db push` during development).
-3. **Next.js (Vercel)** – set environment variables (`NEXT_PUBLIC_MODAL_ML_URL`, Google OAuth creds, NextAuth secret, DB URL, contact email creds) and trigger a Vercel deploy. Ensure `NEXTAUTH_URL` matches the production domain.
-4. **Smoke test** – sign in with Google, upload both a genuine image and a synthetic sample, confirm SPAI output, and verify `GET /health` returns `{ "status":"healthy" }` with `database: "healthy"`.
+3. **Next.js (Vercel)** – set environment variables (`NEXT_PUBLIC_MODAL_ML_URL`, DB URL, contact email creds) and trigger a Vercel deploy.
+4. **Smoke test** – upload both a genuine image and a synthetic sample, confirm SPAI output, and verify `GET /health` returns `{ "status":"healthy" }` with `database: "healthy"`.
 
 ## 📡 API Surface
 
@@ -94,7 +88,6 @@ Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `mo
 | --- | --- |
 | `POST /api/analyze` | Next.js route that forwards multipart uploads to Modal and returns analysis JSON |
 | `POST /api/memory/lookup` | Hashes uploads/URLs, queries Modal verification memory, and falls back to Neon cache |
-| `GET /api/auth/*` | NextAuth Google OAuth endpoints (handled by NextAuth middleware) |
 | `POST /api/contact` | Optional contact form handler (requires Gmail app credentials) |
 | `GET https://<modal-app>.modal.run/health` | Modal health probe |
 
@@ -122,7 +115,6 @@ Typical `/api/analyze` response:
 ## 🔒 Security Notes
 
 - Uploaded binaries are processed in-memory; we persist only the cryptographic SHA-256 fingerprint plus structured verdicts in Neon (no raw media is stored).
-- Google OAuth (NextAuth) gates all uploads; the `/api/analyze` endpoint enforces session checks server-side.
 - Modal validates MIME types and rejects non-image uploads.
 - The frontend enforces a 60‑second timeout and displays actionable errors.
 - Contact email sending is disabled unless credentials are provided.

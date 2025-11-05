@@ -115,7 +115,6 @@ export async function POST(request: NextRequest) {
         last_seen: existingRecord.updatedAt.toISOString(),
         metadata: {
           source_url: existingRecord.sourceUrl,
-          user_id: existingRecord.userId,
         },
         summary: {
           verdict: existingRecord.verdict,
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
         {
           found: true,
           sha256,
-          sourceUrl: effectiveSourceUrl ?? existingRecord.sourceUrl ?? undefined,
+        sourceUrl: effectiveSourceUrl ?? existingRecord.sourceUrl ?? undefined,
           record: recordPayload,
         },
         { status: 200 },
@@ -173,6 +172,7 @@ export async function POST(request: NextRequest) {
 
     const summary = (recordFromModal?.summary ?? {}) as Record<string, unknown>
     const resultPayload = (recordFromModal?.result ?? {}) as Record<string, unknown>
+    const metadataFromModal = (recordFromModal?.metadata ?? {}) as Record<string, unknown>
     const normalizedResult = JSON.parse(JSON.stringify(resultPayload)) as Prisma.JsonObject
     const verdictFromModal = (summary?.verdict as string | undefined) ??
       (resultPayload?.is_ai_generated ? "ai_generated" : "authentic")
@@ -180,6 +180,7 @@ export async function POST(request: NextRequest) {
       (typeof resultPayload?.confidence === "number" ? (resultPayload.confidence as number) : 0)
     const methodFromModal = (summary?.method as string | undefined) ??
       (typeof resultPayload?.method === "string" ? (resultPayload.method as string) : null)
+    const sourceUrlFromModal = typeof metadataFromModal?.source_url === "string" ? (metadataFromModal.source_url as string) : null
 
     await prisma.verificationRecord.upsert({
       where: { sha256 },
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
         verdict: verdictFromModal,
         confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
         method: typeof methodFromModal === "string" ? methodFromModal : null,
-        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url ?? null,
+        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
       },
       create: {
         sha256,
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
         verdict: verdictFromModal,
         confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
         method: typeof methodFromModal === "string" ? methodFromModal : null,
-        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url ?? null,
+        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
       },
     })
 
@@ -204,7 +205,7 @@ export async function POST(request: NextRequest) {
       {
         found: true,
         sha256,
-        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url,
+        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal ?? undefined,
         record: recordFromModal,
       },
       { status: 200 },

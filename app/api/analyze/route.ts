@@ -2,20 +2,13 @@ import { createHash } from "crypto"
 
 import { type NextRequest, NextResponse } from "next/server"
 import { Prisma } from "@prisma/client"
-import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
     const formData = await request.formData()
     const file = formData.get("file") as File
     const sourceUrl = typeof formData.get("sourceUrl") === "string" ? (formData.get("sourceUrl") as string) : undefined
@@ -57,7 +50,6 @@ export async function POST(request: NextRequest) {
             confidence: typeof result.confidence === "number" ? result.confidence : 0,
             method: typeof result.method === "string" ? result.method : null,
             sourceUrl: sourceUrl ?? null,
-            userId: session.user.id,
           },
           create: {
             sha256,
@@ -66,7 +58,6 @@ export async function POST(request: NextRequest) {
             confidence: typeof result.confidence === "number" ? result.confidence : 0,
             method: typeof result.method === "string" ? result.method : null,
             sourceUrl: sourceUrl ?? null,
-            userId: session.user.id,
           },
         })
 
