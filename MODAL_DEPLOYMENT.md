@@ -21,6 +21,7 @@ https://urban33133--apex-verify-ml-fastapi-app.modal.run
 - `GET /` - Service info
 - `GET /health` - Health check
 - `POST /analyze` - Image analysis
+- `POST /memory/lookup` - Retrieve cached verification by SHA-256
 
 ---
 
@@ -61,14 +62,17 @@ In Vercel → Your Project → Settings → Environment Variables:
 ## 📊 What's Included
 
 ### Current Capabilities ✅
-- **SPAI AI-Detection** (Spectral AI-generated image classifier via PyTorch)
+- **SPAI AI-Detection** (Spectral AI-generated image classifier via PyTorch on GPU)
 - **Manipulation Detection Heuristics**
   - Error Level Analysis (ELA)
   - Frequency Domain Analysis
   - Noise Pattern Analysis
 - **Heatmap Generation** (OpenCV blending)
+- **Verification Memory**
+  - Persistent `modal.Dict` storing SHA-256 fingerprints
+  - `/memory/lookup` endpoint to surface prior verdicts instantly
 - **Auto-scaling** (Modal serverless runtime)
-- **CPU Inference** (4 vCPUs / 8 GB RAM by default)
+- **GPU inference** (`T4` with 8 GB memory)
 
 ---
 

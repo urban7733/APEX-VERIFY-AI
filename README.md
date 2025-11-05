@@ -8,13 +8,15 @@ Creators, journalists, and digital-rights teams need a single verdict: **Verifie
 
 ## 🏗️ Architecture
 
-\`\`\`
+```
 Next.js 14 (Vercel) ──┐
-                     ├── /api/analyze → Modal FastAPI app
-Modal ML Pipeline ───┘        ├── SPAI (Spectral AI detector)
-                              ├── ELA / Frequency / Noise heuristics
-                              └── Heatmap compositor (OpenCV + Pillow)
-\`\`\`
+                     ├── /api/analyze  ──► Modal FastAPI app (GPU)
+                     └── /api/memory/lookup ─► Modal FastAPI app (Memory)
+Modal ML Pipeline ───┘          ├── SPAI (Spectral AI detector)
+                                ├── ELA / Frequency / Noise heuristics
+                                ├── Heatmap compositor (OpenCV + Pillow)
+                                └── Persistent modal.Dict verification memory
+```
 
 Key notes:
 - No standalone backend service. All ML inference happens inside Modal functions with automatic scaling.
@@ -33,7 +35,7 @@ Key notes:
 - **Modal App** with GPU-ready Debian base image
 - **PyTorch + Transformers** to load SPAI (`HaoyiZhu/SPA`)
 - **OpenCV, Pillow, NumPy** for preprocessing, ELA, frequency, and noise analysis
-- **FastAPI** exposed via `@modal.asgi_app()` with `/`, `/health`, and `/analyze`
+- **FastAPI** exposed via `@modal.asgi_app()` with `/`, `/health`, `/analyze`, and `/memory/lookup`
 
 ## ✨ Core Features
 
@@ -41,6 +43,7 @@ Key notes:
 - SPAI-based AI-generated detection with probability distribution
 - Combined ELA/Frequency/Noise heuristics for manipulation confidence
 - Heatmap overlays rendered server-side and streamed as Base64
+- Verification memory that stores SHA-256 fingerprints and prior verdicts for instant recall
 - Responsive, mobile-first UI without inline demo data or randomization
 
 ## 🔧 Configuration
@@ -77,6 +80,7 @@ Point `NEXT_PUBLIC_MODAL_ML_URL` at a deployed Modal app or run locally with `mo
 | Endpoint | Description |
 | --- | --- |
 | `POST /api/analyze` | Next.js route that forwards multipart uploads to Modal and returns analysis JSON |
+| `POST /api/memory/lookup` | Hashes uploads/URLs, queries Modal verification memory, and returns historic verdicts |
 | `POST /api/contact` | Optional contact form handler (requires Gmail app credentials) |
 | `GET https://<modal-app>.modal.run/health` | Modal health probe |
 
@@ -103,7 +107,7 @@ Typical `/api/analyze` response:
 
 ## 🔒 Security Notes
 
-- Files stay in memory; nothing persists to disk or cloud storage.
+- Uploaded binaries are processed in-memory; we persist only the cryptographic SHA-256 fingerprint plus the structured verdict inside a secured `modal.Dict` (no raw media is stored).
 - Modal validates MIME types and rejects non-image uploads.
 - The frontend enforces a 60‑second timeout and displays actionable errors.
 - Contact email sending is disabled unless credentials are provided.

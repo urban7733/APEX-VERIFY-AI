@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Upload, X, Download } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 interface AnalysisResult {
@@ -193,6 +194,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#000000] text-white antialiased relative">
+      <div className="absolute top-6 right-6 z-30 flex items-center gap-4">
+        <Link href="/memory" className="inline-flex">
+          <Button className="bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-white px-5 py-2 rounded-full">
+            Memory
+          </Button>
+        </Link>
+      </div>
       <div className="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-16 sm:pt-0">
         {/* Main Logo - Higher on mobile */}
         <div

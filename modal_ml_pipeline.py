@@ -9,11 +9,17 @@ Architecture:
 """
 
 import modal
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from functools import lru_cache
 
 # Create Modal app
 app = modal.App("apex-verify-ml")
+
+# Persistent verification memory (global across containers)
+verified_results = modal.Dict.from_name(
+    "apex-verify-memory",
+    create_if_missing=True,
+)
 
 # Define container image with all dependencies
 image = (
@@ -35,11 +41,11 @@ image = (
 
 @app.function(
     image=image,
-    cpu=4.0,
+    gpu="T4",
     memory=8192,
     timeout=180,
 )
-def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
+def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Complete ML Analysis Pipeline
     - Manipulation Detection (ELA + Frequency + Noise)
@@ -50,13 +56,15 @@ def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
     import numpy as np
     import io
     import time
+    import hashlib
+    from datetime import datetime
     from PIL import Image, ImageChops
     
     start_time = time.time()
     
     # Load image from bytes
     img_pil = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-    img_array = np.frombuffer(image_bytes, np.uint8)
+    img_array = np.frombuffer(image_bytes, dtype=np.uint8)
     img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
     if img_cv is None:
         # Fallback: build from PIL image to avoid OpenCV decode crashes
@@ -115,7 +123,35 @@ def analyze_image(image_bytes: bytes) -> Dict[str, Any]:
         "manipulation_detection": manip_result,
     }
     
-    print(f"✅ Analysis complete in {processing_time:.2f}s")
+    sha256 = hashlib.sha256(image_bytes).hexdigest()
+
+    metadata = metadata or {}
+    metadata = {k: v for k, v in metadata.items() if v is not None}
+    timestamp = datetime.utcnow().isoformat() + "Z"
+
+    existing_record = verified_results.get(sha256)
+    verdict = "ai_generated" if result["is_ai_generated"] or result["is_manipulated"] else "authentic"
+
+    record = {
+        "sha256": sha256,
+        "created_at": existing_record.get("created_at") if existing_record else timestamp,
+        "last_seen": timestamp,
+        "metadata": {
+            **({} if existing_record is None else existing_record.get("metadata", {})),
+            **metadata,
+        },
+        "summary": {
+            "verdict": verdict,
+            "confidence": float(result.get("confidence", 0.0)),
+            "method": result.get("method"),
+            "processing_time": float(result.get("processing_time", 0.0)),
+        },
+        "result": result,
+    }
+
+    verified_results[sha256] = record
+
+    print(f"✅ Analysis complete in {processing_time:.2f}s (sha256={sha256})")
     return result
 
 
@@ -347,9 +383,14 @@ def generate_heatmap(img_cv, img_pil: Any) -> str:
 
 
 # FastAPI web endpoint using Modal's function decorator
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+
+
+class MemoryLookupRequest(BaseModel):
+    sha256: str
 
 web_app = FastAPI(
     title="Apex Verify ML Pipeline",
@@ -375,7 +416,8 @@ def root():
         "features": [
             "Manipulation Detection (ELA + Frequency + Noise)",
             "Heatmap Generation",
-            "SPAI AI-Generated Image Detection"
+            "SPAI AI-Generated Image Detection",
+            "Verification Memory (SHA-256 fingerprint archive)",
         ]
     }
 
@@ -384,7 +426,10 @@ def health():
     return {"status": "healthy", "modal": "operational"}
 
 @web_app.post("/analyze")
-async def web_analyze(file: UploadFile = File(...)):
+async def web_analyze(
+    file: UploadFile = File(...),
+    source_url: Optional[str] = Form(None),
+):
     """Analyze uploaded image for manipulation"""
     
     if not file.content_type or not file.content_type.startswith('image/'):
@@ -393,14 +438,31 @@ async def web_analyze(file: UploadFile = File(...)):
     try:
         # Read image bytes
         image_bytes = await file.read()
-        
+
+        metadata = {}
+        if source_url:
+            metadata["source_url"] = source_url
+
         # Call Modal function
-        result = analyze_image.remote(image_bytes)
-        
+        result = analyze_image.remote(image_bytes, metadata)
+
         return JSONResponse(content=result)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@web_app.post("/memory/lookup")
+async def memory_lookup(payload: MemoryLookupRequest):
+    record = verified_results.get(payload.sha256)
+    if not record:
+        raise HTTPException(status_code=404, detail="Verification not found")
+
+    return {
+        "status": "found",
+        "sha256": payload.sha256,
+        "record": record,
+    }
 
 # Mount FastAPI app to Modal
 @app.function()
