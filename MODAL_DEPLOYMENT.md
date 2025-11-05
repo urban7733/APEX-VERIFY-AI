@@ -2,20 +2,20 @@
 
 ## 🎉 Simplified Architecture
 
-\`\`\`
-Vercel Frontend → Modal ML Pipeline (Direct)
-\`\`\`
+```
+Vercel Frontend (Next.js + NextAuth) → Modal ML Pipeline (GPU) → Neon PostgreSQL (serverless)
+```
 
-**No standalone backend required.** 🚀
+**All inference still runs on Modal; Neon stores auth + verification history.** 🚀
 
 ---
 
 ## 🌐 Deployed URLs
 
 ### Modal ML Pipeline
-\`\`\`
+```
 https://urban33133--apex-verify-ml-fastapi-app.modal.run
-\`\`\`
+```
 
 **Endpoints:**
 - `GET /` - Service info
@@ -29,7 +29,7 @@ https://urban33133--apex-verify-ml-fastapi-app.modal.run
 
 ### 1. Deploy Modal Pipeline
 
-\`\`\`bash
+```bash
 # Install Modal
 pip install modal --user
 
@@ -38,7 +38,7 @@ modal token new
 
 # Deploy
 modal deploy modal_ml_pipeline.py
-\`\`\`
+```
 
 Your pipeline URL will be shown after deployment.
 
@@ -46,16 +46,23 @@ Your pipeline URL will be shown after deployment.
 
 ## 🔧 Vercel Configuration
 
-### Set Environment Variable
+### Configure Environment Variables
 
-In Vercel → Your Project → Settings → Environment Variables:
+In Vercel → Your Project → Settings → Environment Variables **(all scopes)**:
 
-**Add:**
-- **Name**: `NEXT_PUBLIC_MODAL_ML_URL`
-- **Value**: `https://urban33133--apex-verify-ml-fastapi-app.modal.run`
-- **Environments**: ✅ Production, ✅ Preview, ✅ Development
+| Name | Value |
+| ---- | ----- |
+| `NEXT_PUBLIC_MODAL_ML_URL` | `https://urban33133--apex-verify-ml-fastapi-app.modal.run` |
+| `GOOGLE_CLIENT_ID` | OAuth client from Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | OAuth secret |
+| `NEXTAUTH_SECRET` | 32+ char random string (e.g. `openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | `https://<your-vercel-domain>` |
+| `DATABASE_URL` | Neon pooled connection, e.g. `postgresql://user:password@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1` |
+| `GMAIL_USER` | (Optional) contact mailbox |
+| `GMAIL_APP_PASSWORD` | (Optional) Gmail app password |
+| `CONTACT_FORWARD_EMAIL` | (Optional) Forwarding target |
 
-**Then Redeploy** Vercel for changes to take effect.
+Deploy after setting the variables. Locally mirror them in `.env.local`.
 
 ---
 
@@ -68,9 +75,10 @@ In Vercel → Your Project → Settings → Environment Variables:
   - Frequency Domain Analysis
   - Noise Pattern Analysis
 - **Heatmap Generation** (OpenCV blending)
-- **Verification Memory**
-  - Persistent `modal.Dict` storing SHA-256 fingerprints
-  - `/memory/lookup` endpoint to surface prior verdicts instantly
+- **Verification Memory Layering**
+  - Modal `Dict` for low-latency cache
+  - Neon PostgreSQL for durable audit history & analytics
+- **Google OAuth via NextAuth** gating uploads before analysis
 - **Auto-scaling** (Modal serverless runtime)
 - **GPU inference** (`T4` with 8 GB memory)
 
@@ -82,7 +90,7 @@ In Vercel → Your Project → Settings → Environment Variables:
 |---------|--------------|
 | **Vercel** | $0 (Hobby) |
 | **Modal** | ~$3-5 (1000 requests/day) |
-| ~~Railway~~ | **$0 (Deleted!)** ✅ |
+| **Neon (Starter)** | $0 (10M row reads / mo) |
 | **Total** | **~$3-5/month** |
 
 **First $10/month FREE on Modal!** 🎁
@@ -93,21 +101,21 @@ In Vercel → Your Project → Settings → Environment Variables:
 
 ### Test Modal Pipeline Locally
 
-\`\`\`bash
+```bash
 # Test with an image
 modal run modal_ml_pipeline.py::main --image-path test.jpg
-\`\`\`
+```
 
 ### Test Modal API
 
-\`\`\`bash
+```bash
 # Health check
 curl https://urban33133--apex-verify-ml-fastapi-app.modal.run/health
 
 # Analyze image
 curl -X POST https://urban33133--apex-verify-ml-fastapi-app.modal.run/analyze \
   -F "file=@test.jpg"
-\`\`\`
+```
 
 ---
 
@@ -121,12 +129,13 @@ curl -X POST https://urban33133--apex-verify-ml-fastapi-app.modal.run/analyze \
 
 ### Local Development
 
-\`\`\`bash
+```bash
 # Frontend (Next.js)
-npm run dev
+pnpm dev
 
-# Uses Modal ML Pipeline automatically
-\`\`\`
+# Ensure Prisma client is generated after schema changes
+pnpm prisma generate
+```
 
 ---
 
@@ -140,13 +149,13 @@ npm run dev
 3. Did you redeploy Vercel? → After adding env var
 
 **Fix:**
-\`\`\`bash
+```bash
 # Redeploy Modal
 modal deploy modal_ml_pipeline.py
 
 # Redeploy Vercel
 # Go to Vercel Dashboard → Deployments → Redeploy
-\`\`\`
+```
 
 ### Modal Cold Start (~2-5s first request)
 

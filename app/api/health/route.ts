@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server"
 
+import { prisma } from "@/lib/prisma"
+
+export const runtime = "nodejs"
+
 const MODAL_URL = process.env.NEXT_PUBLIC_MODAL_ML_URL
 
 export async function GET() {
@@ -40,12 +44,21 @@ export async function GET() {
 
     const modalHealth = await modalResponse.json().catch(() => ({ status: "unknown" }))
 
+    let databaseStatus: "healthy" | "unreachable" = "healthy"
+    try {
+      await prisma.$queryRaw`SELECT 1`
+    } catch (dbError) {
+      console.error("Database health check error:", dbError)
+      databaseStatus = "unreachable"
+    }
+
     return NextResponse.json({
-      status: "healthy",
+      status: databaseStatus === "healthy" ? "healthy" : "degraded",
       frontend: "healthy",
       modal: modalHealth,
+      database: databaseStatus,
       timestamp: new Date().toISOString(),
-    })
+    }, { status: databaseStatus === "healthy" ? 200 : 503 })
   } catch (error) {
     console.error("Modal health check error:", error)
     const isTimeout = error instanceof Error && error.name === "AbortError"

@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Montserrat } from "next/font/google"
 import "@/app/globals.css"
 
+import { NextAuthProvider } from "@/components/providers/session-provider"
+
 const montserrat = Montserrat({ 
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -25,7 +27,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${montserrat.className} antialiased bg-black text-white overflow-x-hidden`}>{children}</body>
+      <body className={`${montserrat.className} antialiased bg-black text-white overflow-x-hidden`}>
+        <NextAuthProvider>{children}</NextAuthProvider>
+      </body>
     </html>
   )
 }

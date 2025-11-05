@@ -1,5 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server"
 import { createHash } from "crypto"
+
+import { type NextRequest, NextResponse } from "next/server"
+import { Prisma } from "@prisma/client"
+
+import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
@@ -99,6 +103,50 @@ export async function POST(request: NextRequest) {
 
     const sha256 = createHash("sha256").update(buffer).digest("hex")
 
+    const existingRecord = await prisma.verificationRecord.findUnique({
+      where: { sha256 },
+    })
+
+    if (existingRecord) {
+      const result = JSON.parse(JSON.stringify(existingRecord.result))
+      const recordPayload = {
+        sha256: existingRecord.sha256,
+        created_at: existingRecord.createdAt.toISOString(),
+        last_seen: existingRecord.updatedAt.toISOString(),
+        metadata: {
+          source_url: existingRecord.sourceUrl,
+          user_id: existingRecord.userId,
+        },
+        summary: {
+          verdict: existingRecord.verdict,
+          confidence: existingRecord.confidence,
+          method: existingRecord.method,
+          processing_time:
+            typeof result === "object" && result !== null && "processing_time" in result
+              ? (result as Record<string, unknown>).processing_time
+              : null,
+        },
+        result,
+      }
+
+      if (effectiveSourceUrl && !existingRecord.sourceUrl) {
+        await prisma.verificationRecord.update({
+          where: { sha256 },
+          data: { sourceUrl: effectiveSourceUrl },
+        })
+      }
+
+      return NextResponse.json(
+        {
+          found: true,
+          sha256,
+          sourceUrl: effectiveSourceUrl ?? existingRecord.sourceUrl ?? undefined,
+          record: recordPayload,
+        },
+        { status: 200 },
+      )
+    }
+
     const lookupResponse = await fetch(`${modalUrl}/memory/lookup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -121,13 +169,43 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await lookupResponse.json()
+    const recordFromModal = data.record
+
+    const summary = (recordFromModal?.summary ?? {}) as Record<string, unknown>
+    const resultPayload = (recordFromModal?.result ?? {}) as Record<string, unknown>
+    const normalizedResult = JSON.parse(JSON.stringify(resultPayload)) as Prisma.JsonObject
+    const verdictFromModal = (summary?.verdict as string | undefined) ??
+      (resultPayload?.is_ai_generated ? "ai_generated" : "authentic")
+    const confidenceFromModal = (summary?.confidence as number | undefined) ??
+      (typeof resultPayload?.confidence === "number" ? (resultPayload.confidence as number) : 0)
+    const methodFromModal = (summary?.method as string | undefined) ??
+      (typeof resultPayload?.method === "string" ? (resultPayload.method as string) : null)
+
+    await prisma.verificationRecord.upsert({
+      where: { sha256 },
+      update: {
+        result: normalizedResult,
+        verdict: verdictFromModal,
+        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
+        method: typeof methodFromModal === "string" ? methodFromModal : null,
+        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url ?? null,
+      },
+      create: {
+        sha256,
+        result: normalizedResult,
+        verdict: verdictFromModal,
+        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
+        method: typeof methodFromModal === "string" ? methodFromModal : null,
+        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url ?? null,
+      },
+    })
 
     return NextResponse.json(
       {
         found: true,
         sha256,
-        sourceUrl: effectiveSourceUrl,
-        record: data.record,
+        sourceUrl: effectiveSourceUrl ?? recordFromModal?.metadata?.source_url,
+        record: recordFromModal,
       },
       { status: 200 },
     )

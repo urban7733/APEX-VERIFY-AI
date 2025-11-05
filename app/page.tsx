@@ -6,6 +6,8 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { Upload, X, Download } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { signIn, useSession } from "next-auth/react"
+
 import { Button } from "@/components/ui/button"
 
 interface AnalysisResult {
@@ -23,6 +25,10 @@ export default function Home() {
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+
+  const { data: session } = useSession()
+  const isAuthenticated = Boolean(session)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -30,30 +36,17 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleFileSelect = useCallback((selectedFile: File) => {
-    if (selectedFile.size > 100 * 1024 * 1024) {
-      alert("File size must be less than 100MB")
-      return
+  useEffect(() => {
+    if (isAuthenticated) {
+      setShowAuthModal(false)
     }
+  }, [isAuthenticated])
 
-    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"]
-    if (!validTypes.includes(selectedFile.type)) {
-      alert("Please select a valid image or video file")
-      return
-    }
-
-    setFile(selectedFile)
-    setResult(null)
-
-    if (selectedFile.type.startsWith("image/") || selectedFile.type.startsWith("video/")) {
-      const url = URL.createObjectURL(selectedFile)
-      setPreviewUrl(url)
-    }
-
-    analyzeFile(selectedFile)
+  const requestSignIn = useCallback(() => {
+    setShowAuthModal(true)
   }, [])
 
-  const analyzeFile = async (fileToAnalyze: File) => {
+  const analyzeFile = useCallback(async (fileToAnalyze: File) => {
     setIsAnalyzing(true)
 
     try {
@@ -68,6 +61,10 @@ export default function Home() {
       })
 
       if (!response.ok) {
+        if (response.status === 401) {
+          requestSignIn()
+          throw new Error("Authentication required")
+        }
         throw new Error(`Backend error: ${response.status}`)
       }
 
@@ -88,7 +85,35 @@ export default function Home() {
     } finally {
       setIsAnalyzing(false)
     }
-  }
+  }, [requestSignIn])
+
+  const handleFileSelect = useCallback((selectedFile: File) => {
+    if (!isAuthenticated) {
+      requestSignIn()
+      return
+    }
+
+    if (selectedFile.size > 100 * 1024 * 1024) {
+      alert("File size must be less than 100MB")
+      return
+    }
+
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"]
+    if (!validTypes.includes(selectedFile.type)) {
+      alert("Please select a valid image or video file")
+      return
+    }
+
+    setFile(selectedFile)
+    setResult(null)
+
+    if (selectedFile.type.startsWith("image/") || selectedFile.type.startsWith("video/")) {
+      const url = URL.createObjectURL(selectedFile)
+      setPreviewUrl(url)
+    }
+
+    analyzeFile(selectedFile)
+  }, [analyzeFile, isAuthenticated, requestSignIn])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -104,6 +129,11 @@ export default function Home() {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
+
+    if (!isAuthenticated) {
+      requestSignIn()
+      return
+    }
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0])
@@ -314,7 +344,13 @@ export default function Home() {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    requestSignIn()
+                    return
+                  }
+                  fileInputRef.current?.click()
+                }}
               >
                 <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-2xl rounded-[3rem] border border-white/[0.05] group-hover:border-white/[0.1] transition-all duration-700" />
 
@@ -458,6 +494,31 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+          <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/90 p-8 text-center space-y-6">
+            <h3 className="text-2xl font-semibold text-white">Sign in to continue</h3>
+            <p className="text-white/60 text-sm">
+              Log in with Google to upload media, store verification history, and unlock enterprise-grade authenticity tools.
+            </p>
+            <div className="space-y-3">
+              <Button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="w-full h-12 bg-white text-black hover:bg-white/90 text-base font-semibold"
+              >
+                Continue with Google
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowAuthModal(false)}
+                className="w-full h-12 border border-white/15 bg-transparent text-white/70 hover:bg-white/10"
+              >
+                Maybe later
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
