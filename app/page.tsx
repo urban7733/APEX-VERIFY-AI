@@ -507,9 +507,7 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
           <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/90 p-8 text-center space-y-6">
             <h3 className="text-2xl font-semibold text-white">Sign in to continue</h3>
-            <p className="text-white/60 text-sm">
-              Log in with Google to upload media, store verification history, and unlock enterprise-grade authenticity tools.
-            </p>
+            <p className="text-white/60 text-sm">want to feel real again ?</p>
             <div className="space-y-3">
             <Button
               onClick={() => signIn("google", { callbackUrl: "/" })}
