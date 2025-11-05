@@ -8,7 +8,7 @@ Creators, journalists, and digital-rights teams need a single verdict: **Verifie
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 Next.js 14 (Vercel) ──┐
                      ├── /api/analyze  ──► Modal FastAPI app (GPU)
                      └── /api/memory/lookup ─► Modal FastAPI app (Memory)
@@ -16,7 +16,7 @@ Modal ML Pipeline ───┘          ├── SPAI (Spectral AI detector)
                                 ├── ELA / Frequency / Noise heuristics
                                 ├── Heatmap compositor (OpenCV + Pillow)
                                 └── Persistent modal.Dict verification memory
-```
+\`\`\`
 
 Key notes:
 - No standalone backend service. All ML inference happens inside Modal functions with automatic scaling.
