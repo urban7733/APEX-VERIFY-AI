@@ -10,4 +10,3 @@
   - Update frontend gating to use Auth0 Universal Login.
 
 This document will evolve as we approach the adoption threshold.
-
