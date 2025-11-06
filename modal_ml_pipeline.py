@@ -68,10 +68,18 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     
     start_time = time.time()
     
-    # Load image from bytes
-    img_pil = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-    img_array = np.frombuffer(image_bytes, dtype=np.uint8)
-    img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    # Load image from bytes with error handling
+    try:
+        img_pil = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+    except Exception as img_error:
+        raise ValueError(f"Failed to load image: {str(img_error)}")
+    
+    try:
+        img_array = np.frombuffer(image_bytes, dtype=np.uint8)
+        img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    except Exception:
+        img_cv = None
+    
     if img_cv is None:
         # Fallback: build from PIL image to avoid OpenCV decode crashes
         img_cv = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
@@ -138,12 +146,19 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     existing_record = verified_results.get(sha256)
     verdict = "ai_generated" if result["is_ai_generated"] or result["is_manipulated"] else "authentic"
 
+    # Safely extract existing record data
+    existing_metadata = {}
+    existing_created_at = timestamp
+    if existing_record and isinstance(existing_record, dict):
+        existing_created_at = existing_record.get("created_at", timestamp)
+        existing_metadata = existing_record.get("metadata", {})
+
     record = {
         "sha256": sha256,
-        "created_at": existing_record.get("created_at") if existing_record else timestamp,
+        "created_at": existing_created_at,
         "last_seen": timestamp,
         "metadata": {
-            **({} if existing_record is None else existing_record.get("metadata", {})),
+            **existing_metadata,
             **metadata,
         },
         "summary": {
@@ -450,9 +465,31 @@ async def web_analyze(
     if not file.content_type or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="Only image files supported")
     
+    # Validate file size (100MB limit to match Next.js frontend)
+    MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+    file_size = 0
     try:
-        # Read image bytes
-        image_bytes = await file.read()
+        # Check size by reading in chunks
+        chunk_size = 8192
+        chunks = []
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            file_size += len(chunk)
+            if file_size > MAX_FILE_SIZE:
+                raise HTTPException(status_code=400, detail="File size must be less than 100MB")
+            chunks.append(chunk)
+        image_bytes = b''.join(chunks)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+    
+    if file_size == 0:
+        raise HTTPException(status_code=400, detail="Empty file provided")
+    
+    try:
 
         metadata = {}
         if source_url:
@@ -469,6 +506,11 @@ async def web_analyze(
 
 @web_app.post("/memory/lookup")
 async def memory_lookup(payload: MemoryLookupRequest):
+    # Validate SHA-256 format (64 hex characters)
+    import re
+    if not payload.sha256 or not re.match(r'^[a-f0-9]{64}$', payload.sha256.lower()):
+        raise HTTPException(status_code=400, detail="Invalid SHA-256 hash format")
+    
     record = verified_results.get(payload.sha256)
     if not record:
         raise HTTPException(status_code=404, detail="Verification not found")
