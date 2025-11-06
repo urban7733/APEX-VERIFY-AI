@@ -7,7 +7,19 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
+const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL
+
 export async function POST(request: NextRequest) {
+  if (!modalUrl) {
+    return NextResponse.json(
+      {
+        error: "Modal ML URL not configured",
+        message: "Set NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal FastAPI endpoint",
+      },
+      { status: 503 },
+    )
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get("file") as File
@@ -19,9 +31,6 @@ export async function POST(request: NextRequest) {
 
     const fileBuffer = Buffer.from(await file.arrayBuffer())
     const sha256 = createHash("sha256").update(fileBuffer).digest("hex")
-
-    // Connect to Modal ML Pipeline (direct, no backend!)
-    const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL || "https://urban33133--apex-verify-ml-fastapi-app.modal.run"
 
     try {
       const modalFormData = new FormData()

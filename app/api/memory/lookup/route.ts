@@ -7,13 +7,14 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL || "https://urban33133--apex-verify-ml-fastapi-app.modal.run"
+const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL
 
 export async function POST(request: NextRequest) {
   if (!modalUrl) {
     return NextResponse.json(
       {
         error: "Modal ML URL not configured",
+        message: "Set NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal FastAPI endpoint",
       },
       { status: 503 },
     )
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
         {
           found: true,
           sha256,
-        sourceUrl: effectiveSourceUrl ?? existingRecord.sourceUrl ?? undefined,
+          sourceUrl: effectiveSourceUrl ?? existingRecord.sourceUrl ?? undefined,
           record: recordPayload,
         },
         { status: 200 },

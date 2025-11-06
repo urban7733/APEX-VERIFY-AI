@@ -8,6 +8,7 @@ Architecture:
 - All ML inference on Modal with auto-scaling
 """
 
+import os
 import modal
 from typing import Dict, Any, Optional
 from functools import lru_cache
@@ -404,9 +405,18 @@ web_app = FastAPI(
 )
 
 # CORS
+allowed_origins = [
+    origin.strip()
+    for origin in os.environ.get("APEX_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
+
+if not allowed_origins:
+    allowed_origins = ["http://localhost:3000"]
+
 web_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update in production
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
