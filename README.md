@@ -24,4 +24,3 @@ Apex Verify AI is the trust layer for modern creators. We deliver precise authen
 ## Ownership
 
 All code and IP remain proprietary to the Apex Verify AI team. Contact us directly for partnership or licensing inquiries.
-
