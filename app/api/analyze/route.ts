@@ -51,24 +51,27 @@ export async function POST(request: NextRequest) {
 
         const normalizedResult = JSON.parse(JSON.stringify(result)) as Prisma.JsonObject
 
-        await prisma.verificationRecord.upsert({
-          where: { sha256 },
-          update: {
-            result: normalizedResult,
-            verdict,
-            confidence: typeof result.confidence === "number" ? result.confidence : 0,
-            method: typeof result.method === "string" ? result.method : null,
-            sourceUrl: sourceUrl ?? null,
-          },
-          create: {
-            sha256,
-            result: normalizedResult,
-            verdict,
-            confidence: typeof result.confidence === "number" ? result.confidence : 0,
-            method: typeof result.method === "string" ? result.method : null,
-            sourceUrl: sourceUrl ?? null,
-          },
-        })
+        // Only persist to database if Prisma client is available
+        if (prisma) {
+          await prisma.verificationRecord.upsert({
+            where: { sha256 },
+            update: {
+              result: normalizedResult,
+              verdict,
+              confidence: typeof result.confidence === "number" ? result.confidence : 0,
+              method: typeof result.method === "string" ? result.method : null,
+              sourceUrl: sourceUrl ?? null,
+            },
+            create: {
+              sha256,
+              result: normalizedResult,
+              verdict,
+              confidence: typeof result.confidence === "number" ? result.confidence : 0,
+              method: typeof result.method === "string" ? result.method : null,
+              sourceUrl: sourceUrl ?? null,
+            },
+          })
+        }
 
         return NextResponse.json({ ...result, sha256 })
       } else {
