@@ -22,6 +22,9 @@ verified_results = modal.Dict.from_name(
 )
 
 # Define container image with all dependencies
+# Note: SPAI model (HaoyiZhu/SPA) is loaded at runtime, not pre-cached
+# This is intentional - the model uses custom checkpoints (.ckpt/.safetensors)
+
 image = (
     modal.Image.debian_slim()
     .apt_install("libgl1", "libglib2.0-0")  # OpenCV dependencies
@@ -30,11 +33,13 @@ image = (
         "Pillow>=10.0.0",
         "numpy>=1.24.0,<2.0.0",
         "fastapi",
+        "python-multipart",  # Required for FastAPI file uploads
         "torch==2.3.1",
         "torchvision==0.18.1",
         "transformers==4.42.4",
         "huggingface-hub==0.23.4",
         "safetensors==0.4.3",
+        "timm",  # PyTorch Image Models - required for SPAI
     )
 )
 
