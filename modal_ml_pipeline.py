@@ -525,7 +525,7 @@ async def memory_lookup(payload: MemoryLookupRequest):
 # CORS is configured via APEX_ALLOWED_ORIGINS environment variable
 # If you create a Modal Secret, it will be available as an env var
 # Otherwise, it defaults to http://localhost:3000
-@app.function()
+@app.function(image=image)
 @modal.asgi_app()
 def fastapi_app():
     return web_app
