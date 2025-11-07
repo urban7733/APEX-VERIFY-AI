@@ -51,11 +51,17 @@ export async function POST(request: NextRequest) {
         modalFormData.append("source_url", sourceUrl)
       }
 
-      const response = await fetch(`${modalUrl}/analyze`, {
+      const modalEndpoint = `${modalUrl}/analyze`
+      console.log(`[Analyze] Calling Modal endpoint: ${modalEndpoint}`)
+      console.log(`[Analyze] File size: ${file.size} bytes, type: ${file.type}`)
+
+      const response = await fetch(modalEndpoint, {
         method: "POST",
         body: modalFormData,
         signal: AbortSignal.timeout(60000), // 60 second timeout for ML inference
       })
+
+      console.log(`[Analyze] Modal response status: ${response.status}`)
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => "Unknown error")

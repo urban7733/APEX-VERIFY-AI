@@ -23,20 +23,29 @@ export async function GET() {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 5000)
 
-    const modalResponse = await fetch(`${MODAL_URL}/health`, {
+    const modalHealthUrl = `${MODAL_URL}/health`
+    console.log(`[Health] Checking Modal at: ${modalHealthUrl}`)
+
+    const modalResponse = await fetch(modalHealthUrl, {
       method: "GET",
       signal: controller.signal,
     })
 
     clearTimeout(timeoutId)
 
+    console.log(`[Health] Modal response: ${modalResponse.status}`)
+
     if (!modalResponse.ok) {
+      const errorText = await modalResponse.text().catch(() => "Unknown error")
+      console.error(`[Health] Modal error: ${errorText}`)
       return NextResponse.json(
         {
           status: "degraded",
           frontend: "healthy",
           modal: "unhealthy",
           message: `Modal returned ${modalResponse.status}`,
+          modalUrl: MODAL_URL,
+          error: errorText,
         },
         { status: 503 },
       )
