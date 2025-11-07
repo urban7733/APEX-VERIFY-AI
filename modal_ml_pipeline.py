@@ -522,7 +522,9 @@ async def memory_lookup(payload: MemoryLookupRequest):
     }
 
 # Mount FastAPI app to Modal
-@app.function()
+# Note: Make sure to create a Modal Secret named "apex-allowed-origins" 
+# with your Vercel domain(s) as the value
+@app.function(secrets=[modal.Secret.from_name("apex-allowed-origins")])
 @modal.asgi_app()
 def fastapi_app():
     return web_app
