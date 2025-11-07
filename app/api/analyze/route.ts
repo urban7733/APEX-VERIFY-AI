@@ -20,6 +20,18 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Validate Modal URL format
+  if (!modalUrl.startsWith("https://") || !modalUrl.includes(".modal.run")) {
+    console.error(`Invalid Modal URL format: ${modalUrl}`)
+    return NextResponse.json(
+      {
+        error: "Invalid Modal URL configuration",
+        message: "NEXT_PUBLIC_MODAL_ML_URL must be a valid Modal endpoint (https://*.modal.run)",
+      },
+      { status: 503 },
+    )
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get("file") as File
@@ -45,12 +57,19 @@ export async function POST(request: NextRequest) {
         signal: AbortSignal.timeout(60000), // 60 second timeout for ML inference
       })
 
-      if (response.ok) {
-        const result = await response.json()
-        const verdict = result.is_ai_generated || result.is_manipulated ? "ai_generated" : "authentic"
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error")
+        console.error(`Modal API error (${response.status}):`, errorText)
+        throw new Error(`Modal ML failed: ${response.status} - ${errorText}`)
+      }
 
-        const normalizedResult = JSON.parse(JSON.stringify(result)) as Prisma.JsonObject
+      const result = await response.json()
+      const verdict = result.is_ai_generated || result.is_manipulated ? "ai_generated" : "authentic"
 
+      const normalizedResult = JSON.parse(JSON.stringify(result)) as Prisma.JsonObject
+
+      // Only persist to database if Prisma client is available
+      if (prisma) {
         await prisma.verificationRecord.upsert({
           where: { sha256 },
           update: {
@@ -69,11 +88,9 @@ export async function POST(request: NextRequest) {
             sourceUrl: sourceUrl ?? null,
           },
         })
-
-        return NextResponse.json({ ...result, sha256 })
-      } else {
-        throw new Error(`Modal ML failed: ${response.status}`)
       }
+
+      return NextResponse.json({ ...result, sha256 })
     } catch (error: unknown) {
       console.error("Modal ML Pipeline error:", error)
       const message = error instanceof Error ? error.message : "Please try again later"
