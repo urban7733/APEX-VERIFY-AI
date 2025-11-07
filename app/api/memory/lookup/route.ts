@@ -104,12 +104,9 @@ export async function POST(request: NextRequest) {
 
     const sha256 = createHash("sha256").update(buffer).digest("hex")
 
-    // Check Prisma database first if available
-    const existingRecord = prisma
-      ? await prisma.verificationRecord.findUnique({
-          where: { sha256 },
-        })
-      : null
+    const existingRecord = await prisma.verificationRecord.findUnique({
+      where: { sha256 },
+    })
 
     if (existingRecord) {
       const result = JSON.parse(JSON.stringify(existingRecord.result))
@@ -132,7 +129,7 @@ export async function POST(request: NextRequest) {
         result,
       }
 
-      if (effectiveSourceUrl && !existingRecord.sourceUrl && prisma) {
+      if (effectiveSourceUrl && !existingRecord.sourceUrl) {
         await prisma.verificationRecord.update({
           where: { sha256 },
           data: { sourceUrl: effectiveSourceUrl },
@@ -186,27 +183,24 @@ export async function POST(request: NextRequest) {
       (typeof resultPayload?.method === "string" ? (resultPayload.method as string) : null)
     const sourceUrlFromModal = typeof metadataFromModal?.source_url === "string" ? (metadataFromModal.source_url as string) : null
 
-    // Persist to database if Prisma client is available
-    if (prisma) {
-      await prisma.verificationRecord.upsert({
-        where: { sha256 },
-        update: {
-          result: normalizedResult,
-          verdict: verdictFromModal,
-          confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
-          method: typeof methodFromModal === "string" ? methodFromModal : null,
-          sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
-        },
-        create: {
-          sha256,
-          result: normalizedResult,
-          verdict: verdictFromModal,
-          confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
-          method: typeof methodFromModal === "string" ? methodFromModal : null,
-          sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
-        },
-      })
-    }
+    await prisma.verificationRecord.upsert({
+      where: { sha256 },
+      update: {
+        result: normalizedResult,
+        verdict: verdictFromModal,
+        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
+        method: typeof methodFromModal === "string" ? methodFromModal : null,
+        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
+      },
+      create: {
+        sha256,
+        result: normalizedResult,
+        verdict: verdictFromModal,
+        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
+        method: typeof methodFromModal === "string" ? methodFromModal : null,
+        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
+      },
+    })
 
     return NextResponse.json(
       {

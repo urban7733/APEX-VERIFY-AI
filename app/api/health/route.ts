@@ -45,14 +45,10 @@ export async function GET() {
     const modalHealth = await modalResponse.json().catch(() => ({ status: "unknown" }))
 
     let databaseStatus: "healthy" | "unreachable" = "healthy"
-    if (prisma) {
-      try {
-        await prisma.$queryRaw`SELECT 1`
-      } catch (dbError) {
-        console.error("Database health check error:", dbError)
-        databaseStatus = "unreachable"
-      }
-    } else {
+    try {
+      await prisma.$queryRaw`SELECT 1`
+    } catch (dbError) {
+      console.error("Database health check error:", dbError)
       databaseStatus = "unreachable"
     }
 
