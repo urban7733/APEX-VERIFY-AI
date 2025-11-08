@@ -214,7 +214,7 @@ export default function Home() {
         </Link>
       </div>
       <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-6 sm:gap-8">
-        {/* Main Logo */}
+        {/* Hero Video */}
         <div
           className="relative z-10 w-full max-w-[760px] px-8 transition-all duration-300 ease-out"
           style={{
@@ -222,28 +222,26 @@ export default function Home() {
             transform: `scale(${logoScale}) translateY(${scrollY * 0.35}px)`,
           }}
         >
-          <div className="relative aspect-square w-full max-w-[720px] mx-auto overflow-hidden rounded-[3rem] border border-white/10 bg-white/[0.03] shadow-[0_30px_120px_-40px_rgba(59,130,246,0.45)]">
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              onCanPlay={() => setIsVideoReady(true)}
-              onError={() => setVideoFailed(true)}
-            >
-              <source src="/video/herovideo.mp4" type="video/mp4" />
-            </video>
+          <video
+            className="w-full h-auto max-w-[720px] mx-auto"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            onCanPlay={() => setIsVideoReady(true)}
+            onError={() => setVideoFailed(true)}
+          >
+            <source src="/video/herovideo.mp4" type="video/mp4" />
+          </video>
 
-            {(!isVideoReady || videoFailed) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <div className="text-center space-y-4">
-                  <p className="text-white/40 text-sm">Loading video...</p>
-                </div>
+          {(!isVideoReady || videoFailed) && (
+            <div className="w-full max-w-[720px] mx-auto aspect-square flex items-center justify-center bg-black/50">
+              <div className="text-center space-y-4">
+                <p className="text-white/40 text-sm">Loading video...</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
