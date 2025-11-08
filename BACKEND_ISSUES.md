@@ -40,13 +40,13 @@
 
 ### 1. Create `.env.local` file:
 
-```bash
+\`\`\`bash
 cp env.local.example .env.local
-```
+\`\`\`
 
 Then edit `.env.local` and add:
 
-```bash
+\`\`\`bash
 # Use the actual Modal endpoint URLs from deployment
 NEXT_PUBLIC_MODAL_ANALYZE_URL=https://urban33133--apex-verify-ml-analyze-endpoint.modal.run
 NEXT_PUBLIC_MODAL_HEALTH_URL=https://urban33133--apex-verify-ml-health-endpoint.modal.run
@@ -54,11 +54,11 @@ NEXT_PUBLIC_MODAL_MEMORY_URL=https://urban33133--apex-verify-ml-memory-lookup-en
 
 # Optional: Database connection
 DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1
-```
+\`\`\`
 
 ### 2. Test Backend:
 
-```bash
+\`\`\`bash
 # Start dev server
 pnpm dev
 
@@ -67,7 +67,7 @@ curl http://localhost:3000/api/health
 
 # Should return:
 # {"status":"healthy","frontend":"healthy","modal":{"status":"healthy","modal":"operational"},...}
-```
+\`\`\`
 
 ### 3. Test Image Analysis:
 
@@ -86,9 +86,8 @@ Upload an image through the frontend UI at `http://localhost:3000`
 1. **Check environment variables**: Ensure `.env.local` exists and has the Modal URLs
 2. **Restart dev server**: After adding env vars, restart `pnpm dev`
 3. **Check Modal deployment**: Verify endpoints are accessible:
-   ```bash
+   \`\`\`bash
    curl https://urban33133--apex-verify-ml-health-endpoint.modal.run
-   ```
+   \`\`\`
 4. **Check browser console**: Look for error messages in the browser dev tools
 5. **Check server logs**: Look at the terminal running `pnpm dev` for API errors
-

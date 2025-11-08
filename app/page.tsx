@@ -62,34 +62,39 @@ export default function Home() {
       setResult(analysisResult)
     } catch (error) {
       console.error("❌ Backend ML Pipeline Failed:", error)
-      alert(`Analysis failed: ${error instanceof Error ? error.message : "Backend unavailable"}. Please ensure the backend is running.`)
+      alert(
+        `Analysis failed: ${error instanceof Error ? error.message : "Backend unavailable"}. Please ensure the backend is running.`,
+      )
     } finally {
       setIsAnalyzing(false)
     }
   }, [])
 
-  const handleFileSelect = useCallback((selectedFile: File) => {
-    if (selectedFile.size > 100 * 1024 * 1024) {
-      alert("File size must be less than 100MB")
-      return
-    }
+  const handleFileSelect = useCallback(
+    (selectedFile: File) => {
+      if (selectedFile.size > 100 * 1024 * 1024) {
+        alert("File size must be less than 100MB")
+        return
+      }
 
-    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"]
-    if (!validTypes.includes(selectedFile.type)) {
-      alert("Please select a valid image or video file")
-      return
-    }
+      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"]
+      if (!validTypes.includes(selectedFile.type)) {
+        alert("Please select a valid image or video file")
+        return
+      }
 
-    setFile(selectedFile)
-    setResult(null)
+      setFile(selectedFile)
+      setResult(null)
 
-    if (selectedFile.type.startsWith("image/") || selectedFile.type.startsWith("video/")) {
-      const url = URL.createObjectURL(selectedFile)
-      setPreviewUrl(url)
-    }
+      if (selectedFile.type.startsWith("image/") || selectedFile.type.startsWith("video/")) {
+        const url = URL.createObjectURL(selectedFile)
+        setPreviewUrl(url)
+      }
 
-    analyzeFile(selectedFile)
-  }, [analyzeFile])
+      analyzeFile(selectedFile)
+    },
+    [analyzeFile],
+  )
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -166,31 +171,35 @@ export default function Home() {
 
       // Enable smooth rendering for better quality
       ctx.imageSmoothingEnabled = true
-      ctx.imageSmoothingQuality = 'high'
+      ctx.imageSmoothingQuality = "high"
 
       // Draw watermark at BOTTOM-LEFT
       ctx.drawImage(watermark, watermarkX, watermarkY, watermarkWidth, watermarkHeight)
 
       // Convert to blob and download - HIGH QUALITY PNG
-      canvas.toBlob((blob) => {
-        if (!blob) return
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `verified-${file.name}`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, "image/png", 1.0)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = `verified-${file.name}`
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+        },
+        "image/png",
+        1.0,
+      )
     } catch (error) {
       console.error("Failed to add watermark:", error)
       alert("Failed to download with watermark. Please try again.")
     }
   }, [previewUrl, file])
 
-  const logoOpacity = Math.max(0, 1 - scrollY / 400)
-  const logoScale = Math.max(0.5, 1 - scrollY / 800)
+  const logoOpacity = Math.max(0, 1 - scrollY / 1000) // Increased from 800 to 1000 for slower fade
+  const logoScale = Math.max(0.5, 1 - scrollY / 1500) // Increased from 1200 to 1500 for slower scale
   const contentOpacity = Math.min(1, scrollY / 300)
 
   return (
@@ -202,7 +211,7 @@ export default function Home() {
           </Button>
         </Link>
       </div>
-      <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-10">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-4">
         {/* Main Logo */}
         <div
           className="relative z-10 transition-all duration-300 ease-out"
@@ -223,7 +232,7 @@ export default function Home() {
 
         {/* Chrome Text Logo */}
         <div
-          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 transition-opacity duration-300"
+          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 transition-opacity duration-300 -mt-8 sm:-mt-12 md:-mt-16"
           style={{
             opacity: logoOpacity,
           }}
@@ -250,8 +259,8 @@ export default function Home() {
         <div className="max-w-4xl mx-auto space-y-12 sm:space-y-16">
           {/* Title */}
           <div className="text-center">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight leading-[1.1]">
-              <span className="inline-block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tighter leading-[1.05]">
+              <span className="inline-block bg-gradient-to-r from-white via-white to-white/95 bg-clip-text text-transparent">
                 Our Mission
               </span>
             </h2>
@@ -259,29 +268,30 @@ export default function Home() {
           </div>
 
           {/* Mission Text - Clean YC Style */}
-          <div className="space-y-8 sm:space-y-10 text-center font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
-            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/80 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
-              In a time when artificial intelligence can generate endless content, the line between what's real and what's synthetic is fading fast.
+          <div className="space-y-8 sm:space-y-10 text-center font-sans">
+            <p className="text-base sm:text-lg md:text-xl text-white/85 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
+              In a time when artificial intelligence can generate endless content, the line between what's real and
+              what's synthetic is fading fast.
             </p>
 
             <div className="py-2 sm:py-4">
-              <p className="text-[18px] sm:text-[22px] md:text-[26px] font-medium leading-[1.4] tracking-[-0.02em] max-w-3xl mx-auto">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tighter max-w-3xl mx-auto">
                 <span className="inline-block bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-transparent">
                   We're building the new standard for authenticity in the digital world.
                 </span>
               </p>
             </div>
 
-            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/80 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
-              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs—created by human imagination, not algorithms.
+            <p className="text-base sm:text-lg md:text-xl text-white/85 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
+              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs - created by human imagination, not algorithms.
             </p>
 
-            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/75 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
-              Our technology integrates across the entire digital economy—from social media and branding to design, fashion, film, and advertising—anywhere visual content defines value.
+            <p className="text-base sm:text-lg md:text-xl text-white/80 font-normal leading-relaxed tracking-tight max-w-3xl mx-auto">
+              Our technology integrates across the entire digital economy - from social media and branding to design, fashion, film, and advertising - anywhere visual content defines value.
             </p>
 
             <div className="pt-6 sm:pt-8 space-y-3">
-              <p className="text-[18px] sm:text-[22px] md:text-[26px] font-medium leading-[1.35] tracking-[-0.02em] max-w-2xl mx-auto">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tighter max-w-2xl mx-auto">
                 <span className="inline-block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
                   We believe the future doesn't belong to AI itself, but to those who can prove they create for real.
                 </span>
@@ -289,8 +299,9 @@ export default function Home() {
             </div>
 
             <div className="pt-4 sm:pt-6">
-              <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/85 font-normal leading-[1.7] tracking-[-0.01em] max-w-3xl mx-auto">
-                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a world increasingly shaped by artificial intelligence.
+              <p className="text-base sm:text-lg md:text-xl text-white/90 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
+                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
+                world increasingly shaped by artificial intelligence.
               </p>
             </div>
           </div>
@@ -444,7 +455,7 @@ export default function Home() {
                           >
                             <div className="relative flex items-center justify-center gap-3">
                               <Download className="w-5 h-5 text-white" />
-                              <span className="text-base font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
+                              <span className="text-base font-bold tracking-tight" style={{ color: "#FFFFFF" }}>
                                 DOWNLOAD
                               </span>
                             </div>
