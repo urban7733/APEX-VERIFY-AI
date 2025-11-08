@@ -202,10 +202,10 @@ export default function Home() {
           </Button>
         </Link>
       </div>
-      <div className="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-16 sm:pt-0">
-        {/* Main Logo - Higher on mobile */}
+      <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-10">
+        {/* Main Logo */}
         <div
-          className="relative z-10 transition-all duration-300 ease-out -mt-20 sm:-mt-8"
+          className="relative z-10 transition-all duration-300 ease-out"
           style={{
             opacity: logoOpacity,
             transform: `scale(${logoScale}) translateY(${scrollY * 0.5}px)`,
@@ -221,9 +221,9 @@ export default function Home() {
           />
         </div>
 
-        {/* Chrome Text Logo - More spacing from logo on mobile */}
+        {/* Chrome Text Logo */}
         <div
-          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 -mt-12 sm:-mt-32 md:-mt-40 transition-opacity duration-300"
+          className="relative z-10 w-full max-w-[600px] sm:max-w-[700px] md:max-w-[800px] px-8 transition-opacity duration-300"
           style={{
             opacity: logoOpacity,
           }}
