@@ -229,55 +229,24 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mission Section - YC Startup Style */}
+      {/* Software Description Box */}
       <div className="relative z-10 px-6 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40">
-        <div className="max-w-4xl mx-auto space-y-12 sm:space-y-16">
-          {/* Title */}
-          <div className="text-center">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tighter leading-[1.05]">
-              <span className="inline-block bg-gradient-to-r from-white via-white to-white/95 bg-clip-text text-transparent">
-                Our Mission
-              </span>
-            </h2>
-            <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto mt-6" />
-          </div>
-
-          {/* Mission Text - Clean YC Style */}
-          <div className="space-y-8 sm:space-y-10 text-center font-sans">
-            <p className="text-base sm:text-lg md:text-xl text-white/85 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
-              In a time when artificial intelligence can generate endless content, the line between what's real and
-              what's synthetic is fading fast.
-            </p>
-
-            <div className="py-2 sm:py-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tighter max-w-3xl mx-auto">
-                <span className="inline-block bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-transparent">
-                  We're building the new standard for authenticity in the digital world.
-                </span>
+        <div className="max-w-4xl mx-auto">
+          <div className="animated-border p-8 sm:p-12 lg:p-16">
+            <div className="space-y-6 sm:space-y-8 text-center">
+              <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto">
+                Apex Verify AI uses advanced machine learning to detect AI-generated and manipulated content in images and videos. Our technology analyzes digital fingerprints, metadata patterns, and visual artifacts to determine authenticity with high accuracy.
               </p>
-            </div>
-
-            <p className="text-base sm:text-lg md:text-xl text-white/85 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
-              Apex Verify AI empowers creative artists, photographers, filmmakers, and brands to prove that their work is truly theirs - created by human imagination, not algorithms.
-            </p>
-
-            <p className="text-base sm:text-lg md:text-xl text-white/80 font-normal leading-relaxed tracking-tight max-w-3xl mx-auto">
-              Our technology integrates across the entire digital economy - from social media and branding to design, fashion, film, and advertising - anywhere visual content defines value.
-            </p>
-
-            <div className="pt-6 sm:pt-8 space-y-3">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tighter max-w-2xl mx-auto">
-                <span className="inline-block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
-                  We believe the future doesn't belong to AI itself, but to those who can prove they create for real.
-                </span>
+              
+              <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto">
+                Creators can verify their work, add tamper-proof watermarks, and build trust with audiences. Brands and platforms can ensure content integrity and protect against deepfakes and synthetic media.
               </p>
-            </div>
 
-            <div className="pt-4 sm:pt-6">
-              <p className="text-base sm:text-lg md:text-xl text-white/90 font-medium leading-relaxed tracking-tight max-w-3xl mx-auto">
-                With Apex Verify AI, creators gain the tools to verify authenticity, build trust, and stand out in a
-                world increasingly shaped by artificial intelligence.
-              </p>
+              <div className="pt-6 sm:pt-8">
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight max-w-2xl mx-auto">
+                  We are transforming the whole creator economy.
+                </p>
+              </div>
             </div>
           </div>
         </div>

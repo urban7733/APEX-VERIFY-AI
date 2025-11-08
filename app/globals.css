@@ -727,3 +727,36 @@ textarea:focus-visible {
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
   filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.3));
 }
+
+/* Animated glowing border with color cycling */
+@keyframes borderGlow {
+  0% {
+    border-color: #3b82f6;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+  }
+  25% {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    border-color: #ec4899;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
+  }
+  75% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.3);
+  }
+  100% {
+    border-color: #3b82f6;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+  }
+}
+
+.animated-border {
+  position: relative;
+  border: 2px solid;
+  border-radius: 1.5rem;
+  animation: borderGlow 4s ease-in-out infinite;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+}
