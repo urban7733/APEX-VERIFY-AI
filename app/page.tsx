@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Upload, X, Download } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -23,15 +23,8 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   const analyzeFile = useCallback(async (fileToAnalyze: File) => {
     setIsAnalyzing(true)
@@ -200,9 +193,6 @@ export default function Home() {
     }
   }, [previewUrl, file])
 
-  const logoOpacity = Math.max(0, 1 - scrollY / 1000) // Increased from 800 to 1000 for slower fade
-  const logoScale = Math.max(0.5, 1 - scrollY / 1500) // Increased from 1200 to 1500 for slower scale
-  const contentOpacity = Math.min(1, scrollY / 300)
 
   return (
     <div className="min-h-screen bg-[#000000] text-white antialiased relative">
@@ -215,13 +205,7 @@ export default function Home() {
       </div>
       <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-6 sm:gap-8">
         {/* Hero Video */}
-        <div
-          className="relative z-10 w-full max-w-[760px] px-8 transition-all duration-300 ease-out"
-          style={{
-            opacity: logoOpacity,
-            transform: `scale(${logoScale}) translateY(${scrollY * 0.35}px)`,
-          }}
-        >
+        <div className="relative z-10 w-full max-w-[760px] px-8">
           <video
             className="w-full h-auto max-w-[720px] mx-auto"
             autoPlay
@@ -246,13 +230,7 @@ export default function Home() {
       </div>
 
       {/* Mission Section - YC Startup Style */}
-      <div
-        className="relative z-10 px-6 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40"
-        style={{
-          opacity: Math.min(1, Math.max(0, (scrollY - 200) / 400)),
-          transform: `translateY(${Math.max(0, 100 - (scrollY - 200) / 5)}px)`,
-        }}
-      >
+      <div className="relative z-10 px-6 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40">
         <div className="max-w-4xl mx-auto space-y-12 sm:space-y-16">
           {/* Title */}
           <div className="text-center">
@@ -305,13 +283,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div
-        className="relative z-10 px-6 sm:px-8 py-20"
-        style={{
-          opacity: contentOpacity,
-          transform: `translateY(${Math.max(0, 50 - scrollY / 10)}px)`,
-        }}
-      >
+      <div className="relative z-10 px-6 sm:px-8 py-20">
         <div className="w-full max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div className="space-y-10">
