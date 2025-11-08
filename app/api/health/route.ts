@@ -4,10 +4,14 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-const MODAL_URL = process.env.NEXT_PUBLIC_MODAL_ML_URL
+// Modal health endpoint URL - each function has its own full URL
+const modalHealthUrl = process.env.NEXT_PUBLIC_MODAL_HEALTH_URL || 
+  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
+    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-health-endpoint.modal.run`
+    : undefined)
 
 export async function GET() {
-  if (!MODAL_URL) {
+  if (!modalHealthUrl) {
     return NextResponse.json(
       {
         status: "degraded",
@@ -22,8 +26,6 @@ export async function GET() {
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 5000)
-
-    const modalHealthUrl = `${MODAL_URL}/health`
     console.log(`[Health] Checking Modal at: ${modalHealthUrl}`)
 
     const modalResponse = await fetch(modalHealthUrl, {

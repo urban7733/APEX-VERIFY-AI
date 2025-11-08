@@ -7,26 +7,31 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL
+// Modal endpoint URLs - each function has its own full URL
+// Get from env var or construct from base URL pattern
+const modalAnalyzeUrl = process.env.NEXT_PUBLIC_MODAL_ANALYZE_URL || 
+  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
+    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-analyze-endpoint.modal.run`
+    : undefined)
 
 export async function POST(request: NextRequest) {
-  if (!modalUrl) {
+  if (!modalAnalyzeUrl) {
     return NextResponse.json(
       {
         error: "Modal ML URL not configured",
-        message: "Set NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal FastAPI endpoint",
+        message: "Set NEXT_PUBLIC_MODAL_ANALYZE_URL or NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal endpoint",
       },
       { status: 503 },
     )
   }
 
   // Validate Modal URL format
-  if (!modalUrl.startsWith("https://") || !modalUrl.includes(".modal.run")) {
-    console.error(`Invalid Modal URL format: ${modalUrl}`)
+  if (!modalAnalyzeUrl.startsWith("https://") || !modalAnalyzeUrl.includes(".modal.run")) {
+    console.error(`Invalid Modal URL format: ${modalAnalyzeUrl}`)
     return NextResponse.json(
       {
         error: "Invalid Modal URL configuration",
-        message: "NEXT_PUBLIC_MODAL_ML_URL must be a valid Modal endpoint (https://*.modal.run)",
+        message: "Modal URL must be a valid Modal endpoint (https://*.modal.run)",
       },
       { status: 503 },
     )
@@ -45,19 +50,23 @@ export async function POST(request: NextRequest) {
     const sha256 = createHash("sha256").update(fileBuffer).digest("hex")
 
     try {
-      const modalFormData = new FormData()
-      modalFormData.append("file", file)
-      if (sourceUrl) {
-        modalFormData.append("source_url", sourceUrl)
-      }
+      // Convert image to base64 for Modal endpoint
+      const imageBase64 = fileBuffer.toString("base64")
 
-      const modalEndpoint = `${modalUrl}/analyze`
-      console.log(`[Analyze] Calling Modal endpoint: ${modalEndpoint}`)
+      console.log(`[Analyze] Calling Modal endpoint: ${modalAnalyzeUrl}`)
       console.log(`[Analyze] File size: ${file.size} bytes, type: ${file.type}`)
 
-      const response = await fetch(modalEndpoint, {
+      const requestBody = {
+        image_base64: imageBase64,
+        ...(sourceUrl && { source_url: sourceUrl }),
+      }
+
+      const response = await fetch(modalAnalyzeUrl, {
         method: "POST",
-        body: modalFormData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(60000), // 60 second timeout for ML inference
       })
 

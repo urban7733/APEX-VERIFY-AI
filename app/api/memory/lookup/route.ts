@@ -7,14 +7,18 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-const modalUrl = process.env.NEXT_PUBLIC_MODAL_ML_URL
+// Modal memory lookup endpoint URL - each function has its own full URL
+const modalMemoryUrl = process.env.NEXT_PUBLIC_MODAL_MEMORY_URL || 
+  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
+    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-memory-lookup-endpoint.modal.run`
+    : undefined)
 
 export async function POST(request: NextRequest) {
-  if (!modalUrl) {
+  if (!modalMemoryUrl) {
     return NextResponse.json(
       {
         error: "Modal ML URL not configured",
-        message: "Set NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal FastAPI endpoint",
+        message: "Set NEXT_PUBLIC_MODAL_MEMORY_URL or NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal endpoint",
       },
       { status: 503 },
     )
@@ -147,7 +151,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const lookupResponse = await fetch(`${modalUrl}/memory/lookup`, {
+    const lookupResponse = await fetch(modalMemoryUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sha256 }),

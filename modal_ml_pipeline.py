@@ -9,9 +9,16 @@ Architecture:
 """
 
 import os
+import logging
+import tempfile
+from pathlib import Path
+import importlib.resources as pkg_resources
+
 import modal
+import numpy as np
+import torch
 from typing import Dict, Any, Optional
-from functools import lru_cache
+import sys
 
 # Create Modal app
 app = modal.App("apex-verify-ml")
@@ -22,25 +29,226 @@ verified_results = modal.Dict.from_name(
     create_if_missing=True,
 )
 
+
+def _to_python(value: Any) -> Any:
+    """
+    Recursively convert numpy/scalar types into native Python primitives so the
+    result can be JSON-encoded safely.
+    """
+    if isinstance(value, (np.generic,)):
+        return value.item()
+    if isinstance(value, dict):
+        return {k: _to_python(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        iterable = (_to_python(item) for item in value)
+        return type(value)(iterable)
+    return value
+
+
+SPAI_WEIGHTS_ID = "1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI"
+SPAI_CACHE_DIR = Path("/opt/spai-cache")
+SPAI_OUTPUT_DIR = SPAI_CACHE_DIR / "output"
+SPAI_REPO_ROOT = Path("/opt/spai")
+if str(SPAI_REPO_ROOT) not in sys.path and SPAI_REPO_ROOT.exists():
+    sys.path.append(str(SPAI_REPO_ROOT))
+_spai_engine: Optional["SPAIEngine"] = None
+
+
+class SPAIEngine:
+    def __init__(self) -> None:
+        from spai.config import get_config  # type: ignore
+        from spai.models import build_cls_model  # type: ignore
+        from spai.models.losses import build_loss  # type: ignore
+        from spai.utils import load_pretrained  # type: ignore
+        from spai.data import build_loader_test  # type: ignore
+        from spai.__main__ import validate  # type: ignore
+
+        self._get_config = get_config
+        self._build_cls_model = build_cls_model
+        self._load_pretrained = load_pretrained
+        self._build_loader_test = build_loader_test
+        self._validate = validate
+        self._build_loss = build_loss
+
+        self.logger = logging.getLogger("spai")
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter("[SPAI] %(message)s"))
+            self.logger.addHandler(handler)
+        self.logger.setLevel(logging.WARNING)
+
+        SPAI_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        SPAI_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.weights_path = self._ensure_weights()
+        config_candidate = SPAI_REPO_ROOT / "configs" / "spai.yaml"
+        if not config_candidate.exists():
+            config_candidate = Path(pkg_resources.files("spai")) / "configs" / "spai.yaml"
+        self.config_path = config_candidate
+        self._opts = [
+            ("DATA.NUM_WORKERS", "0"),
+            ("DATA.PIN_MEMORY", "False"),
+            ("DATA.TEST_PREFETCH_FACTOR", "None"),
+            ("DATA.PREFETCH_FACTOR", "None"),
+            ("DATA.VAL_PREFETCH_FACTOR", "None"),
+            ("DATA.BATCH_SIZE", "1"),
+            ("DATA.TEST_BATCH_SIZE", "1"),
+        ]
+        self._opts_signature = tuple(self._opts)
+
+        base_args = {
+            "cfg": str(self.config_path),
+            "batch_size": 1,
+            "output": str(SPAI_OUTPUT_DIR),
+            "tag": "apex-verify",
+            "pretrained": str(self.weights_path),
+            "opts": self._opts,
+        }
+        self.base_config = self._get_config(base_args)
+        self.model = self._build_cls_model(self.base_config).to(self.device)
+        self._load_pretrained(
+            self.base_config,
+            self.model,
+            self.logger,
+            checkpoint_path=self.weights_path,
+            verbose=False,
+        )
+        self.model.eval()
+        self.criterion = self._build_loss(self.base_config).to(self.device)
+
+    def _ensure_weights(self) -> Path:
+        weights_dir = SPAI_CACHE_DIR / "weights"
+        weights_dir.mkdir(parents=True, exist_ok=True)
+        weights_path = weights_dir / "spai.pth"
+        if weights_path.exists():
+            return weights_path
+
+        import gdown  # type: ignore
+
+        url = f"https://drive.google.com/uc?id={SPAI_WEIGHTS_ID}"
+        gdown.download(url, str(weights_path), quiet=False)
+        return weights_path
+
+    def predict(self, image_bytes: bytes) -> Dict[str, Any]:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            input_dir = tmp_path / "inputs"
+            output_dir = tmp_path / "outputs"
+            input_dir.mkdir(parents=True, exist_ok=True)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            image_path = input_dir / "input.png"
+            with open(image_path, "wb") as fh:
+                fh.write(image_bytes)
+
+            config = self._get_config(
+                {
+                    "cfg": str(self.config_path),
+                    "batch_size": 1,
+                    "output": str(output_dir),
+                    "tag": "apex-verify",
+                    "pretrained": str(self.weights_path),
+                    "test_csv": [str(input_dir)],
+                    "opts": self._opts,
+                }
+            )
+
+            _, _, loaders = self._build_loader_test(
+                config,
+                self.logger,
+                split="test",
+                dummy_csv_dir=output_dir,
+            )
+            data_loader = loaders[0]
+
+            with torch.inference_mode():
+                _, _, _, _, predictions = self._validate(
+                    config,
+                    data_loader,
+                    self.model,
+                    self.criterion,
+                    None,
+                    verbose=False,
+                    return_predictions=True,
+                )
+
+        score = float(list(predictions.values())[0][0])
+        return {
+            "is_ai_generated": score >= 0.5,
+            "score": score,
+            "label": "ai_generated" if score >= 0.5 else "authentic",
+            "probabilities": {
+                "ai_generated": score,
+                "authentic": 1.0 - score,
+            },
+            "status": "ok",
+        }
+
+
+def get_spai_engine() -> SPAIEngine:
+    global _spai_engine
+    expected_signature = tuple(
+        [
+            ("DATA.NUM_WORKERS", "0"),
+            ("DATA.PIN_MEMORY", "False"),
+            ("DATA.TEST_PREFETCH_FACTOR", "None"),
+            ("DATA.PREFETCH_FACTOR", "None"),
+            ("DATA.VAL_PREFETCH_FACTOR", "None"),
+            ("DATA.BATCH_SIZE", "1"),
+            ("DATA.TEST_BATCH_SIZE", "1"),
+        ]
+    )
+    needs_reload = (
+        _spai_engine is None
+        or not getattr(_spai_engine, "config_path", Path()).exists()
+        or getattr(_spai_engine, "_opts_signature", None) != expected_signature
+    )
+    if needs_reload:
+        _spai_engine = SPAIEngine()
+    return _spai_engine
+
 # Define container image with all dependencies
 # Note: SPAI model (HaoyiZhu/SPA) is loaded at runtime, not pre-cached
 # This is intentional - the model uses custom checkpoints (.ckpt/.safetensors)
 
 image = (
     modal.Image.debian_slim()
-    .apt_install("libgl1", "libglib2.0-0")  # OpenCV dependencies
+    .apt_install("git", "libgl1", "libglib2.0-0")  # Dependencies for OpenCV and Git
     .pip_install(
         "opencv-python-headless==4.9.0.80",
-        "Pillow>=10.0.0",
+        "Pillow==10.4.0",
         "numpy>=1.24.0,<2.0.0",
-        "fastapi",
-        "python-multipart",  # Required for FastAPI file uploads
         "torch==2.3.1",
         "torchvision==0.18.1",
-        "transformers==4.42.4",
-        "huggingface-hub==0.23.4",
-        "safetensors==0.4.3",
-        "timm",  # PyTorch Image Models - required for SPAI
+        "scipy==1.14.0",
+        "tensorboard",
+        "termcolor==2.4.0",
+        "timm==0.4.12",
+        "yacs==0.1.8",
+        "torchmetrics==1.4.0.post0",
+        "tqdm==4.66.4",
+        "click==8.1.7",
+        "neptune==1.11.1",
+        "albumentations==1.4.14",
+        "albucore==0.0.16",
+        "lmdb==1.5.1",
+        "networkx==3.3",
+        "seaborn==0.13.2",
+        "pandas==2.2.2",
+        "einops==0.8.0",
+        "filetype==1.2.0",
+        "onnx",
+        "onnxscript",
+        "gdown==5.1.0",
+        "fastapi>=0.104.0",
+        "git+https://github.com/openai/CLIP.git",
+    )
+    .run_commands(
+        [
+            "git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai",
+            "mkdir -p /opt/spai-cache/weights",
+            "python -c \"from pathlib import Path; import gdown; weights_path = Path('/opt/spai-cache/weights/spai.pth'); weights_path.parent.mkdir(parents=True, exist_ok=True); weights_path.exists() or gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False)\"",
+        ]
     )
 )
 
@@ -104,7 +312,7 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     }
     try:
         print("🤖 Running SPAI Detection...")
-        spai_payload = detect_with_spai(img_pil)
+        spai_payload = detect_with_spai(image_bytes)
         spai_result.update(spai_payload)
         spai_result["status"] = "ok"
     except Exception as spai_error:
@@ -136,7 +344,7 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         "ai_detection": spai_result,
         "manipulation_detection": manip_result,
     }
-    
+    result = _to_python(result)
     sha256 = hashlib.sha256(image_bytes).hexdigest()
 
     metadata = metadata or {}
@@ -169,6 +377,7 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         },
         "result": result,
     }
+    record = _to_python(record)
 
     verified_results[sha256] = record
 
@@ -176,60 +385,10 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     return result
 
 
-@lru_cache(maxsize=1)
-def load_spai_artifacts():
-    """Load SPAI model and processor once per container."""
-    from transformers import AutoImageProcessor, AutoModelForImageClassification
-    import torch
-
-    model_name = "HaoyiZhu/SPA"
-    processor = AutoImageProcessor.from_pretrained(model_name)
-    model = AutoModelForImageClassification.from_pretrained(model_name)
-    model.eval()
-
-    # Ensure model uses GPU if available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-
-    return model, processor, device
-
-
-def detect_with_spai(img_pil: Any) -> Dict[str, Any]:
-    """Run SPAI model inference on a PIL image."""
-    import torch
-
-    model, processor, device = load_spai_artifacts()
-
-    inputs = processor(images=img_pil, return_tensors="pt")
-    inputs = {k: v.to(device) for k, v in inputs.items()}
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-        logits = outputs.logits
-        probabilities = torch.nn.functional.softmax(logits, dim=-1)
-
-    probs = probabilities[0]
-    top_idx = torch.argmax(probs).item()
-    top_score = probs[top_idx].item()
-
-    id2label = model.config.id2label or {}
-    label = id2label.get(top_idx, str(top_idx))
-    label_normalized = label.lower().replace("_", " ")
-
-    ai_indicative_tokens = {"ai-generated", "ai generated", "fake", "manipulated", "synthetic"}
-    is_ai_generated = any(token in label_normalized for token in ai_indicative_tokens)
-
-    probability_map: Dict[str, float] = {}
-    for idx in range(probs.shape[0]):
-        label_name = id2label.get(idx, str(idx))
-        probability_map[label_name] = float(probs[idx].item())
-
-    return {
-        "is_ai_generated": bool(is_ai_generated),
-        "label": label,
-        "score": float(top_score),
-        "probabilities": probability_map,
-    }
+def detect_with_spai(image_bytes: bytes) -> Dict[str, Any]:
+    """Run SPAI model inference using the official CVPR 2025 weights."""
+    engine = get_spai_engine()
+    return engine.predict(image_bytes)
 
 
 def detect_manipulation(img_pil: Any, img_cv) -> Dict[str, Any]:
@@ -403,132 +562,100 @@ def generate_heatmap(img_cv, img_pil: Any) -> str:
     return img_base64
 
 
-# FastAPI web endpoint using Modal's function decorator
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+# HTTP Web Endpoints for Modal Functions
+# These are called directly from Next.js API routes (backend on Vercel)
+# No FastAPI layer - cleaner architecture
 
-
-class MemoryLookupRequest(BaseModel):
-    sha256: str
-
-web_app = FastAPI(
-    title="Apex Verify ML Pipeline",
-    description="AI-Generated Content Detection on Modal",
-    version="1.0.0"
-)
-
-# CORS
-allowed_origins = [
-    origin.strip()
-    for origin in os.environ.get("APEX_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
-    if origin.strip()
-]
-
-if not allowed_origins:
-    allowed_origins = ["http://localhost:3000"]
-
-web_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@web_app.get("/")
-def root():
-    return {
-        "service": "Apex Verify ML Pipeline",
-        "status": "operational",
-        "version": "1.0.0",
-        "features": [
-            "Manipulation Detection (ELA + Frequency + Noise)",
-            "Heatmap Generation",
-            "SPAI AI-Generated Image Detection",
-            "Verification Memory (SHA-256 fingerprint archive)",
-        ]
-    }
-
-@web_app.get("/health")
-def health():
-    return {"status": "healthy", "modal": "operational"}
-
-@web_app.post("/analyze")
-async def web_analyze(
-    file: UploadFile = File(...),
-    source_url: Optional[str] = Form(None),
-):
-    """Analyze uploaded image for manipulation"""
-    
-    if not file.content_type or not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Only image files supported")
-    
-    # Validate file size (100MB limit to match Next.js frontend)
-    MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
-    file_size = 0
-    try:
-        # Check size by reading in chunks
-        chunk_size = 8192
-        chunks = []
-        while True:
-            chunk = await file.read(chunk_size)
-            if not chunk:
-                break
-            file_size += len(chunk)
-            if file_size > MAX_FILE_SIZE:
-                raise HTTPException(status_code=400, detail="File size must be less than 100MB")
-            chunks.append(chunk)
-        image_bytes = b''.join(chunks)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
-    
-    if file_size == 0:
-        raise HTTPException(status_code=400, detail="Empty file provided")
+@app.function(image=image)
+@modal.fastapi_endpoint(method="POST")
+def analyze_endpoint(item: dict):
+    """
+    HTTP endpoint for image analysis
+    Called from Next.js API routes on Vercel
+    Expects JSON: {"image_base64": "...", "source_url": "..."}
+    """
+    import base64
+    import json
     
     try:
+        # Parse JSON body
+        if isinstance(item, str):
+            item = json.loads(item)
+        
+        image_base64 = item.get("image_base64")
+        source_url = item.get("source_url")
+        
+        if not image_base64:
+            return {"error": "No image provided"}, 400
+        
+        # Decode base64 image
+        try:
+            # Remove data URL prefix if present
+            if "," in image_base64:
+                image_base64 = image_base64.split(",", 1)[1]
+            image_bytes = base64.b64decode(image_base64)
+        except Exception as e:
+            return {"error": f"Invalid image data: {str(e)}"}, 400
+        
+        if len(image_bytes) == 0:
+            return {"error": "Empty file provided"}, 400
+        
+        # Validate file size
+        MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+        if len(image_bytes) > MAX_FILE_SIZE:
+            return {"error": "File size must be less than 100MB"}, 400
 
         metadata = {}
         if source_url:
             metadata["source_url"] = source_url
 
-        # Call Modal function
         result = analyze_image.remote(image_bytes, metadata)
-
-        return JSONResponse(content=result)
+        return result, 200
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        return {"error": f"Analysis failed: {str(e)}"}, 500
 
 
-@web_app.post("/memory/lookup")
-async def memory_lookup(payload: MemoryLookupRequest):
-    # Validate SHA-256 format (64 hex characters)
-    import re
-    if not payload.sha256 or not re.match(r'^[a-f0-9]{64}$', payload.sha256.lower()):
-        raise HTTPException(status_code=400, detail="Invalid SHA-256 hash format")
-    
-    record = verified_results.get(payload.sha256)
-    if not record:
-        raise HTTPException(status_code=404, detail="Verification not found")
-
-    return {
-        "status": "found",
-        "sha256": payload.sha256,
-        "record": record,
-    }
-
-# Mount FastAPI app to Modal
-# CORS is configured via APEX_ALLOWED_ORIGINS environment variable
-# If you create a Modal Secret, it will be available as an env var
-# Otherwise, it defaults to http://localhost:3000
 @app.function(image=image)
-@modal.asgi_app()
-def fastapi_app():
-    return web_app
+@modal.fastapi_endpoint(method="POST")
+def memory_lookup_endpoint(item: dict):
+    """
+    HTTP endpoint for memory lookup
+    Called from Next.js API routes on Vercel
+    Expects JSON: {"sha256": "..."}
+    """
+    import re
+    import json
+    
+    try:
+        # Parse JSON body
+        if isinstance(item, str):
+            item = json.loads(item)
+        
+        sha256 = item.get("sha256")
+        
+        # Validate SHA-256 format
+        if not sha256 or not re.match(r'^[a-f0-9]{64}$', sha256.lower()):
+            return {"error": "Invalid SHA-256 hash format"}, 400
+        
+        record = verified_results.get(sha256)
+        if not record:
+            return {"error": "Verification not found"}, 404
+        
+        return {
+            "status": "found",
+            "sha256": sha256,
+            "record": record,
+        }, 200
+    except Exception as e:
+        return {"error": f"Lookup failed: {str(e)}"}, 500
+
+
+@app.function(image=image)
+@modal.fastapi_endpoint(method="GET")
+def health_endpoint():
+    """Health check endpoint"""
+    return {"status": "healthy", "modal": "operational"}, 200
 
 
 # Local testing entrypoint

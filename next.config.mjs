@@ -2,7 +2,7 @@
 const nextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
-    unoptimized: true,
+    unoptimized: process.env.NODE_ENV === 'production',
   },
   poweredByHeader: false,
   reactStrictMode: true,
@@ -12,9 +12,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  output: 'export',
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
+  // Only use static export for production builds, not dev mode
+  ...(process.env.NODE_ENV === 'production' && {
+    output: 'export',
+    trailingSlash: true,
+    skipTrailingSlashRedirect: true,
+  }),
 }
 
 export default nextConfig
