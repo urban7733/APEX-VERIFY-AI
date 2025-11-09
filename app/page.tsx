@@ -23,8 +23,6 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [isVideoReady, setIsVideoReady] = useState(false)
-  const [videoFailed, setVideoFailed] = useState(false)
 
   const analyzeFile = useCallback(async (fileToAnalyze: File) => {
     setIsAnalyzing(true)
@@ -213,19 +211,9 @@ export default function Home() {
             loop
             playsInline
             preload="auto"
-            onCanPlay={() => setIsVideoReady(true)}
-            onError={() => setVideoFailed(true)}
           >
             <source src="/video/herovideo.mp4" type="video/mp4" />
           </video>
-
-          {(!isVideoReady || videoFailed) && (
-            <div className="w-full max-w-[720px] mx-auto aspect-square flex items-center justify-center bg-black/50">
-              <div className="text-center space-y-4">
-                <p className="text-white/40 text-sm">Loading video...</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
