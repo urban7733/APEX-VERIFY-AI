@@ -1,9 +1,11 @@
 "use client"
 
+import type React from "react"
+
 import { useCallback, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronLeft, Link as LinkIcon, Search, Upload, X, CheckCircle2, XCircle, Clock, Calendar } from "lucide-react"
+import { Search, Upload, X, XCircle, ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -109,7 +111,7 @@ export default function MemoryPage() {
         handleFileChange(event.dataTransfer.files[0])
       }
     },
-    [handleFileChange]
+    [handleFileChange],
   )
 
   const handleSearch = useCallback(async () => {
@@ -158,92 +160,79 @@ export default function MemoryPage() {
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="fixed inset-0 opacity-[0.02] pointer-events-none">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+      <div className="absolute top-6 right-6 z-30">
+        <Link href="/" className="inline-flex">
+          <Button className="bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-white px-5 py-2 rounded-full transition-all duration-300">
+            Home
+          </Button>
+        </Link>
       </div>
-      
-      <main className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
-        {/* Dynamic Header */}
-        <header className="mb-10 sm:mb-16">
-          <Link 
-            href="/" 
-            className="mb-8 inline-flex items-center gap-2 text-xs sm:text-sm text-white/30 transition-all duration-300 hover:text-white/90 hover:gap-3 group"
-          >
-            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:-translate-x-1" />
-            <span className="font-light">Back</span>
-          </Link>
-          <div className="space-y-3">
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extralight tracking-[-0.04em] text-white leading-[0.9]">
-              Memory
-            </h1>
-            <div className="flex items-center gap-3">
-              <div className="h-px w-12 bg-white/20" />
-              <p className="text-xs sm:text-sm text-white/25 font-light tracking-wider uppercase">Verification Archive</p>
-            </div>
+
+      <main className="relative mx-auto w-full max-w-5xl px-6 sm:px-8 py-20 sm:py-32">
+        <header className="mb-16 sm:mb-24 text-center">
+          <div className="space-y-4">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-[-0.04em] text-white/95">Memory</h1>
+            <p className="text-sm sm:text-base text-white/30 font-light tracking-wide">
+              Search our verification archive
+            </p>
           </div>
         </header>
 
-        {/* Main Container */}
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`relative rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-2xl transition-all duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.05)] ${
-            isDragging ? "border-white/30 bg-white/[0.06] scale-[1.01] shadow-[0_8px_32px_rgba(255,255,255,0.1)]" : "hover:border-white/[0.1] hover:shadow-[0_8px_32px_rgba(255,255,255,0.05)]"
+          className={`relative rounded-[3rem] border bg-white/[0.02] backdrop-blur-2xl transition-all duration-500 ${
+            isDragging ? "border-white/20 bg-white/[0.04] scale-[1.01]" : "border-white/[0.05] hover:border-white/[0.1]"
           }`}
         >
           {/* Search Section */}
           {!result && (
-            <div className="p-8 sm:p-10 lg:p-12">
+            <div className="p-8 sm:p-12 lg:p-16">
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1 group">
+                  <div className="relative flex-1">
                     <Input
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
-                      placeholder="Paste image URL or upload file"
-                      className="h-14 sm:h-16 bg-white/[0.04] border-white/[0.06] text-white placeholder:text-white/15 text-base sm:text-lg rounded-2xl transition-all duration-300 focus:border-white/25 focus:bg-white/[0.06] focus:shadow-[0_0_0_4px_rgba(255,255,255,0.05)] pr-12 font-light"
+                      placeholder="Paste image URL"
+                      className="h-14 sm:h-16 bg-white/[0.02] border-white/[0.05] text-white placeholder:text-white/20 text-base rounded-2xl transition-all duration-300 focus:border-white/20 focus:bg-white/[0.04] font-light"
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !isSearching) handleSearch()
                       }}
                     />
-                    <LinkIcon className="absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/15 transition-colors duration-300 group-focus-within:text-white/30" />
                   </div>
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-14 w-14 sm:h-16 sm:w-16 border-white/[0.06] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+                      className="h-14 w-14 sm:h-16 sm:w-16 border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 rounded-2xl transition-all duration-300"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <Upload className="h-6 w-6 text-white/40" />
                     </Button>
                     <Button
                       onClick={handleSearch}
                       disabled={isSearching || (!file && !linkUrl.trim())}
                       size="icon"
-                      className="h-14 w-14 sm:h-16 sm:w-16 bg-white text-black hover:bg-white/95 rounded-2xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shadow-[0_4px_16px_rgba(255,255,255,0.2)]"
+                      className="h-14 w-14 sm:h-16 sm:w-16 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-2xl transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed backdrop-blur-xl"
                     >
                       {isSearching ? (
-                        <div className="h-5 w-5 sm:h-6 sm:w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white" />
                       ) : (
-                        <Search className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <Search className="h-6 w-6" />
                       )}
                     </Button>
                   </div>
                 </div>
 
                 {file && (
-                  <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.04] px-5 py-4 transition-all duration-300 group/item">
+                  <div className="flex items-center justify-between rounded-2xl border border-white/[0.05] bg-white/[0.02] px-5 py-4 transition-all duration-300">
                     <span className="truncate text-sm sm:text-base text-white/50 font-light">{file.name}</span>
                     <button
                       onClick={() => handleFileChange(null)}
-                      className="text-white/20 hover:text-white/70 transition-all duration-300 p-2 rounded-lg hover:bg-white/[0.05] group-hover/item:scale-110"
+                      className="text-white/30 hover:text-white/70 transition-all duration-300 p-2 rounded-lg hover:bg-white/[0.05]"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -251,7 +240,7 @@ export default function MemoryPage() {
                 )}
 
                 {error && (
-                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-5 py-4 text-sm sm:text-base text-white/70 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4 text-sm sm:text-base text-white/60 backdrop-blur-sm">
                     {error}
                   </div>
                 )}
@@ -267,100 +256,95 @@ export default function MemoryPage() {
             </div>
           )}
 
-          {/* Loading State */}
           {isSearching && (
             <div className="flex flex-col items-center justify-center py-24 sm:py-32">
-              <div className="relative mb-8">
-                <div className="h-12 w-12 sm:h-14 sm:w-14 animate-spin rounded-full border-2 border-white/10 border-t-white" />
-                <div className="absolute inset-0 h-12 w-12 sm:h-14 sm:w-14 animate-spin rounded-full border-2 border-transparent border-r-white/20" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-              </div>
-              <p className="text-sm sm:text-base text-white/25 font-light tracking-wider uppercase">Searching Archive</p>
+              <div className="w-24 h-24 border-[2px] border-white/[0.05] border-t-white/50 rounded-full animate-spin mb-8" />
+              <p className="text-[10px] text-white/30 font-light tracking-[0.4em] uppercase">Searching</p>
             </div>
           )}
 
           {/* Results */}
           {!isSearching && result && (
-            <div className="p-8 sm:p-10 lg:p-12">
+            <div className="p-8 sm:p-12 lg:p-16">
               {result.found ? (
-                <div className="space-y-8 sm:space-y-10">
-                  {/* Verdict Header */}
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
-                      <div className="flex items-start gap-4">
-                        <div className="mt-1">
-                          {verdictLabel === "Authentic" ? (
-                            <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white/90" />
-                          ) : (
-                            <XCircle className="h-8 w-8 sm:h-10 sm:w-10 text-white/90" />
-                          )}
-                        </div>
-                        <div>
-                          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extralight text-white tracking-tight leading-[0.95] mb-2">
-                            {verdictLabel}
-                          </h2>
-                          <div className="h-px w-16 bg-white/20" />
+                <div className="space-y-10">
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center justify-center">
+                      <div className="relative px-8 py-4 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
+                        <div className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                          {verdictLabel}
                         </div>
                       </div>
-                      {confidenceDisplay && (
-                        <div className="text-right sm:text-left sm:min-w-[120px]">
-                          <p className="text-xs text-white/20 font-light tracking-wider uppercase mb-2">Confidence</p>
-                          <p className="text-2xl sm:text-3xl font-extralight text-white/95 tracking-tight">{confidenceDisplay}</p>
-                        </div>
-                      )}
                     </div>
+
+                    {confidenceDisplay && (
+                      <div className="space-y-3 max-w-md mx-auto">
+                        <div className="text-[11px] text-white/40 uppercase tracking-wider font-medium">Confidence</div>
+                        <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 bg-gradient-to-r from-white/80 to-white/60"
+                            style={{ width: confidenceDisplay }}
+                          />
+                        </div>
+                        <div className="text-2xl font-semibold text-white/90 tracking-tight">{confidenceDisplay}</div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Heatmap */}
                   {result.record.result?.heatmap_base64 && (
-                    <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] group">
+                    <div className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
                       <Image
                         src={`data:image/jpeg;base64,${result.record.result.heatmap_base64 as string}`}
                         alt="Heatmap"
                         width={700}
                         height={700}
-                        className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.02]"
+                        className="h-auto w-full"
                         unoptimized
                       />
                     </div>
                   )}
 
-                  {/* Metadata - Collapsed by default, expandable */}
-                  <details className="group">
-                    <summary className="cursor-pointer text-sm sm:text-base text-white/30 hover:text-white/70 transition-all duration-300 font-light tracking-wider uppercase py-3 border-t border-white/[0.06] flex items-center justify-between group-hover:border-white/[0.12]">
-                      <span>View Details</span>
-                      <div className="h-5 w-5 rounded-full border border-white/[0.1] bg-white/[0.02] flex items-center justify-center transition-all duration-300 group-hover:border-white/20 group-hover:bg-white/[0.04]">
-                        <ChevronLeft className="h-3 w-3 transition-transform duration-300 group-open:rotate-90" />
-                      </div>
+                  <details className="group border-t border-white/[0.05] pt-8">
+                    <summary className="cursor-pointer text-[10px] text-white/30 hover:text-white/60 transition-all duration-300 font-light tracking-[0.3em] uppercase py-3 flex items-center justify-between">
+                      <span>Technical Details</span>
+                      <ChevronDown className="h-4 w-4 transition-transform duration-300 group-open:rotate-180" />
                     </summary>
-                    <div className="mt-6 space-y-6 pt-6 border-t border-white/[0.06]">
-                      <div>
-                        <p className="mb-3 text-xs text-white/20 font-light tracking-wider uppercase">SHA-256</p>
-                        <p className="break-all font-mono text-xs sm:text-sm text-white/40 leading-relaxed bg-white/[0.02] rounded-xl p-4 border border-white/[0.05]">{result.record.sha256}</p>
+                    <div className="mt-6 space-y-6">
+                      <div className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
+                        <p className="mb-3 text-[10px] text-white/30 font-light tracking-[0.3em] uppercase">SHA-256</p>
+                        <p className="break-all font-mono text-xs text-white/50 leading-relaxed">
+                          {result.record.sha256}
+                        </p>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="flex items-start gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.03] transition-all duration-300">
-                          <Calendar className="h-5 w-5 text-white/25 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-xs text-white/20 font-light tracking-wider uppercase mb-2">First verified</p>
-                            <p className="text-sm sm:text-base text-white/60 font-light">{new Date(result.record.created_at).toLocaleDateString()}</p>
-                          </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
+                          <p className="text-[10px] text-white/30 font-light tracking-[0.3em] uppercase mb-3">
+                            First Verified
+                          </p>
+                          <p className="text-sm text-white/60 font-light">
+                            {new Date(result.record.created_at).toLocaleDateString()}
+                          </p>
                         </div>
-                        <div className="flex items-start gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.03] transition-all duration-300">
-                          <Clock className="h-5 w-5 text-white/25 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-xs text-white/20 font-light tracking-wider uppercase mb-2">Last seen</p>
-                            <p className="text-sm sm:text-base text-white/60 font-light">{new Date(result.record.last_seen).toLocaleDateString()}</p>
-                          </div>
+                        <div className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
+                          <p className="text-[10px] text-white/30 font-light tracking-[0.3em] uppercase mb-3">
+                            Last Seen
+                          </p>
+                          <p className="text-sm text-white/60 font-light">
+                            {new Date(result.record.last_seen).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                       {result.record.metadata?.source_url && (
-                        <div className="p-4 rounded-xl border border-white/[0.05] bg-white/[0.02]">
-                          <p className="mb-3 text-xs text-white/20 font-light tracking-wider uppercase">Source</p>
+                        <div className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
+                          <p className="mb-3 text-[10px] text-white/30 font-light tracking-[0.3em] uppercase">
+                            Source URL
+                          </p>
                           <a
                             href={String(result.record.metadata.source_url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="break-all text-sm sm:text-base text-white/50 hover:text-white/80 underline transition-colors duration-300 font-light"
+                            className="break-all text-sm text-white/50 hover:text-white/80 underline transition-colors duration-300 font-light"
                           >
                             {String(result.record.metadata.source_url)}
                           </a>
@@ -369,27 +353,25 @@ export default function MemoryPage() {
                     </div>
                   </details>
 
-                  <Button 
-                    onClick={resetState} 
-                    className="w-full h-14 sm:h-16 bg-white text-black hover:bg-white/95 rounded-2xl transition-all duration-300 font-light text-base sm:text-lg hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_16px_rgba(255,255,255,0.2)]"
+                  <Button
+                    onClick={resetState}
+                    className="w-full h-14 sm:h-16 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-2xl transition-all duration-300 font-medium text-base backdrop-blur-xl"
                   >
                     New Search
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-8 py-12 sm:py-16">
-                  <div className="text-center space-y-4">
-                    <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-white/[0.08] bg-white/[0.02] mb-4">
-                      <XCircle className="h-10 w-10 sm:h-12 sm:w-12 text-white/25" />
-                    </div>
-                    <div>
-                      <p className="text-2xl sm:text-3xl font-extralight text-white/90 mb-2 tracking-tight">Not Found</p>
-                      <p className="text-sm sm:text-base text-white/30 font-light">This media hasn't been verified yet.</p>
-                    </div>
+                <div className="space-y-8 py-16 text-center">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border border-white/[0.05] bg-white/[0.02] mb-4">
+                    <XCircle className="h-12 w-12 text-white/30" />
                   </div>
-                  <Button 
-                    onClick={resetState} 
-                    className="w-full h-14 sm:h-16 bg-white text-black hover:bg-white/95 rounded-2xl transition-all duration-300 font-light text-base sm:text-lg hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_16px_rgba(255,255,255,0.2)]"
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-white/90 mb-2 tracking-tight">Not Found</p>
+                    <p className="text-sm text-white/40 font-light">This media hasn't been verified yet.</p>
+                  </div>
+                  <Button
+                    onClick={resetState}
+                    className="w-full h-14 sm:h-16 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-2xl transition-all duration-300 font-medium text-base backdrop-blur-xl"
                   >
                     Try Again
                   </Button>
@@ -398,13 +380,12 @@ export default function MemoryPage() {
             </div>
           )}
 
-          {/* Empty State */}
           {!isSearching && !result && (
-            <div className="flex flex-col items-center justify-center py-20 sm:py-28">
-              <div className="mb-8 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 sm:p-10 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
-                <Search className="h-10 w-10 sm:h-12 sm:w-12 text-white/15" />
+            <div className="flex flex-col items-center justify-center py-24 sm:py-32">
+              <div className="w-20 h-20 rounded-full border border-white/[0.05] flex items-center justify-center mb-8">
+                <Search className="h-10 w-10 text-white/20" />
               </div>
-              <p className="text-sm sm:text-base text-white/25 font-light tracking-wider uppercase">Enter URL or upload image to search</p>
+              <p className="text-[10px] text-white/30 font-light tracking-[0.3em] uppercase">Awaiting Input</p>
             </div>
           )}
         </div>
