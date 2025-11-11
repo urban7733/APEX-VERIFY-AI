@@ -56,12 +56,15 @@ _spai_engine: Optional["SPAIEngine"] = None
 
 class SPAIEngine:
     def __init__(self) -> None:
-        from spai.config import get_config  # type: ignore
-        from spai.models import build_cls_model  # type: ignore
-        from spai.models.losses import build_loss  # type: ignore
-        from spai.utils import load_pretrained  # type: ignore
-        from spai.data import build_loader_test  # type: ignore
-        from spai.__main__ import validate  # type: ignore
+        try:
+            from spai.config import get_config  # type: ignore
+            from spai.models import build_cls_model  # type: ignore
+            from spai.models.losses import build_loss  # type: ignore
+            from spai.utils import load_pretrained  # type: ignore
+            from spai.data import build_loader_test  # type: ignore
+            from spai.__main__ import validate  # type: ignore
+        except ImportError as e:
+            raise RuntimeError(f"Failed to import SPAI modules. Ensure SPAI repo is cloned: {e}")
 
         self._get_config = get_config
         self._build_cls_model = build_cls_model
@@ -81,11 +84,29 @@ class SPAIEngine:
         SPAI_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"[SPAI] Using device: {self.device}")
+        
         self.weights_path = self._ensure_weights()
+        print(f"[SPAI] Weights loaded: {self.weights_path}")
+        
+        # Try multiple config locations
         config_candidate = SPAI_REPO_ROOT / "configs" / "spai.yaml"
         if not config_candidate.exists():
             config_candidate = Path(pkg_resources.files("spai")) / "configs" / "spai.yaml"
+        if not config_candidate.exists():
+            # Fallback: search for any .yaml config
+            config_dir = SPAI_REPO_ROOT / "configs"
+            if config_dir.exists():
+                yaml_files = list(config_dir.glob("*.yaml"))
+                if yaml_files:
+                    config_candidate = yaml_files[0]
+                    print(f"[SPAI] Using fallback config: {config_candidate}")
+        
+        if not config_candidate.exists():
+            raise FileNotFoundError(f"SPAI config not found. Searched: {SPAI_REPO_ROOT / 'configs' / 'spai.yaml'}")
+        
         self.config_path = config_candidate
+        print(f"[SPAI] Config loaded: {self.config_path}")
         self._opts = [
             ("DATA.NUM_WORKERS", "0"),
             ("DATA.PIN_MEMORY", "False"),
@@ -121,68 +142,112 @@ class SPAIEngine:
         weights_dir = SPAI_CACHE_DIR / "weights"
         weights_dir.mkdir(parents=True, exist_ok=True)
         weights_path = weights_dir / "spai.pth"
+        
+        # Check if weights exist and are valid
         if weights_path.exists():
-            return weights_path
+            file_size = weights_path.stat().st_size
+            # Verify weights file is not corrupted (should be > 10MB for SPAI model)
+            if file_size > 10 * 1024 * 1024:
+                print(f"[SPAI] Using cached weights: {weights_path} ({file_size / 1024 / 1024:.1f} MB)")
+                return weights_path
+            else:
+                print(f"[SPAI] Weights file corrupted or incomplete ({file_size} bytes). Re-downloading...")
+                weights_path.unlink()
 
         import gdown  # type: ignore
 
+        print(f"[SPAI] Downloading weights from Google Drive (ID: {SPAI_WEIGHTS_ID})...")
         url = f"https://drive.google.com/uc?id={SPAI_WEIGHTS_ID}"
-        gdown.download(url, str(weights_path), quiet=False)
+        
+        try:
+            gdown.download(url, str(weights_path), quiet=False)
+        except Exception as e:
+            raise RuntimeError(f"Failed to download SPAI weights: {e}")
+        
+        if not weights_path.exists():
+            raise RuntimeError("SPAI weights download completed but file not found")
+        
+        file_size = weights_path.stat().st_size
+        print(f"[SPAI] Weights downloaded successfully: {file_size / 1024 / 1024:.1f} MB")
         return weights_path
 
     def predict(self, image_bytes: bytes) -> Dict[str, Any]:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir)
-            input_dir = tmp_path / "inputs"
-            output_dir = tmp_path / "outputs"
-            input_dir.mkdir(parents=True, exist_ok=True)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            image_path = input_dir / "input.png"
-            with open(image_path, "wb") as fh:
-                fh.write(image_bytes)
+        try:
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_path = Path(tmp_dir)
+                input_dir = tmp_path / "inputs"
+                output_dir = tmp_path / "outputs"
+                input_dir.mkdir(parents=True, exist_ok=True)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                image_path = input_dir / "input.png"
+                
+                # Save image with error handling
+                try:
+                    with open(image_path, "wb") as fh:
+                        fh.write(image_bytes)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to save temp image: {e}")
 
-            config = self._get_config(
-                {
-                    "cfg": str(self.config_path),
-                    "batch_size": 1,
-                    "output": str(output_dir),
-                    "tag": "apex-verify",
-                    "pretrained": str(self.weights_path),
-                    "test_csv": [str(input_dir)],
-                    "opts": self._opts,
-                }
-            )
-
-            _, _, loaders = self._build_loader_test(
-                config,
-                self.logger,
-                split="test",
-                dummy_csv_dir=output_dir,
-            )
-            data_loader = loaders[0]
-
-            with torch.inference_mode():
-                _, _, _, _, predictions = self._validate(
-                    config,
-                    data_loader,
-                    self.model,
-                    self.criterion,
-                    None,
-                    verbose=False,
-                    return_predictions=True,
+                config = self._get_config(
+                    {
+                        "cfg": str(self.config_path),
+                        "batch_size": 1,
+                        "output": str(output_dir),
+                        "tag": "apex-verify",
+                        "pretrained": str(self.weights_path),
+                        "test_csv": [str(input_dir)],
+                        "opts": self._opts,
+                    }
                 )
 
-        score = float(list(predictions.values())[0][0])
-        return {
-            "is_ai_generated": score >= 0.5,
-            "score": score,
-            "label": "ai_generated" if score >= 0.5 else "authentic",
-            "probabilities": {
-                "ai_generated": score,
-                "authentic": 1.0 - score,
-            },
-            "status": "ok",
-        }
+                try:
+                    _, _, loaders = self._build_loader_test(
+                        config,
+                        self.logger,
+                        split="test",
+                        dummy_csv_dir=output_dir,
+                    )
+                    data_loader = loaders[0]
+                except Exception as e:
+                    raise RuntimeError(f"Failed to build data loader: {e}")
+
+                try:
+                    with torch.inference_mode():
+                        _, _, _, _, predictions = self._validate(
+                            config,
+                            data_loader,
+                            self.model,
+                            self.criterion,
+                            None,
+                            verbose=False,
+                            return_predictions=True,
+                        )
+                except Exception as e:
+                    raise RuntimeError(f"SPAI model inference failed: {e}")
+
+            # Extract prediction score
+            if not predictions or len(predictions) == 0:
+                raise RuntimeError("No predictions returned from SPAI model")
+            
+            score = float(list(predictions.values())[0][0])
+            
+            # Clamp score to valid range [0, 1]
+            score = max(0.0, min(1.0, score))
+            
+            return {
+                "is_ai_generated": score >= 0.5,
+                "score": score,
+                "label": "ai_generated" if score >= 0.5 else "authentic",
+                "probabilities": {
+                    "ai_generated": score,
+                    "authentic": 1.0 - score,
+                },
+                "status": "ok",
+            }
+        except Exception as e:
+            # Return graceful error instead of crashing
+            print(f"[SPAI] Prediction error: {e}")
+            raise RuntimeError(f"SPAI prediction failed: {e}")
 
 
 def get_spai_engine() -> SPAIEngine:
@@ -245,9 +310,17 @@ image = (
     )
     .run_commands(
         [
-            "git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai",
-            "mkdir -p /opt/spai-cache/weights",
-            "python -c \"from pathlib import Path; import gdown; weights_path = Path('/opt/spai-cache/weights/spai.pth'); weights_path.parent.mkdir(parents=True, exist_ok=True); weights_path.exists() or gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False)\"",
+            # Clone SPAI repository with error handling
+            "git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai || (echo 'SPAI clone failed' && exit 1)",
+            # Verify SPAI was cloned successfully
+            "test -d /opt/spai && test -f /opt/spai/spai/__init__.py || (echo 'SPAI repository structure invalid' && exit 1)",
+            # Create cache directories
+            "mkdir -p /opt/spai-cache/weights /opt/spai-cache/output",
+            # Download SPAI weights with verification
+            "python -c \"from pathlib import Path; import gdown; weights_path = Path('/opt/spai-cache/weights/spai.pth'); weights_path.parent.mkdir(parents=True, exist_ok=True); print(f'Downloading SPAI weights to {weights_path}...'); gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False) if not weights_path.exists() else print('Weights already cached'); exit(0 if weights_path.exists() and weights_path.stat().st_size > 10000000 else 1)\"",
+            # Verify weights were downloaded
+            "test -f /opt/spai-cache/weights/spai.pth || (echo 'SPAI weights download failed' && exit 1)",
+            "ls -lh /opt/spai-cache/weights/spai.pth",
         ]
     )
 )
@@ -313,11 +386,21 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     try:
         print("🤖 Running SPAI Detection...")
         spai_payload = detect_with_spai(image_bytes)
+        
+        # Validate SPAI response
+        if not isinstance(spai_payload, dict):
+            raise ValueError(f"SPAI returned invalid type: {type(spai_payload)}")
+        if "score" not in spai_payload:
+            raise ValueError("SPAI response missing 'score' field")
+        
         spai_result.update(spai_payload)
         spai_result["status"] = "ok"
+        print(f"✅ SPAI Detection complete: {'AI-generated' if spai_result['is_ai_generated'] else 'Authentic'} (score: {spai_result['score']:.3f})")
     except Exception as spai_error:
         print(f"⚠️ SPAI detection failed: {spai_error}")
         spai_result["error"] = str(spai_error)
+        # Continue with manipulation detection only
+        print("⚠️ Continuing with manipulation detection only")
     
     processing_time = time.time() - start_time
     
