@@ -79,33 +79,54 @@ export async function POST(request: NextRequest) {
       }
 
       const result = await response.json()
-      const verdict = result.is_ai_generated || result.is_manipulated ? "ai_generated" : "authentic"
+      
+      // Validate Modal response structure
+      if (!result || typeof result !== 'object') {
+        throw new Error("Invalid response format from Modal endpoint")
+      }
 
-      const normalizedResult = JSON.parse(JSON.stringify(result)) as Prisma.JsonObject
+      // Ensure required fields exist with defaults
+      const normalizedResult = {
+        ...result,
+        is_manipulated: Boolean(result.is_manipulated ?? false),
+        is_ai_generated: Boolean(result.is_ai_generated ?? false),
+        confidence: typeof result.confidence === "number" ? Math.max(0, Math.min(1, result.confidence)) : 0,
+        processing_time: typeof result.processing_time === "number" ? result.processing_time : 0,
+        manipulation_type: result.manipulation_type || null,
+      }
+
+      const verdict = normalizedResult.is_ai_generated || normalizedResult.is_manipulated ? "ai_generated" : "authentic"
+
+      const prismaResult = JSON.parse(JSON.stringify(normalizedResult)) as Prisma.JsonObject
 
       // Only persist to database if Prisma client is available
       if (prisma) {
-        await prisma.verificationRecord.upsert({
-          where: { sha256 },
-          update: {
-            result: normalizedResult,
-            verdict,
-            confidence: typeof result.confidence === "number" ? result.confidence : 0,
-            method: typeof result.method === "string" ? result.method : null,
-            sourceUrl: sourceUrl ?? null,
-          },
-          create: {
-            sha256,
-            result: normalizedResult,
-            verdict,
-            confidence: typeof result.confidence === "number" ? result.confidence : 0,
-            method: typeof result.method === "string" ? result.method : null,
-            sourceUrl: sourceUrl ?? null,
-          },
-        })
+        try {
+          await prisma.verificationRecord.upsert({
+            where: { sha256 },
+            update: {
+              result: prismaResult,
+              verdict,
+              confidence: normalizedResult.confidence,
+              method: typeof normalizedResult.method === "string" ? normalizedResult.method : null,
+              sourceUrl: sourceUrl ?? null,
+            },
+            create: {
+              sha256,
+              result: prismaResult,
+              verdict,
+              confidence: normalizedResult.confidence,
+              method: typeof normalizedResult.method === "string" ? normalizedResult.method : null,
+              sourceUrl: sourceUrl ?? null,
+            },
+          })
+        } catch (dbError) {
+          console.error("[Analyze] Database error (non-fatal):", dbError)
+          // Continue even if database write fails
+        }
       }
 
-      return NextResponse.json({ ...result, sha256 })
+      return NextResponse.json({ ...normalizedResult, sha256 })
     } catch (error: unknown) {
       console.error("Modal ML Pipeline error:", error)
       const message = error instanceof Error ? error.message : "Please try again later"

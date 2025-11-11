@@ -172,6 +172,13 @@ class SPAIEngine:
         return weights_path
 
     def predict(self, image_bytes: bytes) -> Dict[str, Any]:
+        """
+        Production-ready SPAI prediction with robust error handling.
+        Returns AI-generated detection results or raises RuntimeError.
+        """
+        if not image_bytes or len(image_bytes) == 0:
+            raise ValueError("Empty image bytes provided to SPAI")
+        
         try:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 tmp_path = Path(tmp_dir)
@@ -181,25 +188,35 @@ class SPAIEngine:
                 output_dir.mkdir(parents=True, exist_ok=True)
                 image_path = input_dir / "input.png"
                 
-                # Save image with error handling
+                # Save image with validation
                 try:
                     with open(image_path, "wb") as fh:
                         fh.write(image_bytes)
+                    
+                    # Verify file was written correctly
+                    if not image_path.exists() or image_path.stat().st_size == 0:
+                        raise RuntimeError("Failed to write image to temp file")
+                        
                 except Exception as e:
                     raise RuntimeError(f"Failed to save temp image: {e}")
 
-                config = self._get_config(
-                    {
-                        "cfg": str(self.config_path),
-                        "batch_size": 1,
-                        "output": str(output_dir),
-                        "tag": "apex-verify",
-                        "pretrained": str(self.weights_path),
-                        "test_csv": [str(input_dir)],
-                        "opts": self._opts,
-                    }
-                )
+                # Build config with error handling
+                try:
+                    config = self._get_config(
+                        {
+                            "cfg": str(self.config_path),
+                            "batch_size": 1,
+                            "output": str(output_dir),
+                            "tag": "apex-verify",
+                            "pretrained": str(self.weights_path),
+                            "test_csv": [str(input_dir)],
+                            "opts": self._opts,
+                        }
+                    )
+                except Exception as e:
+                    raise RuntimeError(f"Failed to build SPAI config: {e}")
 
+                # Build data loader
                 try:
                     _, _, loaders = self._build_loader_test(
                         config,
@@ -207,10 +224,15 @@ class SPAIEngine:
                         split="test",
                         dummy_csv_dir=output_dir,
                     )
+                    
+                    if not loaders or len(loaders) == 0:
+                        raise RuntimeError("Data loader is empty")
+                        
                     data_loader = loaders[0]
                 except Exception as e:
                     raise RuntimeError(f"Failed to build data loader: {e}")
 
+                # Run inference
                 try:
                     with torch.inference_mode():
                         _, _, _, _, predictions = self._validate(
@@ -225,32 +247,49 @@ class SPAIEngine:
                 except Exception as e:
                     raise RuntimeError(f"SPAI model inference failed: {e}")
 
-            # Extract prediction score
+            # Extract prediction score with validation
             if not predictions or len(predictions) == 0:
                 raise RuntimeError("No predictions returned from SPAI model")
             
-            score = float(list(predictions.values())[0][0])
+            try:
+                score = float(list(predictions.values())[0][0])
+            except (IndexError, ValueError, TypeError) as e:
+                raise RuntimeError(f"Failed to extract prediction score: {e}")
             
-            # Clamp score to valid range [0, 1]
-            score = max(0.0, min(1.0, score))
+            # Validate and clamp score to valid range [0, 1]
+            if not isinstance(score, (int, float)) or not (0 <= score <= 1):
+                print(f"[SPAI] Warning: Invalid score {score}, clamping to [0, 1]")
+                score = max(0.0, min(1.0, float(score)))
             
-            return {
+            result = {
                 "is_ai_generated": score >= 0.5,
-                "score": score,
+                "score": float(score),
                 "label": "ai_generated" if score >= 0.5 else "authentic",
                 "probabilities": {
-                    "ai_generated": score,
-                    "authentic": 1.0 - score,
+                    "ai_generated": float(score),
+                    "authentic": float(1.0 - score),
                 },
                 "status": "ok",
             }
+            
+            print(f"[SPAI] Prediction completed: score={score:.3f}, is_ai={result['is_ai_generated']}")
+            return result
+            
+        except RuntimeError:
+            # Re-raise RuntimeErrors as-is (already formatted)
+            print(f"[SPAI] RuntimeError during prediction: {str(e)}")
+            raise
         except Exception as e:
-            # Return graceful error instead of crashing
-            print(f"[SPAI] Prediction error: {e}")
-            raise RuntimeError(f"SPAI prediction failed: {e}")
+            # Wrap unexpected exceptions
+            print(f"[SPAI] Unexpected error during prediction: {type(e).__name__}: {e}")
+            raise RuntimeError(f"Unexpected SPAI prediction error: {type(e).__name__}: {e}")
 
 
 def get_spai_engine() -> SPAIEngine:
+    """
+    Get or create the SPAI engine singleton.
+    Production-ready with validation and warmup.
+    """
     global _spai_engine
     expected_signature = tuple(
         [
@@ -269,7 +308,30 @@ def get_spai_engine() -> SPAIEngine:
         or getattr(_spai_engine, "_opts_signature", None) != expected_signature
     )
     if needs_reload:
+        print("[SPAI] Initializing SPAI engine...")
         _spai_engine = SPAIEngine()
+        print("[SPAI] Engine initialized successfully")
+        
+        # Warmup: Create a dummy prediction to load model into GPU memory
+        try:
+            print("[SPAI] Warming up model...")
+            import numpy as np
+            from PIL import Image
+            import io
+            
+            # Create a small dummy image (100x100 RGB)
+            dummy_img = Image.fromarray(np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8))
+            dummy_bytes = io.BytesIO()
+            dummy_img.save(dummy_bytes, format='PNG')
+            dummy_bytes.seek(0)
+            
+            # Run warmup prediction
+            _spai_engine.predict(dummy_bytes.getvalue())
+            print("[SPAI] ✅ Model warmup complete")
+        except Exception as warmup_error:
+            print(f"[SPAI] ⚠️ Warmup failed (non-fatal): {warmup_error}")
+            # Continue anyway - warmup failure is not critical
+    
     return _spai_engine
 
 # Define container image with all dependencies
@@ -469,9 +531,31 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
 
 
 def detect_with_spai(image_bytes: bytes) -> Dict[str, Any]:
-    """Run SPAI model inference using the official CVPR 2025 weights."""
-    engine = get_spai_engine()
-    return engine.predict(image_bytes)
+    """
+    Run SPAI model inference using the official CVPR 2025 weights.
+    Production-ready with memory cleanup and error handling.
+    """
+    import torch
+    import gc
+    
+    try:
+        engine = get_spai_engine()
+        result = engine.predict(image_bytes)
+        
+        # Memory cleanup for GPU
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        # Force garbage collection to free memory
+        gc.collect()
+        
+        return result
+    except Exception as e:
+        # Cleanup on error
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+        raise
 
 
 def detect_manipulation(img_pil: Any, img_cv) -> Dict[str, Any]:
@@ -734,11 +818,49 @@ def memory_lookup_endpoint(item: dict):
         return {"error": f"Lookup failed: {str(e)}"}, 500
 
 
-@app.function(image=image)
+@app.function(image=image, timeout=60)
 @modal.fastapi_endpoint(method="GET")
 def health_endpoint():
-    """Health check endpoint"""
-    return {"status": "healthy", "modal": "operational"}, 200
+    """
+    Health check endpoint with SPAI model validation.
+    Returns operational status and model availability.
+    """
+    import torch
+    
+    health_status = {
+        "status": "healthy",
+        "modal": "operational",
+        "timestamp": None,
+        "models": {
+            "spai": {"status": "unknown", "device": None},
+            "manipulation_detection": {"status": "operational"}
+        }
+    }
+    
+    from datetime import datetime
+    health_status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+    
+    # Check SPAI model status
+    try:
+        engine = get_spai_engine()
+        health_status["models"]["spai"]["status"] = "ready"
+        health_status["models"]["spai"]["device"] = str(engine.device)
+        health_status["models"]["spai"]["weights_path"] = str(engine.weights_path)
+        
+        # Quick validation: check if model is in eval mode
+        if hasattr(engine, 'model') and engine.model is not None:
+            is_training = engine.model.training
+            health_status["models"]["spai"]["mode"] = "training" if is_training else "eval"
+            if is_training:
+                health_status["models"]["spai"]["warning"] = "Model is in training mode"
+        
+    except Exception as e:
+        health_status["models"]["spai"]["status"] = "unavailable"
+        health_status["models"]["spai"]["error"] = str(e)
+        health_status["status"] = "degraded"
+        print(f"[Health] SPAI model check failed: {e}")
+    
+    return health_status, 200
 
 
 # Local testing entrypoint

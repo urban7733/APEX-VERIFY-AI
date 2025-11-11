@@ -44,20 +44,36 @@ export default function Home() {
 
       const backendResult = await response.json()
 
+      // Validate response structure
+      if (!backendResult || typeof backendResult !== 'object') {
+        throw new Error("Invalid response format from backend")
+      }
+
       // Convert backend result to frontend format
       const analysisResult: AnalysisResult = {
-        isManipulated: backendResult.is_manipulated || backendResult.is_ai_generated,
-        confidence: backendResult.confidence,
-        processingTime: backendResult.processing_time * 1000,
-        manipulationType: backendResult.manipulation_type,
+        isManipulated: Boolean(backendResult.is_manipulated || backendResult.is_ai_generated),
+        confidence: typeof backendResult.confidence === 'number' ? Math.max(0, Math.min(1, backendResult.confidence)) : 0,
+        processingTime: typeof backendResult.processing_time === 'number' ? backendResult.processing_time * 1000 : 0,
+        manipulationType: backendResult.manipulation_type || null,
       }
 
       setResult(analysisResult)
     } catch (error) {
       console.error("❌ Backend ML Pipeline Failed:", error)
-      alert(
-        `Analysis failed: ${error instanceof Error ? error.message : "Backend unavailable"}. Please ensure the backend is running.`,
-      )
+      
+      // Better error handling
+      let errorMessage = "Analysis failed"
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = "Request timed out. Please try again."
+        } else if (error.message.includes('503') || error.message.includes('unavailable')) {
+          errorMessage = "ML Pipeline is currently unavailable. Please try again later."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsAnalyzing(false)
     }
@@ -346,24 +362,8 @@ export default function Home() {
                         <div className="inline-flex items-center justify-center">
                           <div className="relative px-8 py-4 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
                             <div className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-                              {result.isManipulated ? "Manipulated" : "Verified"}
+                              {result.isManipulated ? "Manipulated" : "Real"}
                             </div>
-                          </div>
-                        </div>
-
-                        {/* Confidence Bar */}
-                        <div className="space-y-3 px-4">
-                          <div className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
-                            Confidence
-                          </div>
-                          <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 bg-gradient-to-r from-white/80 to-white/60"
-                              style={{ width: `${Math.round(result.confidence * 100)}%` }}
-                            />
-                          </div>
-                          <div className="text-2xl font-semibold text-white/90 tracking-tight">
-                            {Math.round(result.confidence * 100)}%
                           </div>
                         </div>
 
