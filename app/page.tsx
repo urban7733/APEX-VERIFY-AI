@@ -192,45 +192,44 @@ export default function Home() {
   }, [previewUrl, file])
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white antialiased relative">
-      <div className="absolute top-6 right-6 z-30 flex items-center gap-4">
-        <Link href="/memory" className="inline-flex">
-          <Button className="bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-white px-5 py-2 rounded-full">
-            Memory
-          </Button>
+    <div className="min-h-screen bg-[#000000] text-white antialiased">
+      {/* Minimal Navigation */}
+      <div className="absolute top-8 right-8 z-30">
+        <Link href="/memory" className="text-sm text-white/40 hover:text-white/70 transition-colors duration-200 font-light">
+          Memory
         </Link>
       </div>
-      <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden pt-20 sm:pt-24 gap-6 sm:gap-8">
-        {/* Hero Video */}
-        <div className="relative z-10 w-full max-w-[760px] px-8">
-          <video className="w-full h-auto max-w-[720px] mx-auto" autoPlay muted loop playsInline preload="auto">
-            <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_XWyIu0PkVX3bevku3VMFJkU8hPan/wtnn7JpeaEvXet-WNmTF3o/public/video/herovideo.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </div>
 
-      {/* Software Description Box */}
-      <div className="relative z-10 px-6 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative p-8 sm:p-10 lg:p-12 rounded-3xl border border-white/[0.08] bg-white/[0.01] backdrop-blur-sm">
-            <div className="space-y-8 text-center">
-              <p className="text-sm sm:text-base md:text-lg text-white/70 leading-relaxed tracking-tight max-w-2xl mx-auto font-light">
-                Apex Verify AI uses advanced machine learning to detect AI-generated and manipulated content in images
-                and videos. Our technology analyzes digital fingerprints, metadata patterns, and visual artifacts to
-                determine authenticity with high accuracy.
-              </p>
+      {/* Hero Section - Minimal */}
+      <div className="min-h-screen w-full flex flex-col items-center justify-center px-6 sm:px-8">
+        <div className="w-full max-w-4xl mx-auto space-y-16 sm:space-y-20">
+          {/* Video */}
+          <div className="w-full">
+            <video 
+              className="w-full h-auto" 
+              autoPlay 
+              muted 
+              loop 
+              playsInline 
+              preload="auto"
+            >
+              <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_XWyIu0PkVX3bevku3VMFJkU8hPan/wtnn7JpeaEvXet-WNmTF3o/public/video/herovideo.mp4" type="video/mp4" />
+            </video>
+          </div>
 
-              <p className="text-sm sm:text-base md:text-lg text-white/70 leading-relaxed tracking-tight max-w-2xl mx-auto font-light">
-                Creators can verify their work, add tamper-proof watermarks, and build trust with audiences. Brands and
-                platforms can ensure content integrity and protect against deepfakes and synthetic media.
-              </p>
+          {/* Text - Minimal */}
+          <div className="max-w-2xl mx-auto space-y-6 text-center">
+            <p className="text-sm sm:text-base text-white/60 leading-relaxed font-light">
+              Apex Verify AI uses advanced machine learning to detect AI-generated and manipulated content in images and videos. Our technology analyzes digital fingerprints, metadata patterns, and visual artifacts to determine authenticity with high accuracy.
+            </p>
 
-              <div className="pt-4">
-                <p className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 leading-tight tracking-tight max-w-xl mx-auto">
-                  Transforming the creator economy.
-                </p>
-              </div>
-            </div>
+            <p className="text-sm sm:text-base text-white/60 leading-relaxed font-light">
+              Creators can verify their work, add tamper-proof watermarks, and build trust with audiences. Brands and platforms can ensure content integrity and protect against deepfakes and synthetic media.
+            </p>
+
+            <p className="text-base sm:text-lg text-white/90 font-light pt-4">
+              Transforming the creator economy.
+            </p>
           </div>
         </div>
       </div>
