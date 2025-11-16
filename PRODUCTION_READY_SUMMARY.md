@@ -25,11 +25,11 @@ Ihre APEX VERIFY AI Anwendung ist **komplett produktionsreif** und bereit für d
 
 Das Herzstück Ihrer AI-Verifikation läuft perfekt:
 
-```bash
+\`\`\`bash
 ✅ Health Endpoint: 200 OK
 ✅ Analyze Endpoint: 200 OK (SPAI + Manipulation Detection)
 ✅ Memory Lookup: 200 OK (Persistent Storage)
-```
+\`\`\`
 
 **Details:**
 - App-ID: `ap-T8YZGAomFhPj2nXj4lCOrK`
@@ -65,22 +65,22 @@ Alle API-Routen sind korrekt konfiguriert:
 **Kritische Fixes implementiert:**
 
 1. **`next.config.mjs` - FIXED** ✅
-   ```javascript
+   \`\`\`javascript
    // VORHER (FALSCH):
    output: 'export',  // ❌ Bricht API Routes!
    
    // NACHHER (RICHTIG):
    // Kein static export - Vercel managed automatisch ✅
-   ```
+   \`\`\`
 
 2. **`app/api/health/route.ts` - FIXED** ✅
-   ```typescript
+   \`\`\`typescript
    // VORHER (FALSCH):
    modalUrl: MODAL_URL,  // ❌ Undefined Variable
    
    // NACHHER (RICHTIG):
    modalUrl: modalHealthUrl,  // ✅ Korrekte Variable
-   ```
+   \`\`\`
 
 3. **Environment Variables** ✅
    - `.env.local` existiert
@@ -116,7 +116,7 @@ Alle Sicherheitsmaßnahmen implementiert:
 
 ### Option 1: Automatic Deployment (Empfohlen)
 
-```bash
+\`\`\`bash
 # 1. Commit your changes
 git add .
 git commit -m "Production ready - All systems operational"
@@ -125,7 +125,7 @@ git commit -m "Production ready - All systems operational"
 git push origin main
 
 # 3. Vercel deployed automatisch!
-```
+\`\`\`
 
 ### Option 2: Manual Vercel Deployment
 
@@ -158,9 +158,9 @@ git push origin main
 ## 🧪 Testing nach Deployment
 
 ### 1. Health Check
-```bash
+\`\`\`bash
 curl https://your-app.vercel.app/api/health
-```
+\`\`\`
 **Expected:** `{"status":"healthy",...}`
 
 ### 2. Upload Test
@@ -244,33 +244,33 @@ Bei ~1000 Requests/Tag: ca. $3-5/Monat für Modal
 ## 🔧 Wartung & Updates
 
 ### Modal Pipeline Updates
-```bash
+\`\`\`bash
 # Änderungen in modal_ml_pipeline.py machen
 # Dann deployen:
 modal deploy modal_ml_pipeline.py
 
 # Changes sind SOFORT live! ⚡
-```
+\`\`\`
 
 ### Frontend Updates
-```bash
+\`\`\`bash
 # Änderungen committen und pushen
 git add .
 git commit -m "Your changes"
 git push origin main
 
 # Vercel deployed automatisch
-```
+\`\`\`
 
 ### Database Schema Updates
-```bash
+\`\`\`bash
 # Änderungen in prisma/schema.prisma machen
 # Dann:
 pnpm prisma generate
 pnpm prisma db push
 
 # Lokal testen, dann deployen
-```
+\`\`\`
 
 ---
 
@@ -349,9 +349,9 @@ pnpm prisma db push
    - Paste in Vercel Dashboard → Settings → Environment Variables
 
 2. ✅ **Deploy to Vercel**
-   ```bash
+   \`\`\`bash
    git push origin main
-   ```
+   \`\`\`
 
 3. ✅ **Test Production**
    - Health Check: `curl https://your-app.vercel.app/api/health`
@@ -428,4 +428,3 @@ Ihre App wird funktionieren, weil:
 - SPAI Model (CVPR 2025 Research)
 
 **Ready for production. Ship it! 🚀**
-

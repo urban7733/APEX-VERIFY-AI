@@ -7,13 +7,13 @@
 
 ## ✅ System Architecture
 
-```
+\`\`\`
 ┌─────────────────┐      ┌──────────────────┐      ┌────────────────┐
 │   Vercel Web    │─────▶│  Modal ML (GPU)  │─────▶│ Neon Postgres  │
 │   (Next.js)     │      │  SPAI + Vision   │      │   (Serverless) │
 └─────────────────┘      └──────────────────┘      └────────────────┘
      Frontend              ML Pipeline              Database Storage
-```
+\`\`\`
 
 ---
 
@@ -82,7 +82,7 @@ All Next.js API routes configured and tested:
 
 **File:** `.env.local` (exists and configured)
 
-```bash
+\`\`\`bash
 # Modal Endpoints (all verified working)
 NEXT_PUBLIC_MODAL_ANALYZE_URL=https://urban33133--apex-verify-ml-analyze-endpoint.modal.run
 NEXT_PUBLIC_MODAL_HEALTH_URL=https://urban33133--apex-verify-ml-health-endpoint.modal.run
@@ -94,7 +94,7 @@ DATABASE_URL=<set if needed>
 # Contact form (optional)
 GMAIL_USER=<set if needed>
 GMAIL_APP_PASSWORD=<set if needed>
-```
+\`\`\`
 
 ---
 
@@ -103,16 +103,16 @@ GMAIL_APP_PASSWORD=<set if needed>
 **Issue Found & Fixed:**
 
 ❌ **Previous Config:**
-```javascript
+\`\`\`javascript
 // Had static export enabled for production
 output: 'export',  // This breaks API routes!
-```
+\`\`\`
 
 ✅ **Fixed Config:**
-```javascript
+\`\`\`javascript
 // Removed static export - Vercel handles it automatically
 // API routes now work correctly as serverless functions
-```
+\`\`\`
 
 **Critical Change:** Removed `output: 'export'` from `next.config.mjs` because:
 - Static exports don't support API routes
@@ -126,7 +126,7 @@ output: 'export',  // This breaks API routes!
 **Provider:** Neon PostgreSQL (serverless)
 
 **Table:** `VerificationRecord`
-```sql
+\`\`\`sql
 - id: String (CUID)
 - sha256: String (unique index)
 - verdict: String ("ai_generated" | "authentic")
@@ -136,7 +136,7 @@ output: 'export',  // This breaks API routes!
 - sourceUrl: String (nullable)
 - createdAt: DateTime
 - updatedAt: DateTime
-```
+\`\`\`
 
 **Indexes:**
 - Primary: `id`
@@ -232,11 +232,11 @@ output: 'export',  // This breaks API routes!
 ## 🚀 Vercel Deployment Instructions
 
 ### Step 1: Push to GitHub
-```bash
+\`\`\`bash
 git add .
 git commit -m "Production ready - Modal ML + API routes fixed"
 git push origin main
-```
+\`\`\`
 
 ### Step 2: Configure Vercel Environment Variables
 
@@ -256,10 +256,10 @@ Add the following (for **all** scopes: Production, Preview, Development):
 ### Step 3: Deploy
 
 Option A: **Automatic** (Push to GitHub)
-```bash
+\`\`\`bash
 # Vercel will automatically deploy on git push
 git push origin main
-```
+\`\`\`
 
 Option B: **Manual** (Vercel Dashboard)
 1. Go to Vercel Dashboard → Your Project
@@ -271,9 +271,9 @@ Option B: **Manual** (Vercel Dashboard)
 After deployment completes:
 
 1. **Test Health:**
-   ```bash
+   \`\`\`bash
    curl https://your-app.vercel.app/api/health
-   ```
+   \`\`\`
    Should return: `{"status":"healthy",...}`
 
 2. **Test Upload:**
@@ -325,7 +325,7 @@ After deployment completes:
 ## 🧪 Testing Commands
 
 ### Test Modal Endpoints Directly
-```bash
+\`\`\`bash
 # Health check
 curl https://urban33133--apex-verify-ml-health-endpoint.modal.run
 
@@ -338,10 +338,10 @@ curl -X POST https://urban33133--apex-verify-ml-analyze-endpoint.modal.run \
 curl -X POST https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run \
   -H "Content-Type: application/json" \
   -d '{"sha256":"test123..."}'
-```
+\`\`\`
 
 ### Test Local Development
-```bash
+\`\`\`bash
 # Start dev server
 pnpm dev
 
@@ -350,7 +350,7 @@ curl http://localhost:3000/api/health
 
 # Upload through UI
 open http://localhost:3000
-```
+\`\`\`
 
 ---
 
@@ -392,4 +392,3 @@ open http://localhost:3000
 **Built with ❤️ using Modal, Vercel, and Neon**  
 **SPAI Model:** State-of-the-art AI-generated image detection  
 **Architecture:** Serverless, auto-scaling, production-grade
-
