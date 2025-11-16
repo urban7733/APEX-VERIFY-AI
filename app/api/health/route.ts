@@ -46,7 +46,7 @@ export async function GET() {
           frontend: "healthy",
           modal: "unhealthy",
           message: `Modal returned ${modalResponse.status}`,
-          modalUrl: MODAL_URL,
+          modalUrl: modalHealthUrl,
           error: errorText,
         },
         { status: 503 },

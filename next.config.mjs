@@ -2,7 +2,8 @@
 const nextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
-    unoptimized: process.env.NODE_ENV === 'production',
+    // Keep optimized for Vercel deployment with API routes
+    unoptimized: false,
   },
   poweredByHeader: false,
   reactStrictMode: true,
@@ -12,12 +13,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Only use static export for production builds, not dev mode
-  ...(process.env.NODE_ENV === 'production' && {
-    output: 'export',
-    trailingSlash: true,
-    skipTrailingSlashRedirect: true,
-  }),
+  // DO NOT use static export - we need serverless functions for API routes
+  // Vercel will automatically handle the deployment correctly
 }
 
 export default nextConfig
