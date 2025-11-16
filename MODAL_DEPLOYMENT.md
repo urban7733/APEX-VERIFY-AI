@@ -54,9 +54,8 @@ In Vercel → Your Project → Settings → Environment Variables **(all scopes)
 | ---- | ----- |
 | `NEXT_PUBLIC_MODAL_ML_URL` | `https://urban33133--apex-verify-ml-fastapi-app.modal.run` |
 | `DATABASE_URL` | Neon pooled connection, e.g. `postgresql://user:password@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1` |
-| `GMAIL_USER` | (Optional) contact mailbox |
-| `GMAIL_APP_PASSWORD` | (Optional) Gmail app password |
-| `CONTACT_FORWARD_EMAIL` | (Optional) Forwarding target |
+
+> The contact endpoint is intentionally disabled (returns `501`) until the auth-backed messaging module lands, so no Gmail credentials are required in Vercel.
 
 Deploy after setting the variables. Locally mirror them in `.env.local`.
 

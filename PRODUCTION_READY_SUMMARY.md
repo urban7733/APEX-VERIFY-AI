@@ -144,10 +144,9 @@ git push origin main
 | `NEXT_PUBLIC_MODAL_HEALTH_URL` | `https://urban33133--apex-verify-ml-health-endpoint.modal.run` | ✅ Yes |
 | `NEXT_PUBLIC_MODAL_MEMORY_URL` | `https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run` | ✅ Yes |
 | `DATABASE_URL` | Neon PostgreSQL Connection String | ⚠️ Optional* |
-| `GMAIL_USER` | Gmail für Contact Form | ⚠️ Optional |
-| `GMAIL_APP_PASSWORD` | Gmail App Password | ⚠️ Optional |
 
-\* Database ist optional - die App funktioniert auch ohne (nutzt dann nur Modal Memory)
+\* Database ist optional - die App funktioniert auch ohne (nutzt dann nur Modal Memory).  
+💬 Das Kontaktformular ist temporär deaktiviert, bis sichere auth-basierte Messaging-Workflows bereitstehen.
 
 **Wo setzen?**
 1. Vercel Dashboard → Dein Projekt → Settings → Environment Variables
@@ -335,7 +334,6 @@ pnpm prisma db push
 ### Optional (nach Deployment)
 - [ ] Neon Database konfigurieren (für persistent history)
 - [ ] Custom Domain konfigurieren
-- [ ] Gmail für Contact Form setup
 - [ ] Analytics setup (Vercel Analytics)
 - [ ] Monitoring setup (Sentry/LogRocket)
 

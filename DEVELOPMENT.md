@@ -6,7 +6,6 @@ This document captures the lean workflow for working on the current **Vercel ↔
 
 - Node.js ≥ 18.18 with pnpm 10
 - Modal CLI authenticated (`modal token set ...`)
-- Optional: Gmail app password if you want to exercise the contact form
 
 ## 2. Local Setup
 
@@ -41,10 +40,8 @@ modal serve modal_ml_pipeline.py
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_MODAL_ML_URL` | Base URL of the Modal FastAPI app (required) |
-| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Enable the `/api/contact` route (optional) |
-| `CONTACT_FORWARD_EMAIL` | Override the default recipient for contact emails (optional) |
 
-The contact route returns `503` if credentials are missing, so deployments stay safe by default.
+`/api/contact` currently responds with `501` until the secure auth-backed messaging module is ready, so no email credentials are needed anywhere.
 
 ## 6. Deployment Checklist
 
@@ -58,7 +55,6 @@ The contact route returns `503` if credentials are missing, so deployments stay 
 | --- | --- |
 | `/api/analyze` times out | Check Modal logs for cold-start or import errors; confirm URL + credentials |
 | SPAI result missing | Ensure GPU is available; verify container includes PyTorch + transformers |
-| Contact form fails | Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` (16-char app password) |
 
 ## 8. Coding Standards
 
