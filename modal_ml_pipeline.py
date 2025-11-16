@@ -409,7 +409,7 @@ image = (
     gpu="T4",
     memory=8192,
     timeout=180,
-    keep_warm=1,
+    min_containers=1,
 )
 def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
@@ -808,9 +808,16 @@ def main(image_path: str = "test.jpg"):
     print("\n" + "="*50)
     print("ANALYSIS RESULTS")
     print("="*50)
-    print(f"Manipulated: {result['is_manipulated']}")
-    print(f"Confidence: {result['confidence']:.1%}")
-    print(f"Type: {result['manipulation_type']}")
-    print(f"ELA Score: {result['ela_score']:.3f}")
-    print(f"Processing Time: {result['processing_time']:.2f}s")
+    print(f"Manipulated: {result.get('is_manipulated')}")
+    confidence = result.get("confidence")
+    if isinstance(confidence, (int, float)):
+        print(f"Confidence: {confidence:.1%}")
+    else:
+        print(f"Confidence: {confidence}")
+    print(f"Type: {result.get('manipulation_type')}")
+    ai_detection = result.get("ai_detection") or {}
+    spai_score = ai_detection.get("score")
+    if isinstance(spai_score, (int, float)):
+        print(f"SPAI Score: {spai_score:.3f}")
+    print(f"Processing Time: {result.get('processing_time', 0.0):.2f}s")
     print("="*50)
