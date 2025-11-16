@@ -90,8 +90,11 @@ NEXT_PUBLIC_MODAL_MEMORY_URL=https://urban33133--apex-verify-ml-memory-lookup-en
 
 # Database (optional, for verification history)
 DATABASE_URL=<set if needed>
-# Contact form emailing is disabled until auth-backed messaging ships.
-```
+
+# Contact form (optional)
+GMAIL_USER=<set if needed>
+GMAIL_APP_PASSWORD=<set if needed>
+\`\`\`
 
 ---
 
@@ -247,8 +250,8 @@ Add the following (for **all** scopes: Production, Preview, Development):
 | `NEXT_PUBLIC_MODAL_HEALTH_URL` | `https://urban33133--apex-verify-ml-health-endpoint.modal.run` |
 | `NEXT_PUBLIC_MODAL_MEMORY_URL` | `https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run` |
 | `DATABASE_URL` | (Optional) Neon connection string |
-
-> Contact emailing is currently disabled. The `/api/contact` route returns `501` until the secure, auth-backed messaging system is ready.
+| `GMAIL_USER` | (Optional) Contact form email |
+| `GMAIL_APP_PASSWORD` | (Optional) Gmail app password |
 
 ### Step 3: Deploy
 
