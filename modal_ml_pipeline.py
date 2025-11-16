@@ -409,6 +409,7 @@ image = (
     gpu="T4",
     memory=8192,
     timeout=180,
+    keep_warm=1,
 )
 def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
@@ -427,6 +428,32 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     start_time = time.time()
     metadata = metadata or {}
     metadata = {k: v for k, v in metadata.items() if v is not None}
+    sha256 = hashlib.sha256(image_bytes).hexdigest()
+    request_timestamp = datetime.utcnow().isoformat() + "Z"
+
+    cached_record = verified_results.get(sha256)
+    if cached_record and isinstance(cached_record, dict):
+        cached_result = cached_record.get("result")
+        if isinstance(cached_result, dict):
+            cached_result = {
+                **cached_result,
+                "cache_hit": True,
+                "processing_time": 0.0,
+            }
+        else:
+            cached_result = {"cache_hit": True, "processing_time": 0.0}
+        cached_metadata = cached_record.get("metadata", {})
+        if not isinstance(cached_metadata, dict):
+            cached_metadata = {}
+        merged_metadata = {**cached_metadata, **metadata}
+        updated_record = {
+            **cached_record,
+            "metadata": merged_metadata,
+            "last_seen": request_timestamp,
+        }
+        verified_results[sha256] = _to_python(updated_record)
+        print(f"⚡ Cache hit for sha256={sha256} — returning stored verdict instantly")
+        return _to_python(cached_result)
     
     # Load image from bytes with error handling
     try:
@@ -545,7 +572,7 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         "manipulation_areas": [],  # No heuristic detection
         "processing_time": processing_time,
         "method": "pure_ml" + ("+metadata" if has_ai_metadata else ""),
-        "models_used": ["spai"],  # List of models used
+        "models_used": ["spai"],
         "ai_detection": spai_result,
         "metadata_check": {
             "has_ai_indicators": has_ai_metadata,
@@ -553,10 +580,6 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         },
     }
     result = _to_python(result)
-    sha256 = hashlib.sha256(image_bytes).hexdigest()
-
-    metadata = metadata or {}
-    metadata = {k: v for k, v in metadata.items() if v is not None}
     timestamp = datetime.utcnow().isoformat() + "Z"
 
     existing_record = verified_results.get(sha256)
