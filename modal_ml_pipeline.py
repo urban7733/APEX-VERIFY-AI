@@ -425,6 +425,8 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     from PIL import Image
     
     start_time = time.time()
+    metadata = metadata or {}
+    metadata = {k: v for k, v in metadata.items() if v is not None}
     
     # Load image from bytes with error handling
     try:
@@ -436,25 +438,62 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     
     # Check metadata for AI indicators
     has_ai_metadata = False
+    ai_metadata_sources = []
+    ai_keywords = [
+        'midjourney',
+        'dall-e',
+        'dalle',
+        'stable diffusion',
+        'openai',
+        'chatgpt',
+        'artificial intelligence',
+        'ai generated',
+        'synthetic',
+        'gan',
+    ]
+
+    def _contains_ai_keyword(value: Any) -> bool:
+        try:
+            text = str(value).lower()
+        except Exception:
+            return False
+        return any(keyword in text for keyword in ai_keywords)
+
     try:
         import piexif
         exif_dict = piexif.load(image_bytes)
-        # Check for common AI generation software in metadata
-        ai_keywords = ['midjourney', 'dall-e', 'dalle', 'stable diffusion', 'openai', 'chatgpt', 
-                      'artificial intelligence', 'ai generated', 'synthetic', 'gan']
-        
         for ifd in exif_dict:
             if isinstance(exif_dict[ifd], dict):
                 for tag in exif_dict[ifd]:
-                    value = str(exif_dict[ifd][tag]).lower()
-                    if any(keyword in value for keyword in ai_keywords):
+                    value = exif_dict[ifd][tag]
+                    if _contains_ai_keyword(value):
                         has_ai_metadata = True
-                        print(f"🔍 AI metadata detected: {value[:100]}")
+                        ai_metadata_sources.append(
+                            {
+                                "source": f"exif.{ifd}",
+                                "value": str(value)[:200],
+                            }
+                        )
+                        print(f"🔍 AI metadata detected (EXIF): {str(value)[:100]}")
                         break
     except Exception as e:
         # No problem if metadata check fails
         print(f"[Metadata] Could not read EXIF: {e}")
         pass
+
+    # Check provided metadata fields (e.g., filename, source_url)
+    for key, value in metadata.items():
+        if value and isinstance(value, (str, bytes)):
+            value_to_check = value.decode("utf-8", errors="ignore") if isinstance(value, bytes) else value
+            if _contains_ai_keyword(value_to_check):
+                has_ai_metadata = True
+                ai_metadata_sources.append(
+                    {
+                        "source": f"metadata.{key}",
+                        "value": value_to_check[:200],
+                    }
+                )
+                print(f"🔍 AI metadata detected (metadata.{key}): {value_to_check[:100]}")
     
     # 1. SPAI AI-Detection (Primary Model)
     spai_result = {
@@ -508,7 +547,10 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         "method": "pure_ml" + ("+metadata" if has_ai_metadata else ""),
         "models_used": ["spai"],  # List of models used
         "ai_detection": spai_result,
-        "metadata_check": {"has_ai_indicators": has_ai_metadata},
+        "metadata_check": {
+            "has_ai_indicators": has_ai_metadata,
+            "sources": ai_metadata_sources,
+        },
     }
     result = _to_python(result)
     sha256 = hashlib.sha256(image_bytes).hexdigest()
@@ -606,6 +648,10 @@ def analyze_endpoint(item: dict):
         
         image_base64 = item.get("image_base64")
         source_url = item.get("source_url")
+        filename = item.get("filename")
+        metadata_payload = item.get("metadata") or {}
+        if not isinstance(metadata_payload, dict):
+            metadata_payload = {}
         
         if not image_base64:
             return {"error": "No image provided"}, 400
@@ -628,8 +674,17 @@ def analyze_endpoint(item: dict):
             return {"error": "File size must be less than 100MB"}, 400
 
         metadata = {}
+        metadata.update(
+            {
+                k: v
+                for k, v in metadata_payload.items()
+                if isinstance(k, str) and v is not None
+            }
+        )
         if source_url:
             metadata["source_url"] = source_url
+        if filename and isinstance(filename, str) and filename.strip():
+            metadata["filename"] = filename.strip()
 
         result = analyze_image.remote(image_bytes, metadata)
         return result, 200

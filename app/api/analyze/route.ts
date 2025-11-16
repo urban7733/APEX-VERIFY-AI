@@ -56,9 +56,19 @@ export async function POST(request: NextRequest) {
       console.log(`[Analyze] Calling Modal endpoint: ${modalAnalyzeUrl}`)
       console.log(`[Analyze] File size: ${file.size} bytes, type: ${file.type}`)
 
+      const metadataPayload: Record<string, string> = {}
+      if (sourceUrl) {
+        metadataPayload.source_url = sourceUrl
+      }
+      const filename = typeof file.name === "string" ? file.name.trim() : ""
+      if (filename) {
+        metadataPayload.filename = filename
+      }
+
       const requestBody = {
         image_base64: imageBase64,
         ...(sourceUrl && { source_url: sourceUrl }),
+        ...(Object.keys(metadataPayload).length > 0 && { metadata: metadataPayload }),
       }
 
       const response = await fetch(modalAnalyzeUrl, {
