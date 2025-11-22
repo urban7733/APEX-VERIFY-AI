@@ -10,16 +10,17 @@ Architecture:
 """
 
 import os
+import sys
 import logging
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
-import importlib.resources as pkg_resources
+from typing import Any, Dict, Optional
 
+import importlib.resources as pkg_resources
 import modal
 import numpy as np
 import torch
-from typing import Dict, Any, Optional
-import sys
 
 # Create Modal app
 app = modal.App("apex-verify-ml")
@@ -29,6 +30,13 @@ verified_results = modal.Dict.from_name(
     "apex-verify-memory",
     create_if_missing=True,
 )
+
+
+def _utc_timestamp() -> str:
+    """
+    Return an ISO 8601 UTC timestamp compatible with the SPAI logs.
+    """
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _to_python(value: Any) -> Any:
@@ -47,16 +55,82 @@ def _to_python(value: Any) -> Any:
 
 
 SPAI_WEIGHTS_ID = "1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI"
-SPAI_CACHE_DIR = Path("/opt/spai-cache")
-SPAI_OUTPUT_DIR = SPAI_CACHE_DIR / "output"
-SPAI_REPO_ROOT = Path("/opt/spai")
-if str(SPAI_REPO_ROOT) not in sys.path and SPAI_REPO_ROOT.exists():
-    sys.path.append(str(SPAI_REPO_ROOT))
 _spai_engine: Optional["SPAIEngine"] = None
+_SPAI_REPO_ROOT: Optional[Path] = None
+
+
+def _resolve_spai_repo_root() -> Path:
+    """
+    Locate the SPAI repository cloned from https://github.com/mever-team/spai.
+    Modal images place it under /opt/spai, while local developers can provide
+    SPAI_REPO_PATH or vendor the code inside this repo.
+    """
+    global _SPAI_REPO_ROOT
+    if (
+        _SPAI_REPO_ROOT is not None
+        and (_SPAI_REPO_ROOT / "spai" / "__init__.py").exists()
+    ):
+        return _SPAI_REPO_ROOT
+
+    candidate_strings = [
+        os.environ.get("SPAI_REPO_PATH"),
+        "/opt/spai",
+        str(Path(__file__).resolve().parent / "spai"),
+        str(Path(__file__).resolve().parent / "external" / "spai"),
+    ]
+
+    for candidate in candidate_strings:
+        if not candidate:
+            continue
+        path = Path(candidate).expanduser()
+        if (path / "spai" / "__init__.py").exists():
+            if str(path) not in sys.path:
+                sys.path.append(str(path))
+            _SPAI_REPO_ROOT = path
+            return _SPAI_REPO_ROOT
+
+    raise RuntimeError(
+        "SPAI repository not found. Clone https://github.com/mever-team/spai and set "
+        "SPAI_REPO_PATH to its root or allow the Modal image to mount it at /opt/spai."
+    )
+
+
+def _resolve_spai_cache_root() -> Path:
+    custom = os.environ.get("SPAI_CACHE_DIR")
+    if custom:
+        return Path(custom).expanduser()
+
+    if _SPAI_REPO_ROOT is not None:
+        return (_SPAI_REPO_ROOT / ".cache").expanduser()
+
+    try:
+        repo_root = _resolve_spai_repo_root()
+        return (repo_root / ".cache").expanduser()
+    except RuntimeError:
+        # Fall back to legacy path that Modal images provision explicitly.
+        return Path("/opt/spai-cache")
+
+
+def _resolve_spai_weights_path(repo_root: Path) -> Path:
+    """
+    Determine where the official SPAI weights are stored.
+    Defaults to <repo_root>/weights/spai.pth as documented upstream.
+    """
+    custom = os.environ.get("SPAI_WEIGHTS_PATH")
+    if custom:
+        return Path(custom).expanduser()
+    return (repo_root / "weights" / "spai.pth").expanduser()
 
 
 class SPAIEngine:
     def __init__(self) -> None:
+        self.repo_root = _resolve_spai_repo_root()
+        self.cache_dir = _resolve_spai_cache_root()
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir = self.cache_dir / "output"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.weights_path = self._ensure_weights()
+
         try:
             from spai.config import get_config  # type: ignore
             from spai.models import build_cls_model  # type: ignore
@@ -81,22 +155,17 @@ class SPAIEngine:
             self.logger.addHandler(handler)
         self.logger.setLevel(logging.WARNING)
 
-        SPAI_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        SPAI_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"[SPAI] Using device: {self.device}")
-        
-        self.weights_path = self._ensure_weights()
         print(f"[SPAI] Weights loaded: {self.weights_path}")
-        
+
         # Try multiple config locations
-        config_candidate = SPAI_REPO_ROOT / "configs" / "spai.yaml"
+        config_candidate = self.repo_root / "configs" / "spai.yaml"
         if not config_candidate.exists():
             config_candidate = Path(pkg_resources.files("spai")) / "configs" / "spai.yaml"
         if not config_candidate.exists():
             # Fallback: search for any .yaml config
-            config_dir = SPAI_REPO_ROOT / "configs"
+            config_dir = self.repo_root / "configs"
             if config_dir.exists():
                 yaml_files = list(config_dir.glob("*.yaml"))
                 if yaml_files:
@@ -122,7 +191,7 @@ class SPAIEngine:
         base_args = {
             "cfg": str(self.config_path),
             "batch_size": 1,
-            "output": str(SPAI_OUTPUT_DIR),
+            "output": str(self.output_dir),
             "tag": "apex-verify",
             "pretrained": str(self.weights_path),
             "opts": self._opts,
@@ -140,10 +209,9 @@ class SPAIEngine:
         self.criterion = self._build_loss(self.base_config).to(self.device)
 
     def _ensure_weights(self) -> Path:
-        weights_dir = SPAI_CACHE_DIR / "weights"
-        weights_dir.mkdir(parents=True, exist_ok=True)
-        weights_path = weights_dir / "spai.pth"
-        
+        weights_path = _resolve_spai_weights_path(self.repo_root)
+        weights_path.parent.mkdir(parents=True, exist_ok=True)
+
         # Check if weights exist and are valid
         if weights_path.exists():
             file_size = weights_path.stat().st_size
@@ -262,32 +330,27 @@ class SPAIEngine:
                 print(f"[SPAI] Warning: Invalid score {score}, clamping to [0, 1]")
                 score = max(0.0, min(1.0, float(score)))
             
-            # CRITICAL FIX: SPAI score interpretation
-            # Testing shows that the score might be inverted or needs threshold adjustment
-            # Lower score = AI-generated, Higher score = Authentic (NEEDS VERIFICATION)
-            # For now, inverting the logic based on test results
-            
-            # INVERTED LOGIC: Low score = AI-generated
-            inverted_score = 1.0 - score
-            
+            ai_probability = max(0.0, min(1.0, float(score)))
             result = {
-                "is_ai_generated": inverted_score >= 0.5,  # Using inverted score
-                "score": float(inverted_score),  # Return inverted score
-                "raw_score": float(score),  # Keep original for debugging
-                "label": "ai_generated" if inverted_score >= 0.5 else "authentic",
+                "is_ai_generated": ai_probability >= 0.5,
+                "score": ai_probability,
+                "label": "ai_generated" if ai_probability >= 0.5 else "authentic",
                 "probabilities": {
-                    "ai_generated": float(inverted_score),
-                    "authentic": float(score),  # Original score is authentic probability
+                    "ai_generated": ai_probability,
+                    "authentic": 1.0 - ai_probability,
                 },
                 "status": "ok",
             }
             
-            print(f"[SPAI] Prediction completed: raw_score={score:.3f}, inverted_score={inverted_score:.3f}, is_ai={result['is_ai_generated']}")
+            print(
+                "[SPAI] Prediction completed: "
+                f"ai_probability={ai_probability:.3f}, is_ai={result['is_ai_generated']}"
+            )
             return result
             
-        except RuntimeError:
+        except RuntimeError as runtime_error:
             # Re-raise RuntimeErrors as-is (already formatted)
-            print(f"[SPAI] RuntimeError during prediction: {str(e)}")
+            print(f"[SPAI] RuntimeError during prediction: {runtime_error}")
             raise
         except Exception as e:
             # Wrap unexpected exceptions
@@ -365,6 +428,7 @@ image = (
         "tensorboard",  # REQUIRED
         "termcolor==2.4.0",
         "yacs==0.1.8",
+        "PyYAML==6.0.1",
         "torchmetrics==1.4.0.post0",
         "tqdm==4.66.4",
         "click==8.1.7",
@@ -392,13 +456,16 @@ image = (
             "git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai || (echo 'SPAI clone failed' && exit 1)",
             # Verify SPAI was cloned successfully
             "test -d /opt/spai && test -f /opt/spai/spai/__init__.py || (echo 'SPAI repository structure invalid' && exit 1)",
+            # Install official SPAI Python dependencies and package
+            "pip install --no-cache-dir -r /opt/spai/requirements.txt",
+            "pip install --no-cache-dir -e /opt/spai",
             # Create cache directories
-            "mkdir -p /opt/spai-cache/weights /opt/spai-cache/output",
+            "mkdir -p /opt/spai/weights /opt/spai/.cache/output",
             # Download SPAI weights with verification
-            "python -c \"from pathlib import Path; import gdown; weights_path = Path('/opt/spai-cache/weights/spai.pth'); weights_path.parent.mkdir(parents=True, exist_ok=True); print(f'Downloading SPAI weights to {weights_path}...'); gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False) if not weights_path.exists() else print('Weights already cached'); exit(0 if weights_path.exists() and weights_path.stat().st_size > 10000000 else 1)\"",
+            "python -c \"from pathlib import Path; import gdown; weights_path = Path('/opt/spai/weights/spai.pth'); weights_path.parent.mkdir(parents=True, exist_ok=True); print(f'Downloading SPAI weights to {weights_path}...'); gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False) if not weights_path.exists() else print('Weights already cached'); exit(0 if weights_path.exists() and weights_path.stat().st_size > 10000000 else 1)\"",
             # Verify weights were downloaded
-            "test -f /opt/spai-cache/weights/spai.pth || (echo 'SPAI weights download failed' && exit 1)",
-            "ls -lh /opt/spai-cache/weights/spai.pth",
+            "test -f /opt/spai/weights/spai.pth || (echo 'SPAI weights download failed' && exit 1)",
+            "ls -lh /opt/spai/weights/spai.pth",
         ]
     )
 )
@@ -422,14 +489,13 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
     import io
     import time
     import hashlib
-    from datetime import datetime
     from PIL import Image
-    
+
     start_time = time.time()
     metadata = metadata or {}
     metadata = {k: v for k, v in metadata.items() if v is not None}
     sha256 = hashlib.sha256(image_bytes).hexdigest()
-    request_timestamp = datetime.utcnow().isoformat() + "Z"
+    request_timestamp = _utc_timestamp()
 
     cached_record = verified_results.get(sha256)
     if cached_record and isinstance(cached_record, dict):
@@ -550,17 +616,43 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         print("⚠️ Continuing with manipulation detection only")
     
     processing_time = time.time() - start_time
-    
+
+    spai_status_ok = spai_result.get("status") == "ok"
+    ai_probability = None
+    authentic_probability = None
+    if spai_status_ok:
+        probabilities = spai_result.get("probabilities") or {}
+        ai_probability = probabilities.get("ai_generated")
+        authentic_probability = probabilities.get("authentic")
+
+    def _normalize_probability(value: Any) -> Optional[float]:
+        if isinstance(value, (int, float)):
+            return float(max(0.0, min(1.0, value)))
+        return None
+
+    ai_probability = _normalize_probability(ai_probability)
+    if ai_probability is not None:
+        authentic_probability = _normalize_probability(authentic_probability)
+        if authentic_probability is None:
+            authentic_probability = 1.0 - ai_probability
+
     # Pure ML-based decision: Only SPAI + Metadata
-    is_ai_generated = bool(
-        spai_result.get('is_ai_generated', False) or has_ai_metadata
-    )
-    
-    # Confidence from SPAI model only
-    confidence = spai_result.get('score', 0.0) if spai_result.get('status') == 'ok' else 0.5
-    
-    # If metadata indicates AI, boost confidence
-    if has_ai_metadata and confidence < 0.9:
+    spai_flag = bool(spai_result.get("is_ai_generated", False))
+    is_ai_generated = bool(spai_flag or has_ai_metadata)
+
+    if ai_probability is not None:
+        if is_ai_generated:
+            base_confidence = ai_probability
+        else:
+            fallback = authentic_probability if authentic_probability is not None else (1.0 - ai_probability)
+            base_confidence = fallback
+    else:
+        base_confidence = 0.5
+
+    confidence = float(max(0.0, min(1.0, base_confidence)))
+
+    # If metadata indicates AI, boost confidence to reflect corroborating signals.
+    if has_ai_metadata and confidence < 0.95:
         confidence = 0.95
 
     # Pure ML Results - NO heuristics
@@ -580,7 +672,7 @@ def analyze_image(image_bytes: bytes, metadata: Optional[Dict[str, Any]] = None)
         },
     }
     result = _to_python(result)
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    timestamp = _utc_timestamp()
 
     existing_record = verified_results.get(sha256)
     verdict = "ai_generated" if result["is_ai_generated"] or result["is_manipulated"] else "authentic"
@@ -770,8 +862,7 @@ def health_endpoint():
         }
     }
     
-    from datetime import datetime
-    health_status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+    health_status["timestamp"] = _utc_timestamp()
     
     # Check SPAI model status
     try:
