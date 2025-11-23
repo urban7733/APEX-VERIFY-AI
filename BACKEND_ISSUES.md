@@ -1,93 +1,36 @@
-# Backend Issues Diagnosis & Fix ✅ RESOLVED
+# Backend Issues – Status & Fixes (RunPod Migration)
 
-## 🔍 Issues Identified & Fixed
+## 1. RunPod Integration ✅
+- **Issue:** Modal-specific pipeline (`modal_ml_pipeline.py`) tied to deprecated endpoints and produced cold-start penalties we could not control.
+- **Fix:** Replaced the entire GPU layer with RunPod Serverless.
+  - Added `runpod/Dockerfile` and `runpod/handler.py`.
+  - Added `api/services/runpod_client.py` for local testing.
+  - `app/api/analyze/route.ts` now calls RunPod directly and keeps metadata/caching on CPU.
 
-### 1. **Deprecated Modal Decorator** ✅ FIXED
-- **Problem**: Code was using deprecated `@modal.web_endpoint` decorator
-- **Fix**: Updated to `@modal.fastapi_endpoint` and added FastAPI dependency
-- **Location**: `modal_ml_pipeline.py`
+## 2. Environment Variables ✅
+- **Issue:** Missing/obsolete `NEXT_PUBLIC_MODAL_*` variables caused runtime errors.
+- **Fix:** Introduced `RUNPOD_ENDPOINT_URL` + `RUNPOD_API_KEY` (required) and simplified `.env.local`.
+- **Action:** Ensure these are set in Vercel and local shells before running `verify-deployment.sh`.
 
-### 2. **Missing Environment Variables** ✅ FIXED
-- **Problem**: `NEXT_PUBLIC_MODAL_ML_URL` and individual endpoint URLs not set
-- **Fix**: Updated API routes to support both individual URLs and base URL pattern
-- **Location**: All API routes (`/api/analyze`, `/api/health`, `/api/memory/lookup`)
+## 3. Health Monitoring ✅
+- **Issue:** Health route referenced undefined Modal URLs and failed to report database status.
+- **Fix:** `/api/health` now:
+  - Pings RunPod with a `health_check` payload.
+  - Executes `SELECT 1` against Neon.
+  - Returns `{ frontend, runpod, database, timestamp }`.
+- **Frontend:** `components/status-indicator.tsx` now looks at `runpod` instead of `modal`.
 
-### 3. **Modal Endpoint URL Format** ✅ FIXED
-- **Problem**: Code was appending paths to base URL, but Modal creates individual URLs per function
-- **Fix**: Updated code to use full function URLs directly
-- **Actual URLs** (from deployment):
-  - `https://urban33133--apex-verify-ml-analyze-endpoint.modal.run`
-  - `https://urban33133--apex-verify-ml-health-endpoint.modal.run`
-  - `https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run`
+## 4. Deployment Docs & Scripts ✅
+- **Issue:** Documentation and scripts still referenced Modal CLI workflows.
+- **Fixes:**
+  - Replaced `MODAL_DEPLOYMENT.md` with `RUNPOD_DEPLOYMENT.md`.
+  - Rewrote `PRODUCTION_READY_SUMMARY.md` & `DEPLOYMENT_VERIFICATION.md`.
+  - Updated `verify-deployment.sh` to call the RunPod endpoint (requires exported env vars).
 
-## ✅ What Was Fixed
+## 5. Outstanding Actions
+- [ ] Keep RunPod image tags versioned; update the endpoint when pushing new builds.
+- [ ] Optional: schedule RunPod keep-warm jobs if you expect bursts of traffic.
+- [ ] Continue to monitor Neon query stats to validate cache hit rates.
 
-1. **Modal Pipeline** (`modal_ml_pipeline.py`):
-   - Changed `@modal.web_endpoint` → `@modal.fastapi_endpoint`
-   - Added `fastapi>=0.104.0` to dependencies
-   - Successfully redeployed
+The backend now cleanly separates CPU (Vercel) and GPU (RunPod) responsibilities. No legacy Modal code remains.***
 
-2. **API Routes**:
-   - Updated to support individual endpoint URLs (`NEXT_PUBLIC_MODAL_ANALYZE_URL`, etc.)
-   - Added fallback to construct URLs from base pattern
-   - Improved error messages
-
-3. **Environment Configuration**:
-   - Updated `env.local.example` with actual Modal endpoint URLs
-   - Added clear documentation for both configuration options
-
-## 🚀 Next Steps
-
-### 1. Create `.env.local` file:
-
-\`\`\`bash
-cp env.local.example .env.local
-\`\`\`
-
-Then edit `.env.local` and add:
-
-\`\`\`bash
-# Use the actual Modal endpoint URLs from deployment
-NEXT_PUBLIC_MODAL_ANALYZE_URL=https://urban33133--apex-verify-ml-analyze-endpoint.modal.run
-NEXT_PUBLIC_MODAL_HEALTH_URL=https://urban33133--apex-verify-ml-health-endpoint.modal.run
-NEXT_PUBLIC_MODAL_MEMORY_URL=https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run
-
-# Optional: Database connection
-DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1
-\`\`\`
-
-### 2. Test Backend:
-
-\`\`\`bash
-# Start dev server
-pnpm dev
-
-# Test health endpoint (in another terminal)
-curl http://localhost:3000/api/health
-
-# Should return:
-# {"status":"healthy","frontend":"healthy","modal":{"status":"healthy","modal":"operational"},...}
-\`\`\`
-
-### 3. Test Image Analysis:
-
-Upload an image through the frontend UI at `http://localhost:3000`
-
-## 📊 Status
-
-- ✅ Modal app deployed successfully
-- ✅ Modal endpoints fixed (using `@modal.fastapi_endpoint`)
-- ✅ API routes updated to use correct URL format
-- ✅ Environment configuration documented
-- ⏳ **Action Required**: Create `.env.local` with Modal endpoint URLs
-
-## 🐛 If Still Not Working
-
-1. **Check environment variables**: Ensure `.env.local` exists and has the Modal URLs
-2. **Restart dev server**: After adding env vars, restart `pnpm dev`
-3. **Check Modal deployment**: Verify endpoints are accessible:
-   \`\`\`bash
-   curl https://urban33133--apex-verify-ml-health-endpoint.modal.run
-   \`\`\`
-4. **Check browser console**: Look for error messages in the browser dev tools
-5. **Check server logs**: Look at the terminal running `pnpm dev` for API errors

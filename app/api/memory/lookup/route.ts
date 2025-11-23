@@ -1,28 +1,12 @@
 import { createHash } from "crypto"
 
 import { type NextRequest, NextResponse } from "next/server"
-import { Prisma } from "@prisma/client"
 
 import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-// Modal memory lookup endpoint URL - each function has its own full URL
-const modalMemoryUrl = process.env.NEXT_PUBLIC_MODAL_MEMORY_URL || 
-  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
-    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-memory-lookup-endpoint.modal.run`
-    : undefined)
-
 export async function POST(request: NextRequest) {
-  if (!modalMemoryUrl) {
-    return NextResponse.json(
-      {
-        error: "Modal ML URL not configured",
-        message: "Set NEXT_PUBLIC_MODAL_MEMORY_URL or NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal endpoint",
-      },
-      { status: 503 },
-    )
-  }
 
   try {
     const formData = await request.formData()
@@ -151,67 +135,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const lookupResponse = await fetch(modalMemoryUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sha256 }),
-    })
-
-    if (lookupResponse.status === 404) {
-      return NextResponse.json(
-        {
-          found: false,
-          sha256,
-          sourceUrl: effectiveSourceUrl,
-        },
-        { status: 200 },
-      )
-    }
-
-    if (!lookupResponse.ok) {
-      throw new Error(`Modal lookup failed with status ${lookupResponse.status}`)
-    }
-
-    const data = await lookupResponse.json()
-    const recordFromModal = data.record
-
-    const summary = (recordFromModal?.summary ?? {}) as Record<string, unknown>
-    const resultPayload = (recordFromModal?.result ?? {}) as Record<string, unknown>
-    const metadataFromModal = (recordFromModal?.metadata ?? {}) as Record<string, unknown>
-    const normalizedResult = JSON.parse(JSON.stringify(resultPayload)) as Prisma.JsonObject
-    const verdictFromModal = (summary?.verdict as string | undefined) ??
-      (resultPayload?.is_ai_generated ? "ai_generated" : "authentic")
-    const confidenceFromModal = (summary?.confidence as number | undefined) ??
-      (typeof resultPayload?.confidence === "number" ? (resultPayload.confidence as number) : 0)
-    const methodFromModal = (summary?.method as string | undefined) ??
-      (typeof resultPayload?.method === "string" ? (resultPayload.method as string) : null)
-    const sourceUrlFromModal = typeof metadataFromModal?.source_url === "string" ? (metadataFromModal.source_url as string) : null
-
-    await prisma.verificationRecord.upsert({
-      where: { sha256 },
-      update: {
-        result: normalizedResult,
-        verdict: verdictFromModal,
-        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
-        method: typeof methodFromModal === "string" ? methodFromModal : null,
-        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
-      },
-      create: {
-        sha256,
-        result: normalizedResult,
-        verdict: verdictFromModal,
-        confidence: typeof confidenceFromModal === "number" ? confidenceFromModal : 0,
-        method: typeof methodFromModal === "string" ? methodFromModal : null,
-        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal,
-      },
-    })
-
     return NextResponse.json(
       {
-        found: true,
+        found: false,
         sha256,
-        sourceUrl: effectiveSourceUrl ?? sourceUrlFromModal ?? undefined,
-        record: recordFromModal,
+        sourceUrl: effectiveSourceUrl,
       },
       { status: 200 },
     )

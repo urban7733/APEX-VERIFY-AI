@@ -1,74 +1,80 @@
 # Apex Verify AI – Development Guide
 
-This document captures the lean workflow for working on the current **Vercel ↔ Modal** architecture. All legacy backend instructions have been removed.
+This document captures the lean workflow for the current **Vercel (CPU) ↔ RunPod Serverless (GPU)** architecture. The frontend handles uploads, metadata checks, and persistence; RunPod hosts the SPAI inference engine on dedicated GPUs.
 
 ## 1. Prerequisites
 
 - Node.js ≥ 18.18 with pnpm 10
-- Modal CLI authenticated (`modal token set ...`)
-- Optional: Gmail app password if you want to exercise the contact form
+- Docker (needed to build the RunPod container)
+- RunPod account + API key
+- Optional: Gmail app password for the contact form
 
 ## 2. Local Setup
 
-\`\`\`bash
+```
 pnpm install
-cp env.local.example .env.local   # edit values as needed
+cp env.local.example .env.local   # add RunPod + DB credentials
 pnpm dev                          # http://localhost:3000
-\`\`\`
+```
 
-Point `NEXT_PUBLIC_MODAL_ML_URL` at either a deployed Modal app or a locally served instance:
+Required env values:
 
-\`\`\`bash
-modal serve modal_ml_pipeline.py
-# copy the printed URL into NEXT_PUBLIC_MODAL_ML_URL
-\`\`\`
+- `RUNPOD_ENDPOINT_URL` → `https://api.runpod.ai/v2/<endpoint-id>/runsync`
+- `RUNPOD_API_KEY` → Serverless API token
+- `DATABASE_URL` → Neon / Postgres connection string
 
-## 3. Modal Pipeline Development
+## 3. RunPod GPU Pipeline
 
-- `modal_ml_pipeline.py` owns the full ML flow (SPAI + heuristics + heatmap).
-- Use `modal run modal_ml_pipeline.py::main --image-path sample.jpg` to trigger local entry points.
-- After edits, redeploy with `modal deploy modal_ml_pipeline.py`.
-- Watch logs at https://modal.com/apps to verify cold starts and GPU usage.
+- Python code lives in `runpod/handler.py`.
+- Build the CUDA image defined in `runpod/Dockerfile` and push it to RunPod (see `RUNPOD_DEPLOYMENT.md`).
+- The handler loads the official SPAI weights, performs inference, and returns the raw ML verdict. No metadata logic runs on GPU.
 
-## 4. Frontend Development Notes
+## 4. Backend / Frontend Notes
 
-- `/api/analyze` is the only code path that hits Modal; keep the proxy thin and resilient.
-- Avoid reintroducing client-side randomness or mock data—always defer to Modal responses.
-- Lint with `pnpm lint`, type-check with `pnpm tsc --noEmit` if desired.
+- `/api/analyze` now:
+  1. Hashes the image + checks Prisma for cached verdicts.
+  2. Runs metadata heuristics (EXIF + filename / URL keywords).
+  3. Calls RunPod for SPAI inference.
+  4. Persists combined results in Neon.
+- `/api/memory/lookup` serves purely from Neon (Modal Dict is gone).
+- `/api/health` pings RunPod with a `health_check` payload and verifies DB reachability.
+- Lint via `pnpm lint`; type-check with `pnpm tsc --noEmit` if desired.
 
 ## 5. Environment Variables
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_MODAL_ML_URL` | Base URL of the Modal FastAPI app (required) |
-| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Enable the `/api/contact` route (optional) |
-| `CONTACT_FORWARD_EMAIL` | Override the default recipient for contact emails (optional) |
-
-The contact route returns `503` if credentials are missing, so deployments stay safe by default.
+| `RUNPOD_ENDPOINT_URL` | Serverless synchronous endpoint (`.../runsync`) |
+| `RUNPOD_API_KEY` | Bearer token used by API routes and health checks |
+| `DATABASE_URL` | Neon/Postgres URL |
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Optional contact form creds |
+| `CONTACT_FORWARD_EMAIL` | Optional override recipient |
 
 ## 6. Deployment Checklist
 
-1. `modal deploy modal_ml_pipeline.py`
-2. Push to Git / trigger Vercel build (environment variables must be configured there)
-3. Sanity test: upload a genuine and an AI-generated image on production and review SPAI confidence + heatmap
+1. Build & push the RunPod image (`runpod/Dockerfile`).
+2. Create/Update the RunPod endpoint and capture the `runsync` URL.
+3. Update `RUNPOD_*` + `DATABASE_URL` in the Vercel project.
+4. `git push` → verify `/api/health` and `/api/analyze` in production.
 
 ## 7. Troubleshooting
 
 | Symptom | Action |
 | --- | --- |
-| `/api/analyze` times out | Check Modal logs for cold-start or import errors; confirm URL + credentials |
-| SPAI result missing | Ensure GPU is available; verify container includes PyTorch + transformers |
-| Contact form fails | Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` (16-char app password) |
+| `/api/analyze` returns 503 | Confirm RunPod endpoint + API key; inspect RunPod logs for import errors. |
+| Health route shows `runpod: timeout` | Endpoint might be asleep or misconfigured—send a manual `health_check` payload to warm it. |
+| Cache misses repeatedly | Ensure the file bytes match (no EXIF rewrites) and Neon is reachable. |
+| Contact form fails | Provide `GMAIL_USER`, `GMAIL_APP_PASSWORD`, and `CONTACT_FORWARD_EMAIL`. |
 
 ## 8. Coding Standards
 
-- Treat every change as production-bound; no demo code or randomization.
-- Use TypeScript types for API payloads where possible.
-- Prefer pure functions and modular components to keep the surface area maintainable.
+- Ship production-ready code—no demo modes.
+- Keep TypeScript types aligned with the RunPod response schema.
+- Prefer small, composable modules to keep the surface area maintainable.
 
 ## 9. Getting Help
 
-- **Modal docs**: https://modal.com/docs
+- **RunPod docs**: https://docs.runpod.io
 - **Next.js docs**: https://nextjs.org/docs
 - **SPAI paper / repo**: https://github.com/mever-team/spai
 

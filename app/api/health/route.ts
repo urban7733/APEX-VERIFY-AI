@@ -4,20 +4,17 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-// Modal health endpoint URL - each function has its own full URL
-const modalHealthUrl = process.env.NEXT_PUBLIC_MODAL_HEALTH_URL || 
-  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
-    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-health-endpoint.modal.run`
-    : undefined)
+const runpodEndpointUrl = process.env.RUNPOD_ENDPOINT_URL
+const runpodApiKey = process.env.RUNPOD_API_KEY
 
 export async function GET() {
-  if (!modalHealthUrl) {
+  if (!runpodEndpointUrl || !runpodApiKey) {
     return NextResponse.json(
       {
         status: "degraded",
         frontend: "healthy",
-        modal: "unconfigured",
-        message: "Modal ML URL is not set",
+        runpod: "unconfigured",
+        message: "Set RUNPOD_ENDPOINT_URL and RUNPOD_API_KEY",
       },
       { status: 503 },
     )
@@ -26,34 +23,39 @@ export async function GET() {
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 5000)
-    console.log(`[Health] Checking Modal at: ${modalHealthUrl}`)
+    console.log("[Health] Checking RunPod endpoint")
 
-    const modalResponse = await fetch(modalHealthUrl, {
-      method: "GET",
+    const runpodResponse = await fetch(runpodEndpointUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${runpodApiKey}`,
+      },
+      body: JSON.stringify({ input: { health_check: true } }),
       signal: controller.signal,
     })
 
     clearTimeout(timeoutId)
 
-    console.log(`[Health] Modal response: ${modalResponse.status}`)
+    console.log(`[Health] RunPod response: ${runpodResponse.status}`)
 
-    if (!modalResponse.ok) {
-      const errorText = await modalResponse.text().catch(() => "Unknown error")
-      console.error(`[Health] Modal error: ${errorText}`)
+    if (!runpodResponse.ok) {
+      const errorText = await runpodResponse.text().catch(() => "Unknown error")
+      console.error(`[Health] RunPod error: ${errorText}`)
       return NextResponse.json(
         {
           status: "degraded",
           frontend: "healthy",
-          modal: "unhealthy",
-          message: `Modal returned ${modalResponse.status}`,
-          modalUrl: modalHealthUrl,
+          runpod: "unhealthy",
+          message: `RunPod returned ${runpodResponse.status}`,
           error: errorText,
         },
         { status: 503 },
       )
     }
 
-    const modalHealth = await modalResponse.json().catch(() => ({ status: "unknown" }))
+    const runpodHealthPayload = await runpodResponse.json().catch(() => ({}))
+    const runpodHealth = runpodHealthPayload.output ?? runpodHealthPayload
 
     let databaseStatus: "healthy" | "unreachable" = "healthy"
     try {
@@ -66,19 +68,21 @@ export async function GET() {
     return NextResponse.json({
       status: databaseStatus === "healthy" ? "healthy" : "degraded",
       frontend: "healthy",
-      modal: modalHealth,
+      runpod: runpodHealth,
       database: databaseStatus,
       timestamp: new Date().toISOString(),
     }, { status: databaseStatus === "healthy" ? 200 : 503 })
   } catch (error) {
-    console.error("Modal health check error:", error)
+    console.error("RunPod health check error:", error)
     const isTimeout = error instanceof Error && error.name === "AbortError"
     return NextResponse.json(
       {
         status: isTimeout ? "degraded" : "error",
         frontend: "healthy",
-        modal: isTimeout ? "timeout" : "unreachable",
-        message: isTimeout ? "Modal health check timed out" : "Unable to reach Modal ML pipeline",
+        runpod: isTimeout ? "timeout" : "unreachable",
+        message: isTimeout
+          ? "RunPod health check timed out"
+          : "Unable to reach RunPod Serverless endpoint",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 503 },

@@ -7,31 +7,147 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
-// Modal endpoint URLs - each function has its own full URL
-// Get from env var or construct from base URL pattern
-const modalAnalyzeUrl = process.env.NEXT_PUBLIC_MODAL_ANALYZE_URL || 
-  (process.env.NEXT_PUBLIC_MODAL_ML_URL 
-    ? `${process.env.NEXT_PUBLIC_MODAL_ML_URL.replace(/\/$/, "")}-analyze-endpoint.modal.run`
-    : undefined)
+const runpodEndpointUrl = process.env.RUNPOD_ENDPOINT_URL
+const runpodApiKey = process.env.RUNPOD_API_KEY
 
-export async function POST(request: NextRequest) {
-  if (!modalAnalyzeUrl) {
-    return NextResponse.json(
-      {
-        error: "Modal ML URL not configured",
-        message: "Set NEXT_PUBLIC_MODAL_ANALYZE_URL or NEXT_PUBLIC_MODAL_ML_URL to the deployed Modal endpoint",
-      },
-      { status: 503 },
-    )
+const AI_KEYWORDS = [
+  "midjourney",
+  "dall-e",
+  "dalle",
+  "stable diffusion",
+  "openai",
+  "chatgpt",
+  "artificial intelligence",
+  "ai generated",
+  "synthetic",
+  "gan",
+]
+
+type MetadataIndicator = {
+  source: string
+  value: string
+}
+
+function containsAiKeyword(value: unknown) {
+  if (!value) return false
+  const text = String(value).toLowerCase()
+  return AI_KEYWORDS.some((keyword) => text.includes(keyword))
+}
+
+async function extractMetadataSignals(
+  imageBuffer: Buffer,
+  metadataFields: Record<string, string | undefined>,
+): Promise<{ hasAiMetadata: boolean; sources: MetadataIndicator[] }> {
+  const indicators: MetadataIndicator[] = []
+
+  try {
+    const exifr = await import("exifr")
+    const exifData = await exifr.parse(imageBuffer).catch(() => null)
+    if (exifData && typeof exifData === "object") {
+      for (const [key, value] of Object.entries(exifData)) {
+        if (typeof value === "string" && containsAiKeyword(value)) {
+          indicators.push({
+            source: `exif.${key}`,
+            value: value.slice(0, 200),
+          })
+          break
+        }
+      }
+    }
+  } catch (error) {
+    console.warn("[Metadata] EXIF parsing failed:", error)
   }
 
-  // Validate Modal URL format
-  if (!modalAnalyzeUrl.startsWith("https://") || !modalAnalyzeUrl.includes(".modal.run")) {
-    console.error(`Invalid Modal URL format: ${modalAnalyzeUrl}`)
+  for (const [source, value] of Object.entries(metadataFields)) {
+    if (value && containsAiKeyword(value)) {
+      indicators.push({
+        source: `metadata.${source}`,
+        value: value.slice(0, 200),
+      })
+    }
+  }
+
+  return {
+    hasAiMetadata: indicators.length > 0,
+    sources: indicators,
+  }
+}
+
+async function callRunPod(imageBase64: string) {
+  if (!runpodEndpointUrl || !runpodApiKey) {
+    throw new Error("RunPod configuration is missing")
+  }
+
+  const response = await fetch(runpodEndpointUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${runpodApiKey}`,
+    },
+    body: JSON.stringify({
+      input: {
+        image_base64: imageBase64,
+      },
+    }),
+    signal: AbortSignal.timeout(120000),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Unknown error")
+    throw new Error(`RunPod inference failed (${response.status}): ${errorText}`)
+  }
+
+  const payload = await response.json().catch(() => {
+    throw new Error("Invalid RunPod response (JSON expected)")
+  })
+  const output = payload.output ?? payload
+  const result = output.result ?? output
+
+  if (!result || typeof result !== "object") {
+    throw new Error("RunPod output is missing result payload")
+  }
+
+  return result as Record<string, unknown>
+}
+
+async function getCachedResult(sha256: string) {
+  if (!prisma) {
+    return null
+  }
+
+  const existingRecord = await prisma.verificationRecord.findUnique({
+    where: { sha256 },
+  })
+
+  if (!existingRecord) {
+    return null
+  }
+
+  const cachedResult = JSON.parse(
+    JSON.stringify(existingRecord.result),
+  ) as Record<string, unknown>
+
+  return {
+    ...cachedResult,
+    sha256: existingRecord.sha256,
+    cache_hit: true,
+    sourceUrl: existingRecord.sourceUrl ?? undefined,
+  }
+}
+
+function clampProbability(value: unknown, fallback = 0.5) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.min(1, Math.max(0, value))
+  }
+  return fallback
+}
+
+export async function POST(request: NextRequest) {
+  if (!runpodEndpointUrl || !runpodApiKey) {
     return NextResponse.json(
       {
-        error: "Invalid Modal URL configuration",
-        message: "Modal URL must be a valid Modal endpoint (https://*.modal.run)",
+        error: "RunPod is not configured",
+        message: "Set RUNPOD_ENDPOINT_URL and RUNPOD_API_KEY",
       },
       { status: 503 },
     )
@@ -49,67 +165,77 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(await file.arrayBuffer())
     const sha256 = createHash("sha256").update(fileBuffer).digest("hex")
 
+    const cachedResult = await getCachedResult(sha256)
+    if (cachedResult) {
+      return NextResponse.json(cachedResult)
+    }
+
+    const metadataFields: Record<string, string | undefined> = {
+      source_url: sourceUrl,
+      filename: typeof file.name === "string" ? file.name.trim() : undefined,
+    }
+
+    const metadataAnalysis = await extractMetadataSignals(fileBuffer, metadataFields)
+
     try {
-      // Convert image to base64 for Modal endpoint
       const imageBase64 = fileBuffer.toString("base64")
 
-      console.log(`[Analyze] Calling Modal endpoint: ${modalAnalyzeUrl}`)
-      console.log(`[Analyze] File size: ${file.size} bytes, type: ${file.type}`)
+      const runpodResult = await callRunPod(imageBase64)
+      const spaiScore = clampProbability(runpodResult.score)
+      const spaiStatusOk = runpodResult.status === "ok"
 
-      const metadataPayload: Record<string, string> = {}
-      if (sourceUrl) {
-        metadataPayload.source_url = sourceUrl
-      }
-      const filename = typeof file.name === "string" ? file.name.trim() : ""
-      if (filename) {
-        metadataPayload.filename = filename
+      const spaiResult = {
+        status: runpodResult.status ?? "ok",
+        score: spaiScore,
+        is_ai_generated: Boolean(
+          runpodResult.is_ai_generated ?? spaiScore >= 0.5,
+        ),
+        probabilities:
+          typeof runpodResult.probabilities === "object"
+            ? runpodResult.probabilities
+            : {
+                ai_generated: spaiScore,
+                authentic: 1 - spaiScore,
+              },
       }
 
-      const requestBody = {
-        image_base64: imageBase64,
-        ...(sourceUrl && { source_url: sourceUrl }),
-        ...(Object.keys(metadataPayload).length > 0 && { metadata: metadataPayload }),
+      const processingTime =
+        typeof runpodResult.processing_time === "number"
+          ? runpodResult.processing_time
+          : 0
+
+      const isAiGenerated =
+        spaiResult.is_ai_generated || metadataAnalysis.hasAiMetadata
+
+      let confidence = spaiStatusOk ? spaiScore : 0.5
+      if (metadataAnalysis.hasAiMetadata && confidence < 0.95) {
+        confidence = 0.95
       }
 
-      const response = await fetch(modalAnalyzeUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const method = `runpod_spai${metadataAnalysis.hasAiMetadata ? "+metadata" : ""}`
+
+      const responsePayload = {
+        sha256,
+        cache_hit: false,
+        is_manipulated: isAiGenerated,
+        is_ai_generated: isAiGenerated,
+        confidence,
+        manipulation_type: isAiGenerated ? "ai" : null,
+        manipulation_areas: [],
+        processing_time: processingTime,
+        method,
+        models_used: ["spai"],
+        ai_detection: spaiResult,
+        metadata_check: {
+          has_ai_indicators: metadataAnalysis.hasAiMetadata,
+          sources: metadataAnalysis.sources,
         },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(60000), // 60 second timeout for ML inference
-      })
-
-      console.log(`[Analyze] Modal response status: ${response.status}`)
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "Unknown error")
-        console.error(`Modal API error (${response.status}):`, errorText)
-        throw new Error(`Modal ML failed: ${response.status} - ${errorText}`)
       }
 
-      const result = await response.json()
-      
-      // Validate Modal response structure
-      if (!result || typeof result !== 'object') {
-        throw new Error("Invalid response format from Modal endpoint")
-      }
+      const verdict = isAiGenerated ? "ai_generated" : "authentic"
+      const { cache_hit: _cacheHit, ...resultToPersist } = responsePayload
+      const prismaResult = JSON.parse(JSON.stringify(resultToPersist)) as Prisma.JsonObject
 
-      // Ensure required fields exist with defaults
-      const normalizedResult = {
-        ...result,
-        is_manipulated: Boolean(result.is_manipulated ?? false),
-        is_ai_generated: Boolean(result.is_ai_generated ?? false),
-        confidence: typeof result.confidence === "number" ? Math.max(0, Math.min(1, result.confidence)) : 0,
-        processing_time: typeof result.processing_time === "number" ? result.processing_time : 0,
-        manipulation_type: result.manipulation_type || null,
-      }
-
-      const verdict = normalizedResult.is_ai_generated || normalizedResult.is_manipulated ? "ai_generated" : "authentic"
-
-      const prismaResult = JSON.parse(JSON.stringify(normalizedResult)) as Prisma.JsonObject
-
-      // Only persist to database if Prisma client is available
       if (prisma) {
         try {
           await prisma.verificationRecord.upsert({
@@ -117,35 +243,34 @@ export async function POST(request: NextRequest) {
             update: {
               result: prismaResult,
               verdict,
-              confidence: normalizedResult.confidence,
-              method: typeof normalizedResult.method === "string" ? normalizedResult.method : null,
+              confidence,
+              method,
               sourceUrl: sourceUrl ?? null,
             },
             create: {
               sha256,
               result: prismaResult,
               verdict,
-              confidence: normalizedResult.confidence,
-              method: typeof normalizedResult.method === "string" ? normalizedResult.method : null,
+              confidence,
+              method,
               sourceUrl: sourceUrl ?? null,
             },
           })
         } catch (dbError) {
           console.error("[Analyze] Database error (non-fatal):", dbError)
-          // Continue even if database write fails
         }
       }
 
-      return NextResponse.json({ ...normalizedResult, sha256 })
+      return NextResponse.json(responsePayload)
     } catch (error: unknown) {
-      console.error("Modal ML Pipeline error:", error)
+      console.error("RunPod inference error:", error)
       const message = error instanceof Error ? error.message : "Please try again later"
       return NextResponse.json(
         {
           error: "ML Pipeline unavailable",
           message,
         },
-        { status: 503 }
+        { status: 503 },
       )
     }
   } catch (error: unknown) {

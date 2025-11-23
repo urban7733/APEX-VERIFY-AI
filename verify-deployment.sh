@@ -59,44 +59,40 @@ test_endpoint_status() {
     fi
 }
 
-echo "📡 1. Testing Modal ML Pipeline Endpoints"
-echo "=========================================="
+echo "📡 1. Testing RunPod Serverless Endpoint"
+echo "========================================"
 echo ""
 
-# Modal Health Endpoint
-test_endpoint_status "Modal Health" \
-    "https://urban33133--apex-verify-ml-health-endpoint.modal.run" \
-    "200" \
-    "GET"
-
-# Modal Analyze Endpoint (with test image - 1x1 red pixel PNG)
-echo -n "Testing Modal Analyze... "
-analyze_response=$(curl -s -w "\n%{http_code}" -X POST \
-    "https://urban33133--apex-verify-ml-analyze-endpoint.modal.run" \
-    -H "Content-Type: application/json" \
-    -d '{"image_base64":"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="}')
-analyze_status=$(echo "$analyze_response" | tail -1)
-if [ "$analyze_status" = "200" ]; then
-    echo -e "${GREEN}✅ PASS${NC} (HTTP $analyze_status)"
-    ((TESTS_PASSED++))
-else
-    echo -e "${RED}❌ FAIL${NC} (HTTP $analyze_status)"
+if [ -z "$RUNPOD_ENDPOINT_URL" ] || [ -z "$RUNPOD_API_KEY" ]; then
+    echo -e "${RED}❌ FAIL${NC} RUNPOD_ENDPOINT_URL / RUNPOD_API_KEY not set in the current shell"
+    echo "      Export them (or run: source .env.local) before executing this script."
     ((TESTS_FAILED++))
-fi
-
-# Modal Memory Endpoint (any 2xx/4xx response is valid - endpoint is working)
-echo -n "Testing Modal Memory Lookup... "
-memory_response=$(curl -s -w "\n%{http_code}" -X POST \
-    "https://urban33133--apex-verify-ml-memory-lookup-endpoint.modal.run" \
-    -H "Content-Type: application/json" \
-    -d '{"sha256":"0000000000000000000000000000000000000000000000000000000000000000"}')
-memory_status=$(echo "$memory_response" | tail -1)
-if [[ "$memory_status" =~ ^(200|400|404)$ ]]; then
-    echo -e "${GREEN}✅ PASS${NC} (HTTP $memory_status - endpoint responding)"
-    ((TESTS_PASSED++))
 else
-    echo -e "${RED}❌ FAIL${NC} (HTTP $memory_status)"
-    ((TESTS_FAILED++))
+    RUNPOD_HEADERS=(-H "Content-Type: application/json" -H "Authorization: Bearer $RUNPOD_API_KEY")
+    HEALTH_PAYLOAD='{"input":{"health_check":true}}'
+    echo -n "Testing RunPod health_check... "
+    health_response=$(curl -s -w "\n%{http_code}" -X POST "$RUNPOD_ENDPOINT_URL" "${RUNPOD_HEADERS[@]}" -d "$HEALTH_PAYLOAD")
+    health_status=$(echo "$health_response" | tail -1)
+    if [ "$health_status" = "200" ]; then
+        echo -e "${GREEN}✅ PASS${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ FAIL${NC} (HTTP $health_status)"
+        ((TESTS_FAILED++))
+    fi
+
+    TEST_IMAGE_BASE64="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    ANALYZE_PAYLOAD="{\"input\":{\"image_base64\":\"$TEST_IMAGE_BASE64\",\"metadata\":{\"source\":\"verify-script\"}}}"
+    echo -n "Testing RunPod analyze... "
+    analyze_response=$(curl -s -w "\n%{http_code}" -X POST "$RUNPOD_ENDPOINT_URL" "${RUNPOD_HEADERS[@]}" -d "$ANALYZE_PAYLOAD")
+    analyze_status=$(echo "$analyze_response" | tail -1)
+    if [ "$analyze_status" = "200" ]; then
+        echo -e "${GREEN}✅ PASS${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ FAIL${NC} (HTTP $analyze_status)"
+        ((TESTS_FAILED++))
+    fi
 fi
 
 echo ""
@@ -113,12 +109,12 @@ else
     ((TESTS_FAILED++))
 fi
 
-# Check Modal URLs are configured
-if grep -q "NEXT_PUBLIC_MODAL_ANALYZE_URL" .env.local 2>/dev/null; then
-    echo -e "${GREEN}✅ PASS${NC} Modal URLs configured"
+# Check RunPod env vars are present in template
+if grep -q "RUNPOD_ENDPOINT_URL" .env.local 2>/dev/null; then
+    echo -e "${GREEN}✅ PASS${NC} RunPod credentials present"
     ((TESTS_PASSED++))
 else
-    echo -e "${RED}❌ FAIL${NC} Modal URLs not configured"
+    echo -e "${RED}❌ FAIL${NC} RunPod credentials missing from .env.local"
     ((TESTS_FAILED++))
 fi
 
@@ -129,15 +125,6 @@ if grep -q "output: 'export'" next.config.mjs 2>/dev/null; then
 else
     echo -e "${GREEN}✅ PASS${NC} Static export disabled (API routes OK)"
     ((TESTS_PASSED++))
-fi
-
-# Check modal app is deployed
-echo -n "Checking Modal deployment... "
-if modal app list 2>/dev/null | grep -q "deployed"; then
-    echo -e "${GREEN}✅ PASS${NC} (Modal app deployed)"
-    ((TESTS_PASSED++))
-else
-    echo -e "${YELLOW}⚠️  WARN${NC} (Could not verify Modal deployment status)"
 fi
 
 echo ""
@@ -155,16 +142,6 @@ if command -v pnpm &> /dev/null; then
     ((TESTS_PASSED++))
 else
     echo -e "${YELLOW}⚠️  WARN${NC} pnpm not found (optional)"
-fi
-
-# Check Modal CLI
-if command -v modal &> /dev/null; then
-    MODAL_VERSION=$(modal --version 2>&1 | head -1)
-    echo -e "${GREEN}✅ PASS${NC} Modal CLI: $MODAL_VERSION"
-    ((TESTS_PASSED++))
-else
-    echo -e "${RED}❌ FAIL${NC} Modal CLI not installed"
-    ((TESTS_FAILED++))
 fi
 
 echo ""
@@ -195,15 +172,16 @@ if [ $TESTS_FAILED -eq 0 ]; then
     echo "✅ Ready for Vercel deployment"
     echo ""
     echo "Next steps:"
-    echo "1. Set environment variables in Vercel Dashboard"
-    echo "2. git push origin main (auto-deploy)"
-    echo "3. Verify production deployment"
+    echo "1. Ensure RunPod image + endpoint are up to date"
+    echo "2. Set environment variables in Vercel Dashboard"
+    echo "3. git push origin main (auto-deploy)"
+    echo "4. Verify production deployment"
     echo ""
     exit 0
 else
     echo -e "${RED}❌ Some tests failed. Please fix issues before deploying.${NC}"
     echo ""
-    echo "Review DEPLOYMENT_VERIFICATION.md for troubleshooting steps."
+    echo "Review DEPLOYMENT_VERIFICATION.md / RUNPOD_DEPLOYMENT.md for troubleshooting steps."
     echo ""
     exit 1
 fi

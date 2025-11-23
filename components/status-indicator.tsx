@@ -12,10 +12,11 @@ type PipelineStatus = string | Record<string, unknown>
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'error'
   frontend: string
-  modal: PipelineStatus
+  runpod: PipelineStatus
   message?: string
   error?: string
   timestamp?: string
+  database?: string
 }
 
 export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
@@ -48,15 +49,15 @@ export function StatusIndicator({ className = "" }: StatusIndicatorProps) {
         setStatus({
           status: 'error',
           frontend: 'healthy',
-          modal: 'timeout',
-          message: 'Modal health check timeout'
+          runpod: 'timeout',
+          message: 'RunPod health check timeout'
         })
       } else {
         setStatus({
           status: 'error',
           frontend: 'healthy',
-          modal: 'unreachable',
-          message: 'Cannot reach Modal ML pipeline'
+          runpod: 'unreachable',
+          message: 'Cannot reach RunPod GPU pipeline'
         })
       }
       setLastChecked(new Date())
