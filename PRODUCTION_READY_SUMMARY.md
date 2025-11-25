@@ -18,14 +18,14 @@ All pipelines have been validated end-to-end: hashing, metadata heuristics, RunP
 
 ## 2. Architecture Overview
 
-```
+\`\`\`
 Browser ↔ Next.js (Vercel, CPU)
           │
           ├─ Metadata scan (EXIF + filename keywords)
           ├─ SHA-256 cache lookup (Neon)
           ├─ RunPod SPAI call (GPU)
           └─ Result persistence / response
-```
+\`\`\`
 
 | Layer | Component | Status | Notes |
 | --- | --- | --- | --- |
@@ -61,20 +61,20 @@ Set these variables in `.env.local` **and** Vercel Project Settings (all scopes)
    - Full steps → `RUNPOD_DEPLOYMENT.md`.
 
 2. **Vercel backend**
-   ```bash
+   \`\`\`bash
    pnpm lint
 git add .
    git commit -m "Deploy RunPod pipeline"
    git push origin main    # Vercel auto-builds
-   ```
+   \`\`\`
 
 3. **Smoke tests**
-   ```bash
+   \`\`\`bash
    export RUNPOD_ENDPOINT_URL=...
    export RUNPOD_API_KEY=...
    ./verify-deployment.sh
    curl https://your-app.vercel.app/api/health
-   ```
+   \`\`\`
 
 ---
 
@@ -141,4 +141,3 @@ git add .
 - Next.js docs: https://nextjs.org/docs
 
 Ship with confidence. 🚀
-

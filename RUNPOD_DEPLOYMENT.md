@@ -2,9 +2,9 @@
 
 This guide covers the GPU inference layer that now powers APEX VERIFY AI. RunPod hosts the SPAI (CVPR 2025) detector; Vercel handles uploads, metadata checks, and persistence.
 
-```
+\`\`\`
 Vercel (Next.js, CPU) ──▶ RunPod Serverless (SPAI on GPU) ──▶ Neon Postgres
-```
+\`\`\`
 
 ## 1. Repository Layout
 
@@ -22,13 +22,13 @@ Vercel (Next.js, CPU) ──▶ RunPod Serverless (SPAI on GPU) ──▶ Neon P
 
 You can build locally and push to any registry supported by RunPod (Docker Hub, GHCR, etc.).
 
-```bash
+\`\`\`bash
 # 1. Build
 docker build -t <registry>/<namespace>/apex-verify-spai:latest -f runpod/Dockerfile .
 
 # 2. Push
 docker push <registry>/<namespace>/apex-verify-spai:latest
-```
+\`\`\`
 
 > The Dockerfile clones the official SPAI repo, installs requirements, and downloads the `spai.pth` weights during build so warm boots are instant.
 
@@ -57,25 +57,25 @@ Add the following variables (all scopes in Vercel and in `.env.local`):
 
 ### Health Check
 
-```bash
+\`\`\`bash
 curl -X POST "$RUNPOD_ENDPOINT_URL" \
   -H "Authorization: Bearer $RUNPOD_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"input":{"health_check":true}}'
-```
+\`\`\`
 
 You should see `{"status":"ok","message":"spai-ready"}` in the `output`.
 
 ### Sample Inference
 
-```bash
+\`\`\`bash
 BASE64_PIXEL="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 
 curl -X POST "$RUNPOD_ENDPOINT_URL" \
   -H "Authorization: Bearer $RUNPOD_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"input\":{\"image_base64\":\"$BASE64_PIXEL\"}}"
-```
+\`\`\`
 
 The response includes `score`, `probabilities`, and `is_ai_generated`.
 
@@ -108,4 +108,3 @@ The response includes `score`, `probabilities`, and `is_ai_generated`.
 ---
 
 With the GPU layer on RunPod and CPU logic on Vercel, the system stays serverless end-to-end while keeping operating costs predictable. Update this guide whenever you publish a new container tag or change the endpoint configuration.***
-

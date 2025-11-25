@@ -11,11 +11,11 @@ This document captures the lean workflow for the current **Vercel (CPU) ↔ RunP
 
 ## 2. Local Setup
 
-```
+\`\`\`
 pnpm install
 cp env.local.example .env.local   # add RunPod + DB credentials
 pnpm dev                          # http://localhost:3000
-```
+\`\`\`
 
 Required env values:
 

@@ -331,4 +331,3 @@ def handler(event: Dict[str, Any]) -> Dict[str, Any]:
 
 
 runpod.serverless.start({"handler": handler})
-

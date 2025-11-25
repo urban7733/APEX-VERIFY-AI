@@ -33,4 +33,3 @@
 - [ ] Continue to monitor Neon query stats to validate cache hit rates.
 
 The backend now cleanly separates CPU (Vercel) and GPU (RunPod) responsibilities. No legacy Modal code remains.***
-

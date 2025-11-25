@@ -79,4 +79,3 @@ export function hammingDistance(hash1: string, hash2: string): number {
 export function areHashesSimilar(hash1: string, hash2: string, threshold = 10): boolean {
   return hammingDistance(hash1, hash2) <= threshold
 }
-

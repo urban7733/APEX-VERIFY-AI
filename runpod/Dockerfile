@@ -47,4 +47,3 @@ PY
 COPY handler.py /app/handler.py
 
 CMD ["python", "-u", "/app/handler.py"]
-

@@ -7,14 +7,14 @@
 
 ## 1. System Architecture
 
-```
+\`\`\`
 Browser ↔ Vercel (Next.js, CPU)
           │
           ├─ Metadata heuristics (EXIF, filename, source URL)
           ├─ SHA-256 caching (Neon/Postgres)
           ├─ RunPod SPAI call (GPU inference only)
           └─ Result persistence + response
-```
+\`\`\`
 
 - **RunPod Serverless** hosts the SPAI (CVPR 2025) detector using the Docker image defined in `runpod/Dockerfile`.
 - **Vercel** handles uploads, metadata checks, RunPod requests, caching, and responses.
@@ -40,14 +40,14 @@ Browser ↔ Vercel (Next.js, CPU)
 
 `.env.local` (and Vercel env) must include:
 
-```env
+\`\`\`env
 RUNPOD_ENDPOINT_URL=https://api.runpod.ai/v2/<endpoint-id>/runsync
 RUNPOD_API_KEY=rp_sk_xxx
 DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require&pgbouncer=true&connection_limit=1
 GMAIL_USER=
 GMAIL_APP_PASSWORD=
 CONTACT_FORWARD_EMAIL=
-```
+\`\`\`
 
 Run `source .env.local` (or export variables manually) before executing `verify-deployment.sh`; the script now refuses to run RunPod tests if the credentials are missing.
 
@@ -89,11 +89,11 @@ Run `source .env.local` (or export variables manually) before executing `verify-
 
 ### 5.3 Verification Script
 
-```bash
+\`\`\`bash
 export RUNPOD_ENDPOINT_URL=...
 export RUNPOD_API_KEY=...
 ./verify-deployment.sh
-```
+\`\`\`
 
 The script now:
 - Calls RunPod `health_check`.
@@ -107,7 +107,7 @@ The script now:
 
 `/api/health` returns:
 
-```json
+\`\`\`json
 {
   "status": "healthy" | "degraded" | "error",
   "frontend": "healthy",
@@ -118,7 +118,7 @@ The script now:
   "database": "healthy",
   "timestamp": "2025-11-23T12:45:00.000Z"
 }
-```
+\`\`\`
 
 Errors:
 - RunPod timeout → `runpod: "timeout"`, status `degraded`.
@@ -133,7 +133,7 @@ Errors:
 
 `prisma/schema.prisma` defines:
 
-```prisma
+\`\`\`prisma
 model VerificationRecord {
   id         String   @id @default(cuid())
   sha256     String   @unique
@@ -145,7 +145,7 @@ model VerificationRecord {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
-```
+\`\`\`
 
 `/api/analyze` uses `upsert` to keep records in sync (updates confidence/method/source URL if the same hash is re-uploaded).
 
@@ -191,4 +191,3 @@ model VerificationRecord {
 3. Monitor RunPod usage dashboards + Neon metrics after launch.
 
 APEX VERIFY AI is now fully aligned with the RunPod Serverless architecture and ready for sustained production traffic. 🚀
-
