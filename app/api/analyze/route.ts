@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { Prisma } from "@prisma/client"
 
 import { prisma } from "@/lib/prisma"
+import { calculatePhash } from "@/lib/phash"
 
 export const runtime = "nodejs"
 
@@ -180,6 +181,14 @@ export async function POST(request: NextRequest) {
     try {
       const imageBase64 = fileBuffer.toString("base64")
 
+      // Calculate perceptual hash for visual similarity matching
+      let phash: string | null = null
+      try {
+        phash = await calculatePhash(fileBuffer)
+      } catch (phashError) {
+        console.warn("[Analyze] pHash calculation failed (non-fatal):", phashError)
+      }
+
       const runpodResult = await callRunPod(imageBase64)
       const spaiScore = clampProbability(runpodResult.score)
       const spaiStatusOk = runpodResult.status === "ok"
@@ -233,7 +242,8 @@ export async function POST(request: NextRequest) {
       }
 
       const verdict = isAiGenerated ? "ai_generated" : "authentic"
-      const { cache_hit: _cacheHit, ...resultToPersist } = responsePayload
+      const resultToPersist = { ...responsePayload }
+      delete (resultToPersist as { cache_hit?: boolean }).cache_hit
       const prismaResult = JSON.parse(JSON.stringify(resultToPersist)) as Prisma.JsonObject
 
       if (prisma) {
@@ -246,9 +256,11 @@ export async function POST(request: NextRequest) {
               confidence,
               method,
               sourceUrl: sourceUrl ?? null,
+              phash: phash ?? undefined,
             },
             create: {
               sha256,
+              phash,
               result: prismaResult,
               verdict,
               confidence,

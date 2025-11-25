@@ -10,6 +10,7 @@ datasource db {
 model VerificationRecord {
   id         String   @id @default(cuid())
   sha256     String   @unique
+  phash      String?  // Perceptual hash for visual similarity matching
   verdict    String
   confidence Float
   method     String?
@@ -19,4 +20,5 @@ model VerificationRecord {
   updatedAt  DateTime @updatedAt
 
   @@index([createdAt])
+  @@index([phash])
 }

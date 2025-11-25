@@ -3,6 +3,9 @@ import { createHash } from "crypto"
 import { type NextRequest, NextResponse } from "next/server"
 
 import { prisma } from "@/lib/prisma"
+import { calculatePhash, hammingDistance } from "@/lib/phash"
+
+const PHASH_SIMILARITY_THRESHOLD = 10 // Max bit differences for a match (out of 64)
 
 export const runtime = "nodejs"
 
@@ -133,6 +136,78 @@ export async function POST(request: NextRequest) {
         },
         { status: 200 },
       )
+    }
+
+    // SHA256 not found - try perceptual hash similarity search
+    try {
+      const uploadedPhash = await calculatePhash(buffer)
+      
+      // Get all records with pHash (for similarity comparison)
+      const recordsWithPhash = await prisma.verificationRecord.findMany({
+        where: { phash: { not: null } },
+        select: {
+          id: true,
+          sha256: true,
+          phash: true,
+          verdict: true,
+          confidence: true,
+          method: true,
+          result: true,
+          sourceUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        take: 1000, // Limit for performance
+      })
+
+      // Find the most similar match
+      let bestMatch: typeof recordsWithPhash[0] | null = null
+      let bestDistance = Infinity
+
+      for (const record of recordsWithPhash) {
+        if (!record.phash) continue
+        const distance = hammingDistance(uploadedPhash, record.phash)
+        if (distance <= PHASH_SIMILARITY_THRESHOLD && distance < bestDistance) {
+          bestDistance = distance
+          bestMatch = record
+        }
+      }
+
+      if (bestMatch) {
+        const result = JSON.parse(JSON.stringify(bestMatch.result))
+        const recordPayload = {
+          sha256: bestMatch.sha256,
+          created_at: bestMatch.createdAt.toISOString(),
+          last_seen: bestMatch.updatedAt.toISOString(),
+          metadata: {
+            source_url: bestMatch.sourceUrl,
+          },
+          summary: {
+            verdict: bestMatch.verdict,
+            confidence: bestMatch.confidence,
+            method: bestMatch.method,
+            processing_time:
+              typeof result === "object" && result !== null && "processing_time" in result
+                ? (result as Record<string, unknown>).processing_time
+                : null,
+          },
+          result,
+        }
+
+        return NextResponse.json(
+          {
+            found: true,
+            sha256, // Return the uploaded image's SHA256
+            sourceUrl: effectiveSourceUrl,
+            record: recordPayload,
+            match_type: "perceptual", // Indicate this was a visual similarity match
+            similarity: Math.round((1 - bestDistance / 64) * 100), // % similarity
+          },
+          { status: 200 },
+        )
+      }
+    } catch (phashError) {
+      console.warn("[Memory] pHash search failed (non-fatal):", phashError)
     }
 
     return NextResponse.json(
