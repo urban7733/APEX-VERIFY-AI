@@ -1,4 +1,4 @@
-FROM runpod/base:0.4.7-cuda12.1.1
+FROM runpod/base:1.0.2-cuda1281-ubuntu2204
 
 ENV DEBIAN_FRONTEND=noninteractive \
     SPAI_REPO_PATH=/opt/spai \
