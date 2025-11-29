@@ -44,6 +44,6 @@ if not weights_path.exists() or weights_path.stat().st_size < 10 * 1024 * 1024:
     raise SystemExit("Failed to download SPAI weights")
 PY
 
-COPY handler.py /app/handler.py
+COPY runpod/handler.py /app/handler.py
 
 CMD ["python", "-u", "/app/handler.py"]
