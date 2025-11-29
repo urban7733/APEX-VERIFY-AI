@@ -2,4 +2,3 @@
   "installCommand": "pnpm install --force",
   "buildCommand": "pnpm run build"
 }
-
