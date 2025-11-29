@@ -27,15 +27,8 @@ RUN pip install --no-cache-dir -r /opt/spai/requirements.txt || true
 RUN pip install --no-cache-dir -e /opt/spai || true
 
 # Download SPAI weights
-RUN python -c "
-from pathlib import Path
-import gdown
-weights_path = Path('/opt/spai/weights/spai.pth')
-weights_path.parent.mkdir(parents=True, exist_ok=True)
-if not weights_path.exists():
-    gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', str(weights_path), quiet=False)
-print('Weights downloaded!' if weights_path.exists() else 'Download failed')
-"
+RUN mkdir -p /opt/spai/weights && \
+    python -c "import gdown; gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', '/opt/spai/weights/spai.pth', quiet=False)"
 
 # Copy handler
 COPY runpod/handler.py /app/handler.py
