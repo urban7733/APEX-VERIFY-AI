@@ -9,4 +9,3 @@ timm>=0.9.0
 einops>=0.7.0
 opencv-python-headless>=4.8.0
 requests>=2.31.0
-

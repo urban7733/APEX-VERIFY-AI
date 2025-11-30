@@ -52,4 +52,3 @@ def download_weights():
 
 if __name__ == "__main__":
     download_weights()
-

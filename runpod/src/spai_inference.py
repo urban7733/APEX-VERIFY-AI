@@ -274,4 +274,3 @@ def detect_image(image_input: Union[str, bytes, Image.Image]) -> Dict[str, Any]:
     """
     detector = get_detector()
     return detector.predict(image_input)
-
