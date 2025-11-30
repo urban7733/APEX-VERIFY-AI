@@ -1,4 +1,5 @@
-FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+# NOTE: RunPod serverless workers expose CUDA 11.8 drivers, so we need the 11.8-compatible image.
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
 
 WORKDIR /app
 
