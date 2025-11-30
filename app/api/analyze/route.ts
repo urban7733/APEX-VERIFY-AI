@@ -192,13 +192,16 @@ export async function POST(request: NextRequest) {
       const runpodResult = await callRunPod(imageBase64)
       const spaiScore = clampProbability(runpodResult.score)
       const spaiStatusOk = runpodResult.status === "ok"
+      
+      // SPAI returns is_ai_generated directly - USE IT as the primary signal
+      const spaiIsAiGenerated = typeof runpodResult.is_ai_generated === "boolean" 
+        ? runpodResult.is_ai_generated 
+        : spaiScore >= 0.5
 
       const spaiResult = {
         status: runpodResult.status ?? "ok",
         score: spaiScore,
-        is_ai_generated: Boolean(
-          runpodResult.is_ai_generated ?? spaiScore >= 0.5,
-        ),
+        is_ai_generated: spaiIsAiGenerated,
         probabilities:
           typeof runpodResult.probabilities === "object"
             ? runpodResult.probabilities
@@ -213,10 +216,17 @@ export async function POST(request: NextRequest) {
           ? runpodResult.processing_time
           : 0
 
-      const isAiGenerated =
-        spaiResult.is_ai_generated || metadataAnalysis.hasAiMetadata
+      // Use SPAI's direct boolean result, OR metadata indicators
+      const isAiGenerated = spaiIsAiGenerated || metadataAnalysis.hasAiMetadata
 
-      let confidence = spaiStatusOk ? spaiScore : 0.5
+      // Confidence: For AI images use score, for authentic images use (1 - score)
+      let confidence = spaiStatusOk 
+        ? (spaiIsAiGenerated ? spaiScore : (1 - spaiScore))
+        : 0.5
+      
+      // Clamp confidence to reasonable range
+      confidence = Math.max(0.5, Math.min(1, confidence))
+      
       if (metadataAnalysis.hasAiMetadata && confidence < 0.95) {
         confidence = 0.95
       }
