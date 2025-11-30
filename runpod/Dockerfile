@@ -18,10 +18,13 @@ RUN git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai
 RUN pip install --upgrade pip
 
 # Install runpod and basic deps first
-RUN pip install --no-cache-dir runpod gdown
+RUN pip install --no-cache-dir runpod gdown filetype pillow numpy scipy
 
 # Install SPAI requirements
 RUN pip install --no-cache-dir -r /opt/spai/requirements.txt || true
+
+# Install any missing deps that SPAI needs
+RUN pip install --no-cache-dir filetype || true
 
 # Install SPAI as editable package
 RUN pip install --no-cache-dir -e /opt/spai || true
