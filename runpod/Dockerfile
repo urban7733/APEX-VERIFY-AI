@@ -1,39 +1,31 @@
-FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    SPAI_REPO_PATH=/opt/spai \
-    PYTHONUNBUFFERED=1
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends git libgl1 libglib2.0-0 && \
-    rm -rf /var/lib/apt/lists/*
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY runpod/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Clone SPAI repository
-RUN git clone --depth 1 https://github.com/mever-team/SPAI.git /opt/spai
+RUN git clone https://github.com/mever-team/spai.git /app/spai
 
-# Install Python dependencies step by step
-RUN pip install --upgrade pip
+# Download pretrained weights
+COPY runpod/download_weights.py .
+RUN python download_weights.py
 
-# Install runpod and basic deps first
-RUN pip install --no-cache-dir runpod gdown filetype pillow numpy scipy
+# Copy handler and inference module
+COPY runpod/handler.py .
+COPY runpod/src/ ./src/
 
-# Install SPAI requirements
-RUN pip install --no-cache-dir -r /opt/spai/requirements.txt || true
+# Set environment
+ENV PYTHONPATH="/app/spai:${PYTHONPATH}"
 
-# Install any missing deps that SPAI needs
-RUN pip install --no-cache-dir filetype || true
-
-# Install SPAI as editable package
-RUN pip install --no-cache-dir -e /opt/spai || true
-
-# Download SPAI weights
-RUN mkdir -p /opt/spai/weights && \
-    python -c "import gdown; gdown.download('https://drive.google.com/uc?id=1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI', '/opt/spai/weights/spai.pth', quiet=False)"
-
-# Copy handler
-COPY runpod/handler.py /app/handler.py
-
-CMD ["python", "-u", "/app/handler.py"]
+CMD ["python", "-u", "handler.py"]

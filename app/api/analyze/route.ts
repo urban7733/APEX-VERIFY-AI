@@ -11,6 +11,7 @@ export const runtime = "nodejs"
 const runpodEndpointUrl = process.env.RUNPOD_ENDPOINT_URL
 const runpodApiKey = process.env.RUNPOD_API_KEY
 
+// Keywords that indicate AI-generated content in metadata
 const AI_KEYWORDS = [
   "midjourney",
   "dall-e",
@@ -22,6 +23,11 @@ const AI_KEYWORDS = [
   "ai generated",
   "synthetic",
   "gan",
+  "leonardo",
+  "firefly",
+  "adobe firefly",
+  "bing image creator",
+  "copilot",
 ]
 
 type MetadataIndicator = {
@@ -74,7 +80,19 @@ async function extractMetadataSignals(
   }
 }
 
-async function callRunPod(imageBase64: string) {
+interface SPAIResponse {
+  status: string
+  is_ai?: boolean
+  is_ai_generated?: boolean
+  confidence?: number
+  score?: number
+  model?: string
+  model_version?: string
+  error?: string
+  fallback?: boolean
+}
+
+async function callRunPod(imageBase64: string): Promise<SPAIResponse> {
   if (!runpodEndpointUrl || !runpodApiKey) {
     throw new Error("RunPod configuration is missing")
   }
@@ -90,7 +108,7 @@ async function callRunPod(imageBase64: string) {
         image_base64: imageBase64,
       },
     }),
-    signal: AbortSignal.timeout(120000),
+    signal: AbortSignal.timeout(120000), // 2 minute timeout
   })
 
   if (!response.ok) {
@@ -101,14 +119,11 @@ async function callRunPod(imageBase64: string) {
   const payload = await response.json().catch(() => {
     throw new Error("Invalid RunPod response (JSON expected)")
   })
+  
+  // RunPod wraps response in "output" field
   const output = payload.output ?? payload
-  const result = output.result ?? output
-
-  if (!result || typeof result !== "object") {
-    throw new Error("RunPod output is missing result payload")
-  }
-
-  return result as Record<string, unknown>
+  
+  return output as SPAIResponse
 }
 
 async function getCachedResult(sha256: string) {
@@ -166,6 +181,7 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(await file.arrayBuffer())
     const sha256 = createHash("sha256").update(fileBuffer).digest("hex")
 
+    // Check cache first
     const cachedResult = await getCachedResult(sha256)
     if (cachedResult) {
       console.log(`[Cache] HIT for ${sha256.slice(0, 12)}... verdict=${cachedResult.is_ai_generated ? 'ai' : 'real'}`)
@@ -191,62 +207,42 @@ export async function POST(request: NextRequest) {
         console.warn("[Analyze] pHash calculation failed (non-fatal):", phashError)
       }
 
-      const runpodResult = await callRunPod(imageBase64)
+      // Call SPAI via RunPod
+      const spaiResult = await callRunPod(imageBase64)
       
       // Log raw SPAI response for debugging
-      console.log("[SPAI] Raw response:", JSON.stringify(runpodResult, null, 2))
+      console.log("[SPAI] Raw response:", JSON.stringify(spaiResult, null, 2))
       
-      // Check if RunPod returned an error (GPU OOM, etc.)
-      if (runpodResult.status === "FAILED" || runpodResult.error) {
-        console.error("[SPAI] RunPod job failed:", runpodResult.error)
-        throw new Error("SPAI inference failed - GPU error, please retry")
+      // Check for errors
+      if (spaiResult.status === "error" || spaiResult.error) {
+        console.error("[SPAI] Error from RunPod:", spaiResult.error)
+        throw new Error(spaiResult.error || "SPAI inference failed")
       }
       
-      const spaiScore = clampProbability(runpodResult.score)
-      const spaiStatusOk = runpodResult.status === "ok"
+      // Extract results from new handler format
+      // Handler returns: is_ai, is_ai_generated (alias), confidence, score
+      const isAiFromModel = spaiResult.is_ai ?? spaiResult.is_ai_generated ?? false
+      const scoreFromModel = clampProbability(spaiResult.score)
+      const confidenceFromModel = clampProbability(spaiResult.confidence)
       
-      // SPAI returns is_ai_generated directly - USE IT as the primary signal
-      // The model returns: is_ai_generated: true/false, score: 0-1
-      // For REAL images: is_ai_generated=false, score≈0
-      // For AI images: is_ai_generated=true, score≈1
-      const spaiIsAiGenerated = typeof runpodResult.is_ai_generated === "boolean" 
-        ? runpodResult.is_ai_generated 
-        : spaiScore >= 0.5
+      console.log(`[SPAI] Model result: is_ai=${isAiFromModel}, score=${scoreFromModel}, confidence=${confidenceFromModel}`)
+
+      // Combine model result with metadata analysis
+      // If metadata indicates AI OR model detects AI -> mark as AI
+      const isAiGenerated = isAiFromModel || metadataAnalysis.hasAiMetadata
+
+      // Calculate final confidence
+      let confidence = confidenceFromModel
       
-      console.log(`[SPAI] Decision: is_ai=${spaiIsAiGenerated}, score=${spaiScore}, status=${runpodResult.status}`)
-
-      const spaiResult = {
-        status: runpodResult.status ?? "ok",
-        score: spaiScore,
-        is_ai_generated: spaiIsAiGenerated,
-        probabilities:
-          typeof runpodResult.probabilities === "object"
-            ? runpodResult.probabilities
-            : {
-                ai_generated: spaiScore,
-                authentic: 1 - spaiScore,
-              },
-      }
-
-      const processingTime =
-        typeof runpodResult.processing_time === "number"
-          ? runpodResult.processing_time
-          : 0
-
-      // Use SPAI's direct boolean result, OR metadata indicators
-      const isAiGenerated = spaiIsAiGenerated || metadataAnalysis.hasAiMetadata
-
-      // Confidence: For AI images use score, for authentic images use (1 - score)
-      let confidence = spaiStatusOk 
-        ? (spaiIsAiGenerated ? spaiScore : (1 - spaiScore))
-        : 0.5
-      
-      // Clamp confidence to reasonable range
-      confidence = Math.max(0.5, Math.min(1, confidence))
-      
+      // If metadata indicates AI, boost confidence
       if (metadataAnalysis.hasAiMetadata && confidence < 0.95) {
         confidence = 0.95
       }
+      
+      // Ensure confidence is reasonable
+      confidence = Math.max(0.5, Math.min(1, confidence))
+
+      const processingTime = 0 // Could track this if needed
 
       const method = `runpod_spai${metadataAnalysis.hasAiMetadata ? "+metadata" : ""}`
 
@@ -261,7 +257,14 @@ export async function POST(request: NextRequest) {
         processing_time: processingTime,
         method,
         models_used: ["spai"],
-        ai_detection: spaiResult,
+        ai_detection: {
+          status: spaiResult.status,
+          score: scoreFromModel,
+          is_ai: isAiFromModel,
+          model: spaiResult.model ?? "spai",
+          model_version: spaiResult.model_version ?? "cvpr2025",
+          fallback: spaiResult.fallback ?? false,
+        },
         metadata_check: {
           has_ai_indicators: metadataAnalysis.hasAiMetadata,
           sources: metadataAnalysis.sources,
@@ -272,6 +275,7 @@ export async function POST(request: NextRequest) {
       
       console.log(`[Result] Final verdict: ${verdict}, confidence: ${(confidence * 100).toFixed(1)}%`)
       
+      // Save to database
       const resultToPersist = { ...responsePayload }
       delete (resultToPersist as { cache_hit?: boolean }).cache_hit
       const prismaResult = JSON.parse(JSON.stringify(resultToPersist)) as Prisma.JsonObject
