@@ -168,8 +168,10 @@ export async function POST(request: NextRequest) {
 
     const cachedResult = await getCachedResult(sha256)
     if (cachedResult) {
+      console.log(`[Cache] HIT for ${sha256.slice(0, 12)}... verdict=${cachedResult.is_ai_generated ? 'ai' : 'real'}`)
       return NextResponse.json(cachedResult)
     }
+    console.log(`[Cache] MISS for ${sha256.slice(0, 12)}... calling SPAI`)
 
     const metadataFields: Record<string, string | undefined> = {
       source_url: sourceUrl,
@@ -190,13 +192,22 @@ export async function POST(request: NextRequest) {
       }
 
       const runpodResult = await callRunPod(imageBase64)
+      
+      // Log raw SPAI response for debugging
+      console.log("[SPAI] Raw response:", JSON.stringify(runpodResult, null, 2))
+      
       const spaiScore = clampProbability(runpodResult.score)
       const spaiStatusOk = runpodResult.status === "ok"
       
       // SPAI returns is_ai_generated directly - USE IT as the primary signal
+      // The model returns: is_ai_generated: true/false, score: 0-1
+      // For REAL images: is_ai_generated=false, score≈0
+      // For AI images: is_ai_generated=true, score≈1
       const spaiIsAiGenerated = typeof runpodResult.is_ai_generated === "boolean" 
         ? runpodResult.is_ai_generated 
         : spaiScore >= 0.5
+      
+      console.log(`[SPAI] Decision: is_ai=${spaiIsAiGenerated}, score=${spaiScore}, status=${runpodResult.status}`)
 
       const spaiResult = {
         status: runpodResult.status ?? "ok",
@@ -252,6 +263,9 @@ export async function POST(request: NextRequest) {
       }
 
       const verdict = isAiGenerated ? "ai_generated" : "authentic"
+      
+      console.log(`[Result] Final verdict: ${verdict}, confidence: ${(confidence * 100).toFixed(1)}%`)
+      
       const resultToPersist = { ...responsePayload }
       delete (resultToPersist as { cache_hit?: boolean }).cache_hit
       const prismaResult = JSON.parse(JSON.stringify(resultToPersist)) as Prisma.JsonObject
