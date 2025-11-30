@@ -196,6 +196,12 @@ export async function POST(request: NextRequest) {
       // Log raw SPAI response for debugging
       console.log("[SPAI] Raw response:", JSON.stringify(runpodResult, null, 2))
       
+      // Check if RunPod returned an error (GPU OOM, etc.)
+      if (runpodResult.status === "FAILED" || runpodResult.error) {
+        console.error("[SPAI] RunPod job failed:", runpodResult.error)
+        throw new Error("SPAI inference failed - GPU error, please retry")
+      }
+      
       const spaiScore = clampProbability(runpodResult.score)
       const spaiStatusOk = runpodResult.status === "ok"
       

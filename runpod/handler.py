@@ -321,9 +321,21 @@ def handler(event: Dict[str, Any]) -> Dict[str, Any]:
     if not image_base64 or not isinstance(image_base64, str):
         raise ValueError("image_base64 is required")
 
+    # Clear GPU memory before each inference to prevent OOM
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+
     image_bytes = _decode_image_from_base64(image_base64)
     engine = get_spai_engine()
-    result = engine.predict(image_bytes)
+    
+    try:
+        result = engine.predict(image_bytes)
+    finally:
+        # Always clean up GPU memory after inference
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    
     return {
         "status": "ok",
         "result": _to_python(result),
