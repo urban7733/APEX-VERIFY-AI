@@ -157,14 +157,27 @@ class SPAIDetector:
                 try:
                     result = subprocess.run(
                         [
-                            sys.executable, "-m", "spai", "infer",
-                            "--input", input_dir,
-                            "--output", output_dir
+                            sys.executable,
+                            "-m",
+                            "spai",
+                            "infer",
+                            "--cfg",
+                            "/app/spai/configs/spai.yaml",
+                            "--model",
+                            self.checkpoint_path,
+                            "--input",
+                            input_dir,
+                            "--output",
+                            output_dir,
+                            "--batch-size",
+                            "1",
+                            "--tag",
+                            "apex-verify",
                         ],
                         capture_output=True,
                         text=True,
                         cwd="/app/spai",
-                        timeout=120  # 2 minute timeout
+                        timeout=120,  # 2 minute timeout
                     )
                     
                     if result.returncode != 0:

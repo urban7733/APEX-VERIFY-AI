@@ -17,10 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Python dependencies
 COPY runpod/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Clone SPAI repository
-RUN git clone https://github.com/mever-team/spai.git /app/spai
+RUN git clone --depth=1 https://github.com/mever-team/spai.git /app/spai
+
+# Install SPAI dependencies
+RUN pip install --no-cache-dir -r /app/spai/requirements.txt \
+    && pip install --no-cache-dir -e /app/spai
 
 # Download pretrained weights
 COPY runpod/download_weights.py .
