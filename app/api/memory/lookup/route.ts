@@ -1,8 +1,9 @@
 import { createHash } from "crypto"
 
 import { type NextRequest, NextResponse } from "next/server"
+import { eq, isNotNull } from "drizzle-orm"
 
-import { prisma } from "@/lib/prisma"
+import { db, verificationRecords } from "@/lib/db"
 import { calculatePhash, hammingDistance } from "@/lib/phash"
 
 const PHASH_SIMILARITY_THRESHOLD = 10 // Max bit differences for a match (out of 64)
@@ -95,9 +96,13 @@ export async function POST(request: NextRequest) {
 
     const sha256 = createHash("sha256").update(buffer).digest("hex")
 
-    const existingRecord = await prisma.verificationRecord.findUnique({
-      where: { sha256 },
-    })
+    const existingRecords = await db
+      .select()
+      .from(verificationRecords)
+      .where(eq(verificationRecords.sha256, sha256))
+      .limit(1)
+
+    const existingRecord = existingRecords[0]
 
     if (existingRecord) {
       const result = JSON.parse(JSON.stringify(existingRecord.result))
@@ -121,10 +126,10 @@ export async function POST(request: NextRequest) {
       }
 
       if (effectiveSourceUrl && !existingRecord.sourceUrl) {
-        await prisma.verificationRecord.update({
-          where: { sha256 },
-          data: { sourceUrl: effectiveSourceUrl },
-        })
+        await db
+          .update(verificationRecords)
+          .set({ sourceUrl: effectiveSourceUrl, updatedAt: new Date() })
+          .where(eq(verificationRecords.sha256, sha256))
       }
 
       return NextResponse.json(
@@ -141,24 +146,24 @@ export async function POST(request: NextRequest) {
     // SHA256 not found - try perceptual hash similarity search
     try {
       const uploadedPhash = await calculatePhash(buffer)
-      
+
       // Get all records with pHash (for similarity comparison)
-      const recordsWithPhash = await prisma.verificationRecord.findMany({
-        where: { phash: { not: null } },
-        select: {
-          id: true,
-          sha256: true,
-          phash: true,
-          verdict: true,
-          confidence: true,
-          method: true,
-          result: true,
-          sourceUrl: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        take: 1000, // Limit for performance
-      })
+      const recordsWithPhash = await db
+        .select({
+          id: verificationRecords.id,
+          sha256: verificationRecords.sha256,
+          phash: verificationRecords.phash,
+          verdict: verificationRecords.verdict,
+          confidence: verificationRecords.confidence,
+          method: verificationRecords.method,
+          result: verificationRecords.result,
+          sourceUrl: verificationRecords.sourceUrl,
+          createdAt: verificationRecords.createdAt,
+          updatedAt: verificationRecords.updatedAt,
+        })
+        .from(verificationRecords)
+        .where(isNotNull(verificationRecords.phash))
+        .limit(1000) // Limit for performance
 
       // Find the most similar match
       let bestMatch: typeof recordsWithPhash[0] | null = null

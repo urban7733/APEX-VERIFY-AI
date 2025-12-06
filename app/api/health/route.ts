@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
+import { sql } from "drizzle-orm"
 
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 
 export const runtime = "nodejs"
 
@@ -59,7 +60,7 @@ export async function GET() {
 
     let databaseStatus: "healthy" | "unreachable" = "healthy"
     try {
-      await prisma.$queryRaw`SELECT 1`
+      await db.execute(sql`SELECT 1`)
     } catch (dbError) {
       console.error("Database health check error:", dbError)
       databaseStatus = "unreachable"

@@ -1,9 +1,9 @@
 import { createHash } from "crypto"
 
 import { type NextRequest, NextResponse } from "next/server"
-import { Prisma } from "@prisma/client"
+import { eq } from "drizzle-orm"
 
-import { prisma } from "@/lib/prisma"
+import { db, verificationRecords } from "@/lib/db"
 import { calculatePhash } from "@/lib/phash"
 
 export const runtime = "nodejs"
@@ -126,22 +126,46 @@ async function callRunPod(imageBase64: string): Promise<SPAIResponse> {
   return output as SPAIResponse
 }
 
-async function getCachedResult(sha256: string) {
-  if (!prisma) {
-    return null
+interface CachedResult {
+  sha256: string
+  cache_hit: boolean
+  is_manipulated: boolean
+  is_ai_generated: boolean
+  confidence: number
+  manipulation_type: string | null
+  manipulation_areas: unknown[]
+  processing_time: number
+  method: string
+  models_used: string[]
+  ai_detection: {
+    status: string
+    score: number
+    is_ai: boolean
+    model: string
+    model_version: string
+    fallback: boolean
   }
+  metadata_check: {
+    has_ai_indicators: boolean
+    sources: Array<{ source: string; value: string }>
+  }
+  sourceUrl?: string
+}
 
-  const existingRecord = await prisma.verificationRecord.findUnique({
-    where: { sha256 },
-  })
+async function getCachedResult(sha256: string): Promise<CachedResult | null> {
+  const existingRecords = await db
+    .select()
+    .from(verificationRecords)
+    .where(eq(verificationRecords.sha256, sha256))
+    .limit(1)
+
+  const existingRecord = existingRecords[0]
 
   if (!existingRecord) {
     return null
   }
 
-  const cachedResult = JSON.parse(
-    JSON.stringify(existingRecord.result),
-  ) as Record<string, unknown>
+  const cachedResult = existingRecord.result as Omit<CachedResult, "sha256" | "cache_hit" | "sourceUrl">
 
   return {
     ...cachedResult,
@@ -278,33 +302,33 @@ export async function POST(request: NextRequest) {
       // Save to database
       const resultToPersist = { ...responsePayload }
       delete (resultToPersist as { cache_hit?: boolean }).cache_hit
-      const prismaResult = JSON.parse(JSON.stringify(resultToPersist)) as Prisma.JsonObject
 
-      if (prisma) {
-        try {
-          await prisma.verificationRecord.upsert({
-            where: { sha256 },
-            update: {
-              result: prismaResult,
+      try {
+        await db
+          .insert(verificationRecords)
+          .values({
+            sha256,
+            phash,
+            result: resultToPersist,
+            verdict,
+            confidence,
+            method,
+            sourceUrl: sourceUrl ?? null,
+          })
+          .onConflictDoUpdate({
+            target: verificationRecords.sha256,
+            set: {
+              result: resultToPersist,
               verdict,
               confidence,
               method,
               sourceUrl: sourceUrl ?? null,
               phash: phash ?? undefined,
-            },
-            create: {
-              sha256,
-              phash,
-              result: prismaResult,
-              verdict,
-              confidence,
-              method,
-              sourceUrl: sourceUrl ?? null,
+              updatedAt: new Date(),
             },
           })
-        } catch (dbError) {
-          console.error("[Analyze] Database error (non-fatal):", dbError)
-        }
+      } catch (dbError) {
+        console.error("[Analyze] Database error (non-fatal):", dbError)
       }
 
       return NextResponse.json(responsePayload)
